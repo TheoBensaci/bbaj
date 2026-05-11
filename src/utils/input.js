@@ -1,0 +1,63 @@
+export class InputKey{
+    constructor(keys){
+        this.keys=keys;
+        this.pressed=false;
+        this.justPress=false;
+    }
+
+    setPress(value){
+        if(value===this.pressed){
+            if(this.justPress===value){
+                this.justPress=false;
+            }
+            return;
+        }
+        this.justPress=value;
+        this.pressed=value;
+    }
+}
+
+
+export class Input{
+
+    static left = new InputKey(['a']);
+    static right = new InputKey(['d']);
+    static up = new InputKey(['w']);
+    static down = new InputKey(['s']);
+    static jump = new InputKey([' ','k']);
+    static action = new InputKey(['j','shift']);
+
+
+
+    static init(window){
+        window.addEventListener("keydown", (event) =>
+            {
+                for (const key in Input) {
+                    if (Object.hasOwnProperty.call(Input, key)) {
+                        const el = Input[key];
+                        if(el instanceof InputKey){
+                            if(el.keys.includes(event.key))el.setPress(true);
+                        }
+                    }
+                }
+            }
+        );
+
+        window.addEventListener("keyup", (event) =>
+            {
+                for (const key in Input) {
+                    if (Object.hasOwnProperty.call(Input, key)) {
+                        const el = Input[key];
+                        if(el instanceof InputKey){
+                            if(el.keys.includes(event.key))el.setPress(false);
+                        }
+                    }
+                }
+            }
+        );
+
+
+
+    }
+
+}

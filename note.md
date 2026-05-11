@@ -1,0 +1,45 @@
+### Wish list
+- player
+  - Specific movement to be define
+  - animation
+- Dynamic level
+  - Meaning we can load a level dynamicly
+- Player oriented game
+  - this mean the all game is only reacting to the player, never the other way arround. There for, the only "real" actor in the game is the player and only the player
+- Tile data system
+  - In nutshel, it's like the block NBD data system of minercaft.
+  - Why ?
+    - To made possible "active" level object without the need of a real actor system or a ECS
+
+
+### TODO
+- [X] : Collision SAT
+  - [X] : MTV
+  - [x] : basic SAT
+- [ ] Render
+  - [x] tile render basic
+  - [x] baic camera
+  - [x] basic background
+  - [ ] a Good auto tiling
+    - [ ] Pre compute of tiling
+  - [ ] custom background
+  - [ ] paralax background
+- [ ] Camera
+  - [ ] Camera smooting
+  - [ ] Camera level lock (the camera dont go outside of the level)
+- [ ] Tile system
+  - [ ] Tile collision
+  - [ ] Tile generation
+  - [ ] Tile update
+  - [ ] Tile active collision
+  - [ ] Tile post-process function
+- [ ] Player
+  - [ ] Basic movment
+  - [ ] gravity
+  - [ ] buffer system
+  - [ ] respawn
+  - [ ] friction
+  - [ ] jump correction
+  - [ ] coyotie time
+  - [ ] action movment
+    - [ ] IDK, need to figure that out lmao
