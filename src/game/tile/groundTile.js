@@ -62,7 +62,7 @@ export class GroundTile extends Tile{
         }
 
 
-        context.drawImage(image, tileX, tileY, 16, 16, x, y, tileSize, tileSize);
+        context.renderTexture(image, tileX, tileY, 16, 16, x, y, tileSize, tileSize);
         context.fillStyle="#ffffff";
     }
 

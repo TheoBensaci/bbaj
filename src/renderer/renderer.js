@@ -4,6 +4,10 @@ import { Shape, ShapeType } from "../utils/shape.js";
 import { Color, MathUtils } from "../utils/utils.js";
 import { Vector } from "../utils/vector.js";
 
+export class contextInterface{
+
+}
+
 export class Renderer{
     constructor(game,canvas){
         this.game=game;
@@ -16,7 +20,9 @@ export class Renderer{
         // render job are callback function use to add the
         this.renderJob=[];
 
+
         this.context=canvas.getContext("2d");
+        this.context.imageSmoothingEnabled = false;
 
         // add function to the context
 
@@ -26,6 +32,10 @@ export class Renderer{
 
         this.context.getTileRenderContinuseMap = (x,y,tileClass=Tile) => {
             return this.getTileRenderContinuseMap(x,y,tileClass);
+        }
+
+        this.context.renderTexture=(img, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight)=>{
+            return this.renderTexture(img, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
         }
 
 
@@ -140,7 +150,6 @@ export class Renderer{
         this.clearScreen();
 
         this.renderBackground(t);
-        console.log("-----");
 
         this.renderLevel(t);
 
@@ -162,6 +171,10 @@ export class Renderer{
 
     screenToWordPosition(pos){
         return Vector.add(pos,this.game.cameraPosition).sub(new Vector(this.gameWidth,this.gameHeight).scale(0.5)).round();
+    }
+
+    renderTexture(img, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight){
+        this.context.drawImage(img, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
     }
 
     // render tile function

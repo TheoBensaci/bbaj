@@ -28,13 +28,13 @@
   - [ ] Camera smooting
   - [ ] Camera level lock (the camera dont go outside of the level)
 - [ ] Tile system
-  - [ ] Tile collision
+  - [x] Tile collision
   - [ ] Tile generation
   - [ ] Tile update
   - [ ] Tile active collision
   - [ ] Tile post-process function
 - [ ] Player
-  - [ ] Basic movment
+  - [x] Basic movment
   - [ ] gravity
   - [ ] buffer system
   - [ ] respawn

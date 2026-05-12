@@ -11,7 +11,10 @@ export class Slope extends Tile{
 
 
     render(x,y,context){
-        context.debugRenderShape(this.getCollider()[0]);
+        const col = this.getCollider();
+        for (const c of col) {
+            context.debugRenderShape(c,"#ff0055",false);
+        }
     }
 
     getCollider(){
@@ -19,7 +22,7 @@ export class Slope extends Tile{
             Shape.createShape(
                 ShapeType.TRIANGLE_SQR,
                 this.position,
-                new Vector(tileSize,tileSize*2),
+                new Vector(tileSize,tileSize),
                 MathUtils.degToRad(90)
             )
         ]

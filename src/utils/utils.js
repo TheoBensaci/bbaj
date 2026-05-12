@@ -1,13 +1,5 @@
 
 
-export function lerp(a,b,t){
-    return (1-t)*a+b*t;
-}
-
-export function bezier(x1,y1,x2,y2,t){
-    return {x : lerp(lerp(0,x1,t),lerp(x2,1,t),t), y : lerp(lerp(0,y1,t),lerp(y2,1,t),t)};
-}
-
 
 export function debugBnt(fonctions){
     for (let index = 0; index < fonctions.length; index++) {
@@ -18,18 +10,6 @@ export function debugBnt(fonctions){
     }
 }
 
-
-export function tetrisTest(game,piece, layout){
-    const h = game.grid.height;
-
-    game.gameOver();
-    game.isGameOver=false;
-    game.set(1,new PlayerInfo(1,piece));
-
-    for (const key in layout) {
-        game.grid.map[h-1 - (layout.length-1-key)]=layout[key];
-    }
-}
 
 
 export function genSettings(node, settings, canvas){
@@ -128,7 +108,30 @@ export class Color{
 
 
 export class MathUtils{
+
     static degToRad(deg){
         return deg*(Math.PI/180);
     }
+
+    static lerp(a,b,t){
+        return (1-t)*a+b*t;
+    }
+
+    static bezier(x1,y1,x2,y2,t){
+        return {x : lerp(lerp(0,x1,t),lerp(x2,1,t),t), y : lerp(lerp(0,y1,t),lerp(y2,1,t),t)};
+    }
+
+
+    /**
+     * Approche a value by the step
+     * (from : monocle-engine)
+     * @param {*} value actual value
+     * @param {*} target target value
+     * @param {*} step step
+     * @returns
+     */
+    static approche(value,target, step){
+        return value > target ? Math.max(value - step, target) : Math.min(value + step, target);
+    }
+
 }

@@ -75,6 +75,11 @@ export class Vector{
         return new Vector(this.x/m,this.y/m);
     }
 
+
+    static normalize(vec){
+        return vec.clone().normalize();
+    }
+
     magnetude(){
         return Math.sqrt(Math.pow(this.x,2)+Math.pow(this.y,2));
     }

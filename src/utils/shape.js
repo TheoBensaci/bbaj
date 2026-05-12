@@ -60,6 +60,32 @@ export class Shape{
         return buffer;
     }
 
+    setTrigger(callback){
+        this.trigger=callback;
+        return this;
+    }
+
+    setOffset(offset){
+        for (const i of this.points) {
+            i.add(offset);
+        }
+        return this;
+    }
+
+    setScale(scale){
+        for (const i of this.points) {
+            i.mul(scale);
+        }
+        return this;
+    }
+
+    setRotation(rad){
+        for (const i of this.points) {
+            i.rotate(rad);
+        }
+        return this;
+    }
+
 
     project(offset=new Vector(0,0),scaleVector=new Vector(1,1),rad=0){
         const buffer = new Shape(this.points,offset,scaleVector,rad);

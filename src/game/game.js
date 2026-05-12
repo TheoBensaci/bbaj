@@ -64,7 +64,8 @@ export class Game{
         for (let i = 0; i < 100; i++) {
             const b = [];
             for (let j = 0; j < 50; j++) {
-                if(i>9 && i<50){
+                const y = i % 20;
+                if(y>15 && y<19 && !(j>20 && j<25)){
                     b.push(this.createTile(null).setPos(this.getTilePos(j,i)));
                 }
                 else{
