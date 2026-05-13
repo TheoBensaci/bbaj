@@ -93,7 +93,7 @@ export class Vector{
     }
 
     to_string(){
-        return "["+this.x+":"+this.y+"]";
+        return "("+this.x+", "+this.y+")";
     }
 
     lerp(b,t){

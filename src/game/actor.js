@@ -1,3 +1,9 @@
+/**
+ * @ Autheur: Theo Bensaci
+ * @ Date: 19:51 11.05.2026
+ * @ Description: This class is use to manage actor, it's a base for the player
+ */
+
 import { Vector } from "../utils/vector.js";
 
 export class Actor{
@@ -5,13 +11,14 @@ export class Actor{
         this.position=new Vector(x,y);
     }
 
+    /**
+     * set position
+     * @param {*} newPosVector
+     */
     setPos(newPosVector){
         this.position.set(newPosVector);
     }
 
-    move(addVec){
-        this.position.add(addVec);
-    }
 
     /**
      * Get this tile collider shape
@@ -21,21 +28,38 @@ export class Actor{
         return [];
     }
 
+    /**
+     * When a tile collide with this actor
+     * @param {*} tile
+     */
     onCollision(tile){
 
     }
 
 
     // life time
-    onCreate(context){
+
+    /**
+     * callback call when this actore is created in a game
+     * @param {*} game
+     */
+    onCreate(game){
         // ...
     }
 
-    update(context,t){
+    /**
+     * Update this actor
+     * @param {*} t
+     */
+    update(t){
         // ...
     }
 
-    onDestroy(context){
+    /**
+     * callback call when this actore is destroy in a game
+     * @param {*} game
+     */
+    onDestroy(game){
         // ...
     }
 }

@@ -35,10 +35,10 @@ export class Shape{
 
     /**
      *
-     * @param {*} type type of shape | 0 = cercle, 1 = square, 2 = triangle
-     * @param {*} offset
-     * @param {*} scaleVector
-     * @param {*} rotation
+     * @param {*} points points of the shape
+     * @param {*} offset offset of the shape
+     * @param {*} scaleVector scale of the shape
+     * @param {*} rotation rotation of the shape
      */
     constructor(points,offset=new Vector(0,0),scaleVector=new Vector(1,1),rad=0){
         this.points = Shape.project(points,offset,scaleVector,rad);
@@ -47,6 +47,14 @@ export class Shape{
         this.rotation=rad;
     }
 
+    /**
+     * Create a
+     * @param {*} type
+     * @param {*} offset
+     * @param {*} scaleVector
+     * @param {*} rad
+     * @returns
+     */
     static createShape(type,offset=new Vector(0,0),scaleVector=new Vector(1,1),rad=0){
         return new Shape(shapePoints[type],offset,scaleVector,rad);
     }
@@ -170,7 +178,7 @@ export class Shape{
      * @param {*} shapeA
      * @param {*} shapeB
      */
-    static collide(shapeA, shapeB){
+    static collide(shapeA, shapeB,resolve = true){
         const axisA = shapeA.getNormal();
         const axisB = shapeB.getNormal();
 
@@ -188,15 +196,18 @@ export class Shape{
 
             const overlap=Shape.#minMaxOverlap(minMaxA,minMaxB);
             if(overlap >= 0){
+                if(!resolve)return false;
                 return null;
             }
 
+            if(!resolve)continue;
             const penetrationRate = Math.min(Math.abs(minMaxA[0] - minMaxB[1]),Math.abs(minMaxA[1] - minMaxB[0]));
             if(penetrationRate<smalestScale){
                 smallestAxis=axis;
                 smalestScale=penetrationRate;
             }
         }
+        if(!resolve)return true;
 
         // check agains the diff vector between thoses 2 shapes cause we are
         // SURE thoses 2 shapes are convex (and not concave, since if there were concave, SAT would not work)

@@ -11,8 +11,9 @@ export class contextInterface{
 export class Renderer{
     constructor(game,canvas){
         this.game=game;
-        this.gameWidth=canvas.width;
-        this.gameHeight=canvas.height;
+
+        this.gameWidth=canvas[1].width;
+        this.gameHeight=canvas[1].height;
         this.background={scroll : 0, scrollSpeed:0.5};
         this.lastTime=new Date();
 
@@ -21,10 +22,20 @@ export class Renderer{
         this.renderJob=[];
 
 
-        this.context=canvas.getContext("2d");
+        this.context=canvas[1].getContext("2d");
+        this.contextBackground=canvas[0].getContext("2d", { alpha: false });
+        this.contextDebug=canvas[2].getContext("2d");
         this.context.imageSmoothingEnabled = false;
 
         // add function to the context
+
+        this.context.getBackgroundContext=()=>{
+            return this.contextBackground;
+        }
+
+        this.context.getDebugContext=()=>{
+            return this.contextDebug;
+        }
 
         this.context.wordToScreenPosition = (pos)=>{
             return this.wordToScreenPosition(pos);
@@ -51,7 +62,7 @@ export class Renderer{
         }
     }
 
-    renderBackground(t){
+    renderBackground(t,context = this.contextBackground){
         // get background color
         const color = Color.hexToRgb("#555555");
 
@@ -59,8 +70,8 @@ export class Renderer{
         this.clearScreen();
 
         // fill background
-        this.context.fillStyle=color;
-        this.context.fillRect(
+        context.fillStyle=color;
+        context.fillRect(
             0,0,
             this.gameWidth,
             this.gameHeight
@@ -74,8 +85,8 @@ export class Renderer{
         this.background.scroll+=t*this.background.scrollSpeed;
         this.background.scroll=this.background.scroll%2;
 
-        this.context.rotate((-15 * Math.PI) / 180);
-        this.context.fillStyle=Color.blenColor(
+        context.rotate((-15 * Math.PI) / 180);
+        context.fillStyle=Color.blenColor(
             color,
             new Color(0,0,0),
             0.3
@@ -83,14 +94,14 @@ export class Renderer{
 
         for (let i = -10; i < gridHeight+10; i++) {
             for (let j = -10; j < gridWidth+10; j++) {
-                    this.context.fillRect(
+                    context.fillRect(
                         ((i%2)+j * 2 )*squareSize,(this.background.scroll+i) * squareSize,
                         squareSize,
                         squareSize
                     );
             }
         }
-        this.context.resetTransform();
+        context.resetTransform();
 
         const gradient = this.context.createLinearGradient(this.gameWidth, 0, this.gameWidth, this.gameHeight);
 
@@ -99,8 +110,8 @@ export class Renderer{
         color.a=0;
         gradient.addColorStop(1, color.toString());
         // Set the fill style and draw a rectangle
-        this.context.fillStyle = gradient;
-        this.context.fillRect(0, 0, this.gameWidth, this.gameHeight);
+        context.fillStyle = gradient;
+        context.fillRect(0, 0, this.gameWidth, this.gameHeight);
     }
 
     renderLevel(t){
@@ -138,8 +149,8 @@ export class Renderer{
         );
     }
 
-    clearScreen(){
-        this.context.clearRect(0,0,this.gameWidth,this.gameHeight);
+    clearScreen(context = this.context){
+        context.clearRect(0,0,this.gameWidth,this.gameHeight);
     }
 
     render(){
@@ -148,6 +159,8 @@ export class Renderer{
         t/=1000;
 
         this.clearScreen();
+        this.clearScreen(this.contextBackground);
+        this.clearScreen(this.contextDebug);
 
         this.renderBackground(t);
 

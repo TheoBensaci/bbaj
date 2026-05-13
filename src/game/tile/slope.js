@@ -5,8 +5,9 @@ import { Vector } from "../../utils/vector.js";
 import { Tile } from "./tile.js";
 
 export class Slope extends Tile{
-    constructor(){
+    constructor(mult=1){
         super();
+        this.mult=mult;
     }
 
 
@@ -22,7 +23,7 @@ export class Slope extends Tile{
             Shape.createShape(
                 ShapeType.TRIANGLE_SQR,
                 this.position,
-                new Vector(tileSize,tileSize),
+                new Vector(tileSize,tileSize*this.mult),
                 MathUtils.degToRad(90)
             )
         ]

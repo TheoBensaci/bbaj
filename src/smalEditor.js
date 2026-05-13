@@ -25,7 +25,9 @@ export function initSmallEditor(canvas,game,renderer){
     })
 
     canvas.addEventListener("click",(e)=>{
+        console.log("test");
         const rect = e.target.getBoundingClientRect();
+        console.log(rect);
         const pos = renderer
             .screenToWordPosition(new Vector(e.clientX - rect.left,e.clientY - rect.top))
             .scale(1/tileSize)

@@ -6,30 +6,36 @@ import { Slope } from "./game/tile/slope.js";
 import { Tile } from "./game/tile/tile.js";
 import { Renderer } from "./renderer/renderer.js";
 import { initSmallEditor } from "./smalEditor.js";
+import { init_canvas } from "./utils/canvasUtils.js";
 import { Input } from "./utils/input.js";
 import { RessourceLoader } from "./utils/ressouceLoader.js";
 import { Shape } from "./utils/shape.js";
 import { MathUtils } from "./utils/utils.js";
 import { Vector } from "./utils/vector.js";
 
-const canvas = document.getElementById("canvas");
-const baseCanavasSize=[canvas.width, canvas.height];
 
 
+const canvasContainer = document.getElementById("gameCanavas");
 
 function setCanvasScale(){
-    return;
-    const scaleX = (window.innerWidth - 100)/baseCanavasSize[0];
-    const scaleY = (window.innerHeight - 100) /baseCanavasSize[1];
+    const scaleX = window.innerWidth / canvas.width;
+    const scaleY = window.innerHeight / canvas.height;
 
-    const canvasContainer = document.getElementById("gameCanavas");
-    canvasContainer.style.setProperty("--size",Math.min(scaleX,scaleY));
+    const scaleToFit = Math.min(scaleX, scaleY);
+    const scaleToCover = Math.max(scaleX, scaleY);
+
+    canvasContainer.style.transformOrigin = "50 50"; // Scale from top left
+    canvasContainer.style.transform = `scale(${scaleToFit})`;
 }
 
 function init(){
 
     const game=new Game();
-    const renderer=new Renderer(game,canvas);
+    const renderer=new Renderer(
+        game,
+        init_canvas(canvasContainer,600,400),
+        600,400
+    );
 
 
     let pl = game.createPlayer();
@@ -63,7 +69,7 @@ function init(){
 
 
     // add debug click
-    initSmallEditor(canvas,game,renderer);
+    initSmallEditor(canvasContainer,game,renderer);
 
 }
 

@@ -1,5 +1,5 @@
 html,body{
-    background-color: #16162a;
+    background-color: #848484;
     min-width: 100%;
     min-height: 100%;
     display: flex;
@@ -13,12 +13,20 @@ html,body{
 
     --size: 1;
 
-    background-color: rgb(70, 70, 70);
+    position: relative;
+
     transform: scale(var(--size));
-    padding: 10px;
+}
+
+#gameCanavas>#canvas{
+    filter: drop-shadow(5px 5px 0px rgba(0, 0, 0, 0.493));
+    image-rendering: pixelated;
 }
 
 #gameCanavas>canvas{
+    position: absolute;
+    top: 0;
+    left: 0;
     margin: 0;
     image-rendering:optimizeSpeed;
 }

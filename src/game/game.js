@@ -28,6 +28,8 @@ export class Game{
         return this.level[y][x];
     }
 
+
+
     setTile(x,y,value){
         if(y<0 ||x<0)return;
         let newRow = y>=this.level.length;
@@ -63,7 +65,7 @@ export class Game{
     generateLevel(levelContructData){
         for (let i = 0; i < 100; i++) {
             const b = [];
-            for (let j = 0; j < 50; j++) {
+            for (let j = 0; j < 200; j++) {
                 const y = i % 20;
                 if(y>15 && y<19 && !(j>20 && j<25)){
                     b.push(this.createTile(null).setPos(this.getTilePos(j,i)));
@@ -149,7 +151,7 @@ export class Game{
         if(this.player){
 
             // update player
-            this.player.update(this,this.t);
+            this.player.update(this.t);
             this.setCamera(this.player.position);
         }
 
