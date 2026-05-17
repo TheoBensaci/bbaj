@@ -5,50 +5,82 @@ export class Vector{
     }
 
     set(vector){
-        this.x=vector.x;
-        this.y=vector.y;
+        if(arguments.length===2){
+            this.x=arguments[0];
+            this.y=arguments[1];
+        }
+        else if(arguments.length===1){
+            this.x=vector.x;
+            this.y=vector.y;
+        }
+        return this;
     }
 
+
     add(val){
-        this.x+=val.x;
-        this.y+=val.y;
+        if(arguments.length===2){
+            this.x+=arguments[0];
+            this.y+=arguments[1];
+        }
+        else if(arguments.length===1){
+            this.x+=val.x;
+            this.y+=val.y;
+        }
         return this;
     }
 
     static add(vecA,vecB){
-        return new Vector(vecA.x+vecB.x,vecA.y+vecB.y);
+        return vecA.clone().add(vecB);
     }
 
     sub(val){
-        this.x-=val.x;
-        this.y-=val.y;
+        if(arguments.length===2){
+            this.x-=arguments[0];
+            this.y-=arguments[1];
+        }
+        else if(arguments.length===1){
+            this.x-=val.x;
+            this.y-=val.y;
+        }
         return this;
     }
 
     static sub(vecA,vecB){
-        return new Vector(vecA.x-vecB.x,vecA.y-vecB.y);
+        return vecA.clone().sub(vecB);
     }
 
 
     mul(val){
-        this.x*=val.x;
-        this.y*=val.y;
+        if(arguments.length===2){
+            this.x*=arguments[0];
+            this.y*=arguments[1];
+        }
+        else if(arguments.length===1){
+            this.x*=val.x;
+            this.y*=val.y;
+        }
         return this;
     }
 
     static mul(vecA,vecB){
-        return new Vector(vecA.x*vecB.x,vecA.y*vecB.y);
+        return vecA.clone().mul(vecB);
     }
 
 
     div(val){
-        this.x/=val.x;
-        this.y/=val.y;
+        if(arguments.length===2){
+            this.x/=arguments[0];
+            this.y/=arguments[1];
+        }
+        else if(arguments.length===1){
+            this.x/=val.x;
+            this.y/=val.y;
+        }
         return this;
     }
 
     static div(vecA,vecB){
-        return new Vector(vecA.x/vecB.x,vecA.y/vecB.y);
+        return vecA.clone().div(vecB);
     }
 
     scale(val){
@@ -58,7 +90,7 @@ export class Vector{
     }
 
     static scale(vecA,val){
-        return new Vector(vecA.x*val,vecA.y*val);
+        return vecA.clone().scale(val);
     }
 
     distance(val){
@@ -71,8 +103,10 @@ export class Vector{
 
     normalize(){
         let m = this.magnetude();
-        if(m==0)return new Vector(0,0);
-        return new Vector(this.x/m,this.y/m);
+        if(m===0)return this;
+        this.x/=m;
+        this.y/=m;
+        return this;
     }
 
 
@@ -93,7 +127,7 @@ export class Vector{
     }
 
     to_string(){
-        return "("+this.x+", "+this.y+")";
+        return "("+Math.round(this.x*100)/100+", "+Math.round(this.y*100)/100+")";
     }
 
     lerp(b,t){
@@ -121,14 +155,16 @@ export class Vector{
     }
 
     rotate(rad){
-        this.set(Vector.rotate(this,rad));
-        return this;
-    }
-
-    static rotate(val,rad){
         const c = Math.cos(rad);
         const s = Math.sin(rad);
-        return new Vector(val.x*c - val.y*s,val.x*s + val.y*c);
+        const x = this.x*c - this.y*s
+        const y =this.x*s + this.y*c
+        return this.set(x,y);
+    }
+
+    static rotate(vec,rad){
+
+        return vec.clone().rotate(rad);
     }
 
     static dot(a,b){
@@ -143,9 +179,6 @@ export class Vector{
         return new Vector(this.x,this.y);
     }
 
-    static abs(vec){
-        return new Vector(Math.abs(vec.x),Math.abs(vec.y));
-    }
 
     abs(){
         this.x = Math.abs(this.x);
@@ -153,9 +186,10 @@ export class Vector{
         return this;
     }
 
-    zero(){
-        return this.x === 0 && this.y === 0;
+    static abs(vec){
+        return vec.clone().abs();
     }
+
 }
 
 

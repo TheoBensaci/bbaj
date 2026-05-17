@@ -1,7 +1,16 @@
+:root{
+    --backgroundColor : #19191a;
+}
+
+
 html,body{
-    background-color: #848484;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+
+    background-color: #19191a;
     min-width: 100%;
     min-height: 100%;
+    margin: 0;
+    padding: 0;
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -10,17 +19,34 @@ html,body{
 
 
 #gameCanavas{
-
+    overflow-x: hidden;
     --size: 1;
 
     position: relative;
-
-    transform: scale(var(--size));
+    transform: translate(0%, 0%);
+    border-style: solid;
+    border-color: aliceblue;
 }
 
 #gameCanavas>#canvas{
-    filter: drop-shadow(5px 5px 0px rgba(0, 0, 0, 0.493));
+    filter: drop-shadow(-4px 4px 0px rgba(0, 0, 0, 0.493));
     image-rendering: pixelated;
+    z-index: 1;
+
+}
+
+#gameCanavas>#canvasBackground{
+    z-index: 0;
+}
+
+#gameCanavas>#canvasDebug{
+    z-index: 2;
+}
+
+#gameCanavas>div{
+    position: absolute;
+    top: 0;
+    left: 0;
 }
 
 #gameCanavas>canvas{
@@ -28,5 +54,27 @@ html,body{
     top: 0;
     left: 0;
     margin: 0;
+    padding: 0;
     image-rendering:optimizeSpeed;
+}
+
+#ui{
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    z-index: 3;
+}
+
+#debugLabel{
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    display: flex;
+    flex-direction: column;
+    background-color: #19191a;
+    opacity:1;
+    color: aliceblue;
+    font-weight: bold;
+    opacity: 0.75;
 }

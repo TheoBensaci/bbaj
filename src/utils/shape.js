@@ -45,6 +45,8 @@ export class Shape{
         this.offset=offset;
         this.scale=scaleVector;
         this.rotation=rad;
+
+        this.origine = new Vector(0,0);
     }
 
     /**
@@ -91,6 +93,29 @@ export class Shape{
         for (const i of this.points) {
             i.rotate(rad);
         }
+        return this;
+    }
+
+
+    /**
+     * Move the origine of this shape to new pose
+     * @param {Vector} vec
+     * @returns
+     */
+    setOrigine(vec){
+        let x,y;
+        if(arguments.length===1){
+            x=vec.x;
+            y=vec.y;
+        }
+        else if(arguments.length===2){
+            x=arguments[0];
+            y=arguments[1];
+        }
+        for (const i of this.points) {
+            i.sub(this.origine).add(x,y);
+        }
+        this.origine.set(x,y);
         return this;
     }
 

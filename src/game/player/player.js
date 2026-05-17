@@ -35,6 +35,19 @@ const JUMP_MIN_LENGHT=0.02;
 const AIR_MUL = 0.7;
 const JUMP_END_MULT=0.3;
 
+// roll dash
+const ROLLDASH_COULDOWN=0.25;
+const ROLLDASH_TIME=0.15;
+const ROLLDASH_TIME_HEAVY=0.2;
+const ROLLDASH_SPEED=3;
+const ROLLDASH_SPEED_HEAVY=4.5;
+const ROLLDASH_CHARGE_TIME=0.5;
+const ROLLDASH_CANCEL_BOOST=1.5;
+const ROLLDASH_ATTACK_TIME = 0.1;
+const ROLLDASH_END_VERTICAL_MUTL = 0.4;
+
+const ROLLDASHCHARGING_MULT = 0.05;
+
 
 
 
@@ -88,19 +101,32 @@ export class Player extends Actor{
             BUFFER_LENGHT
         ));
 
-        this.bufferSystem.register("initAction",new Buffer(
+        this.bufferSystem.register("initRollDashCharge",new Buffer(
             ()=>{
-                return !this.onGround && this.canAction
+                return this.canRollDash() && !this.isRollDashCharging;
+            },
+            BUFFER_LENGHT
+        ));
+
+        this.bufferSystem.register("initRollDash",new Buffer(
+            ()=>{
+                return this.canRollDash() && this.isRollDashCharging;
             },
             BUFFER_LENGHT
         ));
 
         // state
-
         this.facing=1;  // where the player is facing
 
         // collision
-        this.collBox=new Vector(tileSize,tileSize);
+        this.collider=Shape.createShape(ShapeType.SQUARE).setScale(new Vector(tileSize,tileSize));
+
+        this.groundTriggerBox = Shape.createShape(
+            ShapeType.SQUARE,
+            new Vector(0,tileSize/2 + 1),
+            new Vector(tileSize-1,2)
+        );
+
 
         // physic
         this.onGround=false;
@@ -109,12 +135,19 @@ export class Player extends Actor{
         this.friction = 1;
         this.walkSpeed= 1.2;
         this.walkAcc = 20;  // walk acceleration
-        this.walkDec = 20;   // walk decelaration
+        this.walkDec = 10;   // walk decelaration
 
         // movement
         this.onMove=false;
 
-        this.canAction=true;
+        // roll dash
+        this.isRollDashing = false;
+        this.isRollDashCharging = false;
+        this.rollDashNumber = 0;
+        this.rollDashTimer = 0;
+        this.rollDashCouldown = 0;
+        this.rollDashChargeTime = 0;
+        this.rollDashDir = new Vector(0,0);
 
         // jump
         this.onJump=false;
@@ -148,7 +181,11 @@ export class Player extends Actor{
         }
 
         if(Input.action.pressed && this.input.releaseAction){
-            this.bufferSystem.init("initAction");
+            this.bufferSystem.init("initRollDashCharge");
+        }
+
+        if(!Input.action.pressed && (this.bufferSystem.has("initRollDashCharge") || this.isRollDashCharging)){
+            this.bufferSystem.init("initRollDash");
         }
 
         if(Input.jump.pressed && this.input.releaseJump)this.input.releaseJump=false;
@@ -165,7 +202,7 @@ export class Player extends Actor{
 
 
     getCollider(position = this.position){
-        return Shape.createShape(ShapeType.SQUARE,position,this.collBox);
+        return this.collider.setOrigine(position);
     }
 
     /**
@@ -176,7 +213,6 @@ export class Player extends Actor{
     computeCollision(position){
         let colVec=new Vector(0,0);
         const tiles = this.game.getSuroundTiles(position.x,position.y,2);
-
 
         tiles.sort((a,b)=>{
             if(a===null && b!==null){
@@ -190,7 +226,6 @@ export class Player extends Actor{
             }
             return Vector.sub(a.position,position).sqrt_magnetude() - Vector.sub(b.position,position).sqrt_magnetude()
         });
-
 
         for (const tile of tiles) {
             if(tile===null)continue;
@@ -226,7 +261,7 @@ export class Player extends Actor{
         let collideResult={position : this.position, colVec : new Vector(0,0)};
         const velMagnetude = vel.magnetude();
         const nStep = Math.round(velMagnetude/COLLISION_STEP);
-        const stepVel = vel.normalize().scale(velMagnetude/nStep);
+        const stepVel = Vector.normalize(vel).scale(velMagnetude/nStep);
 
         for (let index = 0; index < nStep; index++) {
             // move player
@@ -249,7 +284,7 @@ export class Player extends Actor{
      */
     projectTrigger(shape){
         const result=[];
-        const tiles = this.game.getSuroundTiles(shape.offset.x,shape.offset.y,2);
+        const tiles = this.game.getSuroundTiles(this.position.x,this.position.y,2);
 
 
         for (const tile of tiles) {
@@ -287,7 +322,7 @@ export class Player extends Actor{
      * @returns
      */
     canJump(){
-        return this.onGround || this.coyotie_timer>0;
+        return !this.isRollDashCharging && (this.onGround || this.coyotie_timer>0);
     }
 
     /**
@@ -322,11 +357,151 @@ export class Player extends Actor{
 
     //#endregion
 
+    //#region ============== ROLL DASH ==============
+
+    canRollDash(){
+        return !this.isRollDashing && this.rollDashNumber > 0 && this.rollDashCouldown<=0;
+    }
+
+    isOnRollDashState(){
+        return this.isRollDashing || this.isRollDashCharging;
+    }
+
+    initRollDash(){
+        if(this.isRollDashing || this.rollDashNumber<0)return;
+        this.isRollDashCharging=false;
+        this.rollDashNumber--;
+
+        const heavy = (this.rollDashChargeTime>ROLLDASH_CHARGE_TIME);
+
+        const speed = (heavy)?ROLLDASH_SPEED_HEAVY:ROLLDASH_SPEED;
+
+        this.rollDashDir.set(0,0);
+        if(Input.right.pressed){
+            this.rollDashDir.x+=1;
+        }
+        if(Input.left.pressed){
+            this.rollDashDir.x-=1;
+        }
+        if(Input.up.pressed){
+            this.rollDashDir.y-=1;
+        }
+        if(Input.down.pressed){
+            this.rollDashDir.y+=1;
+        }
+        if(this.rollDashDir.x===0 && this.rollDashDir.y===0){
+            this.rollDashDir.set(this.facing,0);
+        }
+        this.rollDashDir.normalize().scale(speed);
+
+
+        const x = this.rollDashDir.x;//(Math.abs(this.velocity.x) > this.rollDashDir.x && Math.sign(this.velocity.x) === Math.sign(this.rollDashDir.x))?this.velocity.x:this.rollDashDir.x;
+        const y = this.rollDashDir.y;//(Math.abs(this.velocity.y) > this.rollDashDir.y && Math.sign(this.velocity.y) === Math.sign(this.rollDashDir.y))?this.velocity.y:this.rollDashDir.y;
+
+        this.rollDashChargeTime=0;
+
+        this.rollDashTimer=(heavy)?ROLLDASH_TIME_HEAVY:ROLLDASH_TIME;
+
+        this.isRollDashing=true;
+
+        this.velocity.set(x,y);
+    }
+
+    endRollDash(){
+        this.rollDashCouldown=ROLLDASH_COULDOWN;
+        this.isRollDashing=false;
+        if(this.velocity.y<0)this.velocity.set(this.velocity.x,this.velocity.y*ROLLDASH_END_VERTICAL_MUTL);
+    }
+
+    intiRollDashCharge(){
+        if(this.isRollDashCharging|| this.rollDashCouldown>0)return;
+        this.isRollDashCharging=true;
+    }
+
+
+    rollDashUpdate(t){
+
+        if(this.rollDashNumber===0 && this.onGround){
+            this.rollDashNumber=1;
+        }
+
+        if(this.bufferSystem.consume("initRollDashCharge") && !this.isRollDashCharging && this.canRollDash()){
+            this.intiRollDashCharge();
+        }
+
+        if(this.bufferSystem.consume("initRollDash") && this.isRollDashCharging && this.canRollDash()){
+            this.initRollDash();
+        }
+
+
+        // charging
+        if(this.isRollDashCharging){
+            this.rollDashChargeTime+=t;
+            return false;
+        }
+
+
+        // on rolldash
+        if(this.isRollDashing){
+            this.rollDashTimer-=t;
+
+
+
+
+            if(this.rollDashTimer<=0){
+                this.endRollDash();
+            }
+
+            const collide = this.moveAndCollide(this.velocity);
+
+            const colVec = collide.colVec.normalize();
+
+
+            const dot = Vector.normalize(this.velocity).dot(collide.colVec.normalize());
+            if(0.9<=dot){
+                this.endRollDash();
+                return true;
+            }
+            else if(dot!==0){
+                this.rollDashTimer=ROLLDASH_TIME;
+                colVec.rotate(Math.PI/2);
+                if(colVec.dot(this.velocity)<0){
+                    colVec.rotate(Math.PI);
+                }
+                colVec.scale(this.velocity.magnetude());
+                this.velocity.set(colVec);
+            }
+
+            if(this.bufferSystem.consume("initJump")){
+                this.velocity.set(this.velocity.x+(Math.sign(this.velocity.x)*ROLLDASH_CANCEL_BOOST),this.initJump());
+                this.endRollDash();
+                return false;
+            }
+
+            return true;
+        }
+
+        if(this.rollDashCouldown>0){
+            this.rollDashCouldown-=t;
+        }
+
+        return false;
+
+    }
+
+    rollDashStateUpdate(){
+
+        console.log(this.isRollDashCharging);
+    }
+
+
+
+    //#endregion
+
 
     //#region ============== Update ==============
 
     //#region =========== Move X
-
 
     /**
      * Update movement
@@ -336,11 +511,13 @@ export class Player extends Actor{
      */
     movementUpdate(vel_x,t){
         let dir = 0;
-        if(Input.right.pressed){
-            dir+=1;
-        }
-        if(Input.left.pressed){
-            dir-=1;
+        if(!this.isRollDashCharging){
+            if(Input.right.pressed){
+                dir+=1;
+            }
+            if(Input.left.pressed){
+                dir-=1;
+            }
         }
         this.facing=(dir!=0)?dir:this.facing;
 
@@ -348,9 +525,13 @@ export class Player extends Actor{
 
         let mult = this.onGround?1:AIR_MUL;
 
+        if(this.isRollDashCharging){
+            mult*=(this.onGround)?ROLLDASHCHARGING_MULT:0;
+        }
+
         mult *= this.friction;
 
-        if(Math.abs(vel_x) > this.walkSpeed && Math.sign(vel_x) === dir && this.onGround){
+        if(Math.abs(vel_x) > this.walkSpeed && Math.sign(vel_x) === dir){
             mult *= this.walkDec;
         }
         else{
@@ -360,16 +541,6 @@ export class Player extends Actor{
         return MathUtils.approche(vel_x,dir * this.walkSpeed,  mult * t);
     }
 
-
-    actionUpdate(vel_x){
-        this.canAction=(this.canAction)?true:this.onGround;
-        if(this.bufferSystem.consume("initAction") && this.canAction){
-            this.velocity.y=0;
-            this.canAction=false;
-            return vel_x+this.facing*5;
-        }
-        return vel_x;
-    }
 
 
     //#endregion
@@ -420,7 +591,7 @@ export class Player extends Actor{
         }
 
         // if action, no gravity
-        if(false) {
+        if(this.isRollDashing && this.rollDashTimer>ROLLDASH_ATTACK_TIME) {
             // ...
         }
 
@@ -438,11 +609,7 @@ export class Player extends Actor{
     environmentDetection(){
         // check ground
         const groundTile = this.projectTrigger(
-            Shape.createShape(
-                ShapeType.SQUARE,
-                this.position.clone().add(new Vector(0,tileSize/2 + 1)),
-                new Vector(tileSize-1,2)
-            )
+            this.groundTriggerBox.setOrigine(this.position)
         );
         this.onGround=groundTile.length>0 && this.velocity.y>=0;
     }
@@ -472,8 +639,6 @@ export class Player extends Actor{
     moveX(vel,t){
         let vel_x=vel;
         vel_x=this.movementUpdate(vel_x,t);
-
-        vel_x=this.actionUpdate(vel_x);
 
         // mindot is higher here to prevent stop agains slop
         if(!this.moveWithVelCollision(new Vector(vel_x,0),0.998)){
@@ -527,9 +692,13 @@ export class Player extends Actor{
         // ground detetction
         this.environmentDetection();
 
+        this.rollDashStateUpdate();
 
-        this.velocity.x=this.moveX(this.velocity.x,t);
-        this.velocity.y=this.moveY(this.velocity.y,t);
+
+        if(!this.rollDashUpdate(t)){
+            this.velocity.x=this.moveX(this.velocity.x,t);
+            this.velocity.y=this.moveY(this.velocity.y,t);
+        }
 
         // resolve trigger
         for (const key in this.tileTriggerd) {
@@ -543,8 +712,12 @@ export class Player extends Actor{
         // input update
         this.inputUpdate();
 
+
+
         // buffer update
         this.bufferSystem.step(t);
+
+        if(this.position.y>200*tileSize)this.position.set(0,0);
     }
 
     onDestroy(context){
@@ -557,59 +730,74 @@ export class Player extends Actor{
         const r = RessourceLoader.getRessourceLoader();
         const image=r.get("./ressource/testPlayer.png");
 
-        const scale = new Vector(1,1);
+        // TODO : HMMMMM
+        if(this.isOnRollDashState()){
+            let color = "#ff0099";
+            if(this.isRollDashCharging){
 
-        const offset=new Vector(0,0);
-
-        if(this.onMove && this.onGround){
-            this.walkAnimation.dis = MathUtils.approche(this.walkAnimation.dis,(Math.min(1,this.velocity.x/1)*0.2),t*2);
-            this.walkAnimation.c += t*15;
-
-            const v = (Math.abs(Math.cos(this.walkAnimation.c))-0.5)*0.2;
-            scale.y = 1 - v;
-            offset.y=+v * 10;
+                color=(this.rollDashChargeTime>ROLLDASH_CHARGE_TIME)?"#ffff55":"#00ff99";
+            }
+            context.debugContextRenderShape(this.getCollider(),color,false);
         }
-        else if(this.onGround){
-            this.walkAnimation.dis = MathUtils.approche(this.walkAnimation.dis,0,t*2);
-            this.walkAnimation.c+= t*1.5;
-            const v = (Math.abs(Math.cos(this.walkAnimation.c))-0.5)*0.15;
-            scale.y = 1 - v;
-            offset.y=+v * 10;
+        else {
+            const scale = new Vector(1,1);
+
+            const offset=new Vector(0,0);
+
+            if(this.onMove && this.onGround){
+                this.walkAnimation.dis = MathUtils.approche(this.walkAnimation.dis,(Math.min(1,this.velocity.x/1)*0.2),t*2);
+                this.walkAnimation.c += t*15;
+
+                const v = (Math.abs(Math.cos(this.walkAnimation.c))-0.5)*0.2;
+                scale.y = 1 - v;
+                offset.y=+v * 10;
+            }
+            else if(this.onGround){
+                this.walkAnimation.dis = MathUtils.approche(this.walkAnimation.dis,0,t*2);
+                this.walkAnimation.c+= t*1.5;
+                const v = (Math.abs(Math.cos(this.walkAnimation.c))-0.5)*0.15;
+                scale.y = 1 - v;
+                offset.y=+v * 10;
+            }
+            else{
+                this.walkAnimation.dis=0;
+                this.walkAnimation.c=0;
+            }
+
+            if(!this.onGround && this.onJump){
+                this.airAnimation.skich=MathUtils.approche(this.airAnimation.skich,0,t*2);
+                scale.x = 1-this.airAnimation.skich;
+                scale.y = 1+this.airAnimation.skich;
+            }
+            else if(!this.onGround){
+                this.airAnimation.skich=MathUtils.approche(this.airAnimation.skich,0.5 * Math.min(1, Math.abs(this.velocity.y / 10)),t*2);
+                scale.x = 1-this.airAnimation.skich;
+                scale.y = 1+this.airAnimation.skich;
+            }
+            else{
+                this.airAnimation.skich=(this.onJump)?0.5:0;
+            }
+
+            scale.x*=this.facing;
+
+
+            //this.onMove
+
+            context.transform(scale.x, 0, -this.walkAnimation.dis, scale.y, x-(tileSize/2)*scale.x + offset.x, y-(tileSize/2)*scale.y + offset.y);
+
+            context.renderTexture(image, 0, 0, 16, 16, 0,0, tileSize, tileSize);
+
+
+            context.resetTransform();
+
         }
-        else{
-            this.walkAnimation.dis=0;
-            this.walkAnimation.c=0;
-        }
-
-        if(!this.onGround && this.onJump){
-            this.airAnimation.skich=MathUtils.approche(this.airAnimation.skich,0,t*2);
-            scale.x = 1-this.airAnimation.skich;
-            scale.y = 1+this.airAnimation.skich;
-        }
-        else if(!this.onGround){
-            this.airAnimation.skich=MathUtils.approche(this.airAnimation.skich,0.5 * Math.min(1, Math.abs(this.velocity.y / 10)),t*2);
-            scale.x = 1-this.airAnimation.skich;
-            scale.y = 1+this.airAnimation.skich;
-        }
-        else{
-            this.airAnimation.skich=(this.onJump)?0.5:0;
-        }
-
-        scale.x*=this.facing;
-
-
-        //this.onMove
-
-        context.transform(scale.x, 0, -this.walkAnimation.dis, scale.y, x-(tileSize/2)*scale.x + offset.x, y-(tileSize/2)*scale.y + offset.y);
-
-        context.renderTexture(image, 0, 0, 16, 16, 0,0, tileSize, tileSize);
-
-
-        context.resetTransform();
 
         // debug
         const debugContext = context.getDebugContext();
-        if(debug.debugCollision)debugContext.debugRenderShape(this.getCollider(),(this.onGround)?"#00ff9955":"#ff005555",false);
+        if(debug.debugCollision){
+            context.debugContextRenderShape(this.getCollider(),(this.onGround)?"#00ff9955":"#ff005555",false);
+            context.debugContextRenderShape(this.groundTriggerBox.setOrigine(this.position.x,this.position.y),"#ffff9955",false);
+        }
 
         if(debug.debugInfo){
             debugContext.fillStyle="#000000ff";
@@ -620,13 +808,11 @@ export class Player extends Actor{
                 "jump : "+this.onJump,
                 "position : "+this.position.to_string(),
                 "velocity x : "+this.velocity.x,
-                "coyotie time : "+this.coyotie_timer,
+                "coyotie time : "+Math.round(this.coyotie_timer*1000)/1000,
                 "jump buffer : "+this.bufferSystem.has("initJump")
             ]
 
-            for (let index = 0; index < debugText.length; index++) {
-                debugContext.fillText(debugText[index], x, y-30-30*index);
-            }
+            context.printDebugLabel(debugText);
         }
     }
 }

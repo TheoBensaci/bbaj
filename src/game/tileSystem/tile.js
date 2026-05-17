@@ -1,0 +1,80 @@
+import { tileSize } from "../../constant.js";
+import { Collider } from "../../utils/collider.js";
+import { Shape } from "../../utils/shape.js";
+import { Vector } from "../../utils/vector.js";
+
+export class Tile{
+    constructor(collliderShapes=[]){
+        this.position=null;
+        this.collider=collliderShapes;
+    }
+
+    /**
+     * Set this tile position
+     * @param {number} x
+     * @param {number} y
+     * @returns this
+     */
+    setPos(pos){
+        this.position=pos;
+        return this;
+    }
+
+    /**
+     * Get this tile collider shape
+     * @returns {Collider} list of shape
+     */
+    getCollider(){
+        if(this.position===null){return this.collider;}
+        for (const iterator of this.collider) {
+            iterator.setOrigine(this.position)
+        }
+        return this.collider;
+    }
+
+
+    /**
+     * callback use right after the level as fully generated, usefule for auto tiling for example
+     * @param {*} game
+     */
+    postCreate(game){
+
+    }
+
+
+
+    /**
+     * Callback use when this tile is update
+     * @param {*} game
+     * @param {*} t
+     */
+    onUpdate(game, t){
+
+    }
+
+    /**
+     * Render this tile
+     * @param {number} x position x on the screen of this tile
+     * @param {number} y position x on the screen of this tile
+     * @param {context2D extended} context js context 2d with additional utils function
+     */
+    render(x,y,context){
+        context.fillStyle="#ff0055";
+        context.fillRect(
+            x,y,
+            tileSize,
+            tileSize
+        );
+        context.fillStyle="#000000ff";
+    }
+
+
+    /**
+     * Create a tile with the given parameter list
+     * @param {array} paramsList
+     * @returns Tile object
+     */
+    static createTile(paramsList){
+        return null;
+    }
+}

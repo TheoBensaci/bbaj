@@ -1,19 +1,23 @@
-import { tileSize, worldLimit } from "../constant.js";
-import { Tile } from "../game/tile/tile.js";
+import { renderResolution, tileSize, worldLimit } from "../constant.js";
+import { Tile } from "../game/tileSystem/tile.js";
 import { Shape, ShapeType } from "../utils/shape.js";
 import { Color, MathUtils } from "../utils/utils.js";
 import { Vector } from "../utils/vector.js";
 
-export class contextInterface{
 
-}
+
+const DROP_SHADOW_MARGE = 50;
 
 export class Renderer{
     constructor(game,canvas){
         this.game=game;
 
-        this.gameWidth=canvas[1].width;
-        this.gameHeight=canvas[1].height;
+        this.gameWidth=renderResolution[0];
+        this.gameHeight=renderResolution[1];
+
+        // use to prevent drop shadow cut off
+        canvas[1].width = renderResolution[0] + DROP_SHADOW_MARGE;
+
         this.background={scroll : 0, scrollSpeed:0.5};
         this.lastTime=new Date();
 
@@ -25,6 +29,8 @@ export class Renderer{
         this.context=canvas[1].getContext("2d");
         this.contextBackground=canvas[0].getContext("2d", { alpha: false });
         this.contextDebug=canvas[2].getContext("2d");
+
+        this.context.filter = "url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxmaWx0ZXIgaWQ9ImZpbHRlciIgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgY29sb3ItaW50ZXJwb2xhdGlvbi1maWx0ZXJzPSJzUkdCIj48ZmVDb21wb25lbnRUcmFuc2Zlcj48ZmVGdW5jUiB0eXBlPSJpZGVudGl0eSIvPjxmZUZ1bmNHIHR5cGU9ImlkZW50aXR5Ii8+PGZlRnVuY0IgdHlwZT0iaWRlbnRpdHkiLz48ZmVGdW5jQSB0eXBlPSJkaXNjcmV0ZSIgdGFibGVWYWx1ZXM9IjAgMSIvPjwvZmVDb21wb25lbnRUcmFuc2Zlcj48L2ZpbHRlcj48L3N2Zz4=#filter)";
         this.context.imageSmoothingEnabled = false;
 
         // add function to the context
@@ -58,7 +64,25 @@ export class Renderer{
             return this.debugRenderPointRelative(x,y,color);
         }
         this.context.debugRenderShape = (shape,color = "#00ff99",showNormal = true) => {
-            return this.debugRenderShape(shape,color,showNormal);
+            return this.debugRenderShape(this.context,shape,color,showNormal);
+        }
+
+        this.context.debugContextRenderShape = (shape,color = "#00ff99",showNormal = true) => {
+            return this.debugRenderShape(this.contextDebug,shape,color,showNormal);
+        }
+
+        this.context.debugContextRenderShapeOutline = (shape,color = "#00ff99",showNormal = true) => {
+            return this.debugRenderShape(this.contextDebug,shape,color,showNormal,true);
+        }
+
+        // debug
+        this.debugLabel=document.getElementById("debugLabel");
+        this.context.printDebugLabel = (labels) => {
+            let result = "";
+            for (const iterator of labels) {
+                result+=iterator+"<br>";
+            }
+            this.debugLabel.innerHTML=result;
         }
     }
 
@@ -149,8 +173,8 @@ export class Renderer{
         );
     }
 
-    clearScreen(context = this.context){
-        context.clearRect(0,0,this.gameWidth,this.gameHeight);
+    clearScreen(context = this.context,width=this.gameWidth,height=this.gameHeight){
+        context.clearRect(0,0,width,height);
     }
 
     render(){
@@ -158,7 +182,9 @@ export class Renderer{
         let t = newDate.getTime() - this.lastTime.getTime();
         t/=1000;
 
-        this.clearScreen();
+        // need to be sync with the drop show cut off prevention
+        this.clearScreen(this.context,this.gameWidth+DROP_SHADOW_MARGE);
+
         this.clearScreen(this.contextBackground);
         this.clearScreen(this.contextDebug);
 
@@ -169,7 +195,7 @@ export class Renderer{
         this.renderPlayer(t);
 
         // render world
-        this.renderWorldBorder();
+        //this.renderWorldBorder();
 
         // render debug
 
@@ -179,11 +205,11 @@ export class Renderer{
 
     // render fnc
     wordToScreenPosition(pos){
-        return Vector.sub(pos,this.game.cameraPosition).add(new Vector(this.gameWidth,this.gameHeight).scale(0.5)).round();
+        return new Vector(pos.x - this.game.cameraPosition.x + this.gameWidth/2,pos.y - this.game.cameraPosition.y + this.gameHeight/2).round();
     }
 
     screenToWordPosition(pos){
-        return Vector.add(pos,this.game.cameraPosition).sub(new Vector(this.gameWidth,this.gameHeight).scale(0.5)).round();
+        return new Vector(pos.x + this.game.cameraPosition.x - this.gameWidth/2,pos.y + this.game.cameraPosition.y - this.gameHeight/2).round();
     }
 
     renderTexture(img, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight){
@@ -199,16 +225,18 @@ export class Renderer{
             [false,false,false]
         ]
 
+        const a = tileSize/2;
 
-        const pos = new Vector(x-tileSize/2,y-tileSize/2).scale(1/tileSize);
-        pos.round();
+        const pos_x = Math.round((x-a)/tileSize);
+        const pos_y = Math.round((y-a)/tileSize);
 
 
         for (let y = -1; y < 2; y++) {
             for (let x = -1; x < 2; x++) {
                 if(x===0 && x===y)continue;
-                const testedPos=Vector.add(pos,new Vector(x,y));
-                const tile = this.game.getTile(testedPos.x,testedPos.y);
+                const testPos_x = pos_x + x;
+                const testPos_y = pos_y + y;
+                const tile = this.game.getTile(testPos_x,testPos_y);
                 if(tile===null)continue;
                 map[1+y][1+x]= (tile instanceof tileClass)?true:false;
             }
@@ -231,14 +259,14 @@ export class Renderer{
         );
     }
 
-    debugRenderShape(shape,color = "#ffff99", showNormal=true){
-        this.context.beginPath();
-        this.context.fillStyle=color;
+    debugRenderShape(context,shape,color = "#ffff99",showNormal=true,outline=false){
+        context.beginPath();
+        context.fillStyle=color;
         const points=shape.getEdge();
         const axis=shape.getNormal();
         const axisRender=[];
         let point = this.wordToScreenPosition(points[0]);
-        this.context.moveTo(point.x, point.y);
+        context.moveTo(point.x, point.y);
         for (let index = 1; index < points.length; index++) {
             const i = points[index];
             axisRender.push([
@@ -246,15 +274,22 @@ export class Renderer{
                 Vector.scale(axis[index-1],30)
             ]);
             point = this.wordToScreenPosition(i);
-            this.context.lineTo(point.x, point.y);
+            context.lineTo(point.x, point.y);
         }
         axisRender.push([
             Vector.sub(points[points.length-1],points[0]).scale(0.5).add(points[0]),
             Vector.scale(axis[axis.length-1],30)
         ]);
 
-        this.context.closePath();
-        this.context.fill();
+        context.closePath();
+        if(outline){
+            context.lineWidth = 1;
+            context.strokeStyle=color;
+            context.stroke();
+        }
+        else{
+            context.fill();
+        }
 
         if(!showNormal)return;
 
@@ -267,15 +302,15 @@ export class Renderer{
 
         for (let index = 0; index < axisRender.length; index++) {
             const j = axisRender[index];
-            this.context.lineWidth = 1;
-            this.context.strokeStyle=col[index%col.length];
-            this.context.beginPath();
+            context.lineWidth = 1;
+            context.strokeStyle=col[index%col.length];
+            context.beginPath();
             const jr=this.wordToScreenPosition(j[0]);
-            this.context.moveTo(jr.x,jr.y);
+            context.moveTo(jr.x,jr.y);
             const i = this.wordToScreenPosition(Vector.add(j[0],j[1]));
-            this.context.lineTo(i.x,i.y);
-            this.context.closePath();
-            this.context.stroke();
+            context.lineTo(i.x,i.y);
+            context.closePath();
+            context.stroke();
         }
     }
 
