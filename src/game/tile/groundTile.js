@@ -1,4 +1,4 @@
-import { tileSize } from "../../constant.js";
+import { TILE_SIZE } from "../../constant.js";
 import { RessourceLoader } from "../../utils/ressouceLoader.js";
 import { Shape, ShapeType } from "../../utils/shape.js";
 import { Vector } from "../../utils/vector.js";
@@ -11,7 +11,7 @@ export class GroundTile extends Tile{
             Shape.createShape(
             ShapeType.SQUARE,
             Vector.zero(),
-            new Vector(tileSize,tileSize)
+            new Vector(TILE_SIZE,TILE_SIZE)
         )]);
         this.friction=1;
 

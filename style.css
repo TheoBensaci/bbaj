@@ -1,5 +1,7 @@
 :root{
     --backgroundColor : #19191a;
+
+    --pixelFilter : url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxmaWx0ZXIgaWQ9ImZpbHRlciIgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgY29sb3ItaW50ZXJwb2xhdGlvbi1maWx0ZXJzPSJzUkdCIj48ZmVDb21wb25lbnRUcmFuc2Zlcj48ZmVGdW5jUiB0eXBlPSJpZGVudGl0eSIvPjxmZUZ1bmNHIHR5cGU9ImlkZW50aXR5Ii8+PGZlRnVuY0IgdHlwZT0iaWRlbnRpdHkiLz48ZmVGdW5jQSB0eXBlPSJkaXNjcmV0ZSIgdGFibGVWYWx1ZXM9IjAgMSIvPjwvZmVDb21wb25lbnRUcmFuc2Zlcj48L2ZpbHRlcj48L3N2Zz4=#filter");
 }
 
 
@@ -17,10 +19,15 @@ html,body{
     align-items: center;
 }
 
+body{
+    overflow: hidden;
+}
+
 
 #gameCanavas{
     overflow-x: hidden;
     --size: 1;
+
 
     position: relative;
     transform: translate(0%, 0%);
@@ -29,10 +36,9 @@ html,body{
 }
 
 #gameCanavas>#canvas{
-    filter: drop-shadow(-4px 4px 0px rgba(0, 0, 0, 0.493));
+    filter: var(--pixelFilter) drop-shadow(-4px 4px 0px rgba(0, 0, 0, 0.493));
     image-rendering: pixelated;
     z-index: 1;
-
 }
 
 #gameCanavas>#canvasBackground{
@@ -78,3 +84,184 @@ html,body{
     font-weight: bold;
     opacity: 0.75;
 }
+
+
+/*----- UI -----*/
+.uiSceen{
+    position: absolute;
+    min-width: 100%;
+    min-height: 100%;
+    top: 0;
+    left: 0;
+}
+
+.uiSceen.uiHide{
+    opacity: 0;
+    z-index: -10;
+}
+
+.uiSceen.uiShow{
+    opacity: 1;
+}
+
+.uiSceen.uiHide>*{
+    transform: scale(0);
+    transition: all 0.2s cubic-bezier(0.23,0.81,0,1.23);
+}
+
+
+.uiSceen.uiShow>*{
+    transform: scale(1);
+}
+
+#pauseMenu{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: #19191aa9;
+    width: 100%;
+    height: 100%;
+    color: rgb(255, 255, 255);
+    opacity: 0;
+    transition: all 0.2s cubic-bezier(0.23,0.81,0,1.23);
+}
+
+#pauseMenu>h1{
+    font-size: 60px;
+}
+
+
+#pauseMenu.uiShow{
+    opacity: 1;
+}
+
+#loadingScreen{
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+    align-items: end;
+    transition: all 0.2s cubic-bezier(0.23,0.81,0,1.23);
+}
+
+#loadingScreen .loading{
+    display: flex;
+    align-items: center;
+    margin: 20px;
+    color: whitesmoke;
+}
+
+#loadingScreen .loading > .loadingIcon{
+    margin: 10px;
+    width: 50px;
+    height: 50px;
+    border-radius: 5px;
+    background-image: url("./ressource/loading.gif");
+    background-position: center;
+    background-size: contain;
+}
+
+#loadingScreen.uiShow{
+    opacity: 1;
+}
+
+#loadingScreen.uiHide{
+}
+
+
+#mainMenu{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+#mainMenu>.logo{
+    min-width: 200px;
+    min-height: 200px;
+    background-color: antiquewhite;
+    background-image: url("./ressource/l.jpg");
+    background-position: center;
+    background-size: cover;
+    margin: 20px;
+}
+
+#mainMenu.uiShow>.logo{
+    transform: scale(1,1) translate(0,0);
+    transition: all 0.25s cubic-bezier(0.23,0.81,0,1.23);
+}
+
+#mainMenu.uiHide>.logo{
+    transform: scale(1.5,0.5) translate(0,-600px);
+    transition: none;
+}
+
+
+.bnt{
+    --color_1 : rgb(138, 138, 138);
+    --color_2 : #ffffff;
+    --color_3 : #19191a;
+
+    border: none;
+    background:transparent;
+    color: var(--color_1);
+    font-weight: bold;
+    padding: 10px 15px;
+    cursor: pointer;
+    transform: scale(1);
+    animation: none;
+    transition: all 0.25s cubic-bezier(0.23,2,0,1.23);
+}
+
+.bnt::after,.bnt::before{
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+    box-sizing: inherit;
+    border: inherit;
+    content: " ";
+    min-width: 100%;
+    height: 100%;
+    background-color: var(--color_3);
+    transform: scale(0,1) skew(10deg, 0deg);
+    transition: none;
+}
+
+
+
+.bnt:hover{
+    color: var(--color_2);
+    transform: scale(1.2) !important;
+}
+.bnt:active{
+    color: var(--color_3);
+    transform: scale(1.05)!important;
+}
+.bnt:active::after,.bnt:active::before{
+    background-color: var(--color_2);
+    transform: scale(0.95,1) skew(20deg, 0deg) !important;
+}
+
+
+.bnt:hover::after,.bnt:hover::before{
+    transform: scale(1,1) skew(30deg, 0deg);
+    transition: all 0.25s cubic-bezier(0.23,2,0,1.23);
+}
+
+.bnt:hover::before{
+    animation: basicBntHover 1s infinite cubic-bezier(0.41,1.66,0.14,1.67);
+}
+
+@keyframes basicBntHover {
+    0% {
+        filter: drop-shadow( 0 0 5px var(--color_2))
+    }
+    50% {
+        filter: drop-shadow( 0 0 6px var(--color_2))
+    }
+    100% {
+        filter: drop-shadow( 0 0 5px var(--color_2))
+    }
+}
+
+

@@ -79,6 +79,7 @@ export class Shape{
         for (const i of this.points) {
             i.add(offset);
         }
+        this.offset.add(offset);
         return this;
     }
 
@@ -86,6 +87,7 @@ export class Shape{
         for (const i of this.points) {
             i.mul(scale);
         }
+        this.scale.mul(scale);
         return this;
     }
 
@@ -93,6 +95,7 @@ export class Shape{
         for (const i of this.points) {
             i.rotate(rad);
         }
+        this.rotation+=rad;
         return this;
     }
 

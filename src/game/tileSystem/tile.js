@@ -1,4 +1,4 @@
-import { tileSize } from "../../constant.js";
+import { TILE_SIZE } from "../../constant.js";
 import { Collider } from "../../utils/collider.js";
 import { Shape } from "../../utils/shape.js";
 import { Vector } from "../../utils/vector.js";
@@ -62,8 +62,8 @@ export class Tile{
         context.fillStyle="#ff0055";
         context.fillRect(
             x,y,
-            tileSize,
-            tileSize
+            TILE_SIZE,
+            TILE_SIZE
         );
         context.fillStyle="#000000ff";
     }

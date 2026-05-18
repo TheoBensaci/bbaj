@@ -1,4 +1,4 @@
-import { renderResolution, tileSize, worldLimit } from "../constant.js";
+import { RENDER_RESOLUTION, TILE_SIZE, WORLD_LIMIT } from "../constant.js";
 import { Tile } from "../game/tileSystem/tile.js";
 import { Shape, ShapeType } from "../utils/shape.js";
 import { Color, MathUtils } from "../utils/utils.js";
@@ -9,29 +9,37 @@ import { Vector } from "../utils/vector.js";
 const DROP_SHADOW_MARGE = 50;
 
 export class Renderer{
-    constructor(game,canvas){
+    constructor(game,canvas,uiManager){
         this.game=game;
 
-        this.gameWidth=renderResolution[0];
-        this.gameHeight=renderResolution[1];
+        this.uiManager = uiManager;
+
+        this.gameWidth=RENDER_RESOLUTION[0];
+        this.gameHeight=RENDER_RESOLUTION[1];
 
         // use to prevent drop shadow cut off
-        canvas[1].width = renderResolution[0] + DROP_SHADOW_MARGE;
+        canvas[1].width = RENDER_RESOLUTION[0] + DROP_SHADOW_MARGE;
 
-        this.background={scroll : 0, scrollSpeed:0.5};
+        this.background={scroll : 0, scrollSpeed:0.5,color : "#555555"};
         this.lastTime=new Date();
 
+        // pause render update
+        this.pause = false;
 
-        // render job are callback function use to add the
-        this.renderJob=[];
+        this.toggleRenderJob = [
+            true,   // background
+            true,   // tile
+            true,   // player
+            true    // debug
+        ];
 
+
+        this.contextBackground=canvas[0].getContext("2d", { alpha: false });
 
         this.context=canvas[1].getContext("2d");
-        this.contextBackground=canvas[0].getContext("2d", { alpha: false });
-        this.contextDebug=canvas[2].getContext("2d");
-
-        this.context.filter = "url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxmaWx0ZXIgaWQ9ImZpbHRlciIgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgY29sb3ItaW50ZXJwb2xhdGlvbi1maWx0ZXJzPSJzUkdCIj48ZmVDb21wb25lbnRUcmFuc2Zlcj48ZmVGdW5jUiB0eXBlPSJpZGVudGl0eSIvPjxmZUZ1bmNHIHR5cGU9ImlkZW50aXR5Ii8+PGZlRnVuY0IgdHlwZT0iaWRlbnRpdHkiLz48ZmVGdW5jQSB0eXBlPSJkaXNjcmV0ZSIgdGFibGVWYWx1ZXM9IjAgMSIvPjwvZmVDb21wb25lbnRUcmFuc2Zlcj48L2ZpbHRlcj48L3N2Zz4=#filter)";
         this.context.imageSmoothingEnabled = false;
+
+        this.contextDebug=canvas[2].getContext("2d");
 
         // add function to the context
 
@@ -43,36 +51,32 @@ export class Renderer{
             return this.contextDebug;
         }
 
-        this.context.wordToScreenPosition = (pos)=>{
-            return this.wordToScreenPosition(pos);
+        this.context.wordToScreenPosition = (...args)=>{
+            return this.wordToScreenPosition(...args);
         };
 
-        this.context.getTileRenderContinuseMap = (x,y,tileClass=Tile) => {
-            return this.getTileRenderContinuseMap(x,y,tileClass);
-        }
-
-        this.context.renderTexture=(img, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight)=>{
-            return this.renderTexture(img, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
+        this.context.renderTexture=(...args)=>{
+            return this.renderTexture(...args);
         }
 
 
         // debug
-        this.context.debugRenderPoint = (x,y,color = "#ffff99") => {
-            return this.debugRenderPoint(x,y,color);
+        this.context.debugRenderPoint = (...agrs) => {
+            return this.debugRenderPoint(...agrs);
         }
-        this.context.debugRenderPointRelative = (x,y,color = "#ffff99") => {
-            return this.debugRenderPointRelative(x,y,color);
+        this.context.debugRenderPointRelative = (...agrs) => {
+            return this.debugRenderPointRelative(...agrs);
         }
-        this.context.debugRenderShape = (shape,color = "#00ff99",showNormal = true) => {
-            return this.debugRenderShape(this.context,shape,color,showNormal);
-        }
-
-        this.context.debugContextRenderShape = (shape,color = "#00ff99",showNormal = true) => {
-            return this.debugRenderShape(this.contextDebug,shape,color,showNormal);
+        this.context.debugRenderShape = (...agrs) => {
+            return this.debugRenderShape(this.context,...agrs);
         }
 
-        this.context.debugContextRenderShapeOutline = (shape,color = "#00ff99",showNormal = true) => {
-            return this.debugRenderShape(this.contextDebug,shape,color,showNormal,true);
+        this.context.debugContextRenderShape = (...agrs) => {
+            return this.debugRenderShape(this.contextDebug,...agrs);
+        }
+
+        this.context.debugContextRenderShapeOutline = (...agrs) => {
+            return this.debugRenderShape(this.contextDebug,...agrs,true);
         }
 
         // debug
@@ -86,15 +90,21 @@ export class Renderer{
         }
     }
 
-    renderBackground(t,context = this.contextBackground){
+    //#region ======== Render ========
+
+    setBackgroundColor(color){
+        this.background.color=color;
+    }
+
+    renderBackground(t,color = this.background.color,context = this.contextBackground){
         // get background color
-        const color = Color.hexToRgb("#555555");
+        const col = Color.hexToRgb(color);
 
         // clear screen
         this.clearScreen();
 
         // fill background
-        context.fillStyle=color;
+        context.fillStyle=col;
         context.fillRect(
             0,0,
             this.gameWidth,
@@ -111,7 +121,7 @@ export class Renderer{
 
         context.rotate((-15 * Math.PI) / 180);
         context.fillStyle=Color.blenColor(
-            color,
+            col,
             new Color(0,0,0),
             0.3
         ).toString();
@@ -130,9 +140,9 @@ export class Renderer{
         const gradient = this.context.createLinearGradient(this.gameWidth, 0, this.gameWidth, this.gameHeight);
 
         // Add three color stops
-        gradient.addColorStop(0, color);
-        color.a=0;
-        gradient.addColorStop(1, color.toString());
+        gradient.addColorStop(0, col);
+        col.a=0;
+        gradient.addColorStop(1, col.toString());
         // Set the fill style and draw a rectangle
         context.fillStyle = gradient;
         context.fillRect(0, 0, this.gameWidth, this.gameHeight);
@@ -141,22 +151,22 @@ export class Renderer{
     renderLevel(t){
 
         // render camera
-
-        const camPosition=Vector.scale(this.game.cameraPosition,1/tileSize).round();
-        const camWidth=Math.round(this.gameWidth/tileSize) + 2;
-        const camHeight=Math.round(this.gameHeight/tileSize) + 2;
+        const camPosition=Vector.scale(this.game.cameraPosition,1/TILE_SIZE).round();
+        const camWidth=Math.round(this.gameWidth/TILE_SIZE) + 2;
+        const camHeight=Math.round(this.gameHeight/TILE_SIZE) + 2;
         for (let y = -camHeight; y < camHeight; y++) {
             for (let x = -camWidth; x < camWidth; x++) {
                 const pos = new Vector(x+camPosition.x,y+camPosition.y);
                 pos.round();
                 const tile = this.game.getTile(pos.x,pos.y);
                 if(tile===null)continue;
-                const rPos = this.wordToScreenPosition(pos.scale(tileSize));
+                const rPos = this.wordToScreenPosition(pos.scale(TILE_SIZE));
                 tile.render(rPos.x,rPos.y,this.context);
             }
         }
 
     }
+
 
     renderPlayer(t){
         if(this.game.player===null)return;
@@ -169,7 +179,7 @@ export class Renderer{
         this.context.strokeStyle="#ff0055";
         const v = this.wordToScreenPosition(new Vector(0,0));
         this.context.strokeRect(
-            v.x,v.y,worldLimit[0]*tileSize,worldLimit[1]*tileSize
+            v.x,v.y,WORLD_LIMIT[0]*TILE_SIZE,WORLD_LIMIT[1]*TILE_SIZE
         );
     }
 
@@ -178,30 +188,59 @@ export class Renderer{
     }
 
     render(){
+
+        if(this.pause){
+            this.t=0;
+            this.lastTime=new Date();
+            return;
+        }
+
         const newDate=new Date();
         let t = newDate.getTime() - this.lastTime.getTime();
         t/=1000;
 
         // need to be sync with the drop show cut off prevention
-        this.clearScreen(this.context,this.gameWidth+DROP_SHADOW_MARGE);
+        if(this.toggleRenderJob[0])this.clearScreen(this.contextBackground);
 
-        this.clearScreen(this.contextBackground);
-        this.clearScreen(this.contextDebug);
+        if(this.toggleRenderJob[1] || this.toggleRenderJob[2])this.clearScreen(this.context,this.gameWidth+DROP_SHADOW_MARGE);
 
-        this.renderBackground(t);
+        if(this.toggleRenderJob[3])this.clearScreen(this.contextDebug);
 
-        this.renderLevel(t);
 
-        this.renderPlayer(t);
+        if(this.toggleRenderJob[0])this.renderBackground(t);
 
-        // render world
-        //this.renderWorldBorder();
+        if(this.toggleRenderJob[1])this.renderLevel(t);
 
-        // render debug
+        if(this.toggleRenderJob[2])this.renderPlayer(t);
 
 
         this.lastTime=newDate;
     }
+
+    //#endregion
+
+    //#region ======== UI ========
+
+    setUpGameRender(){
+        this.uiManager.clear();
+        this.setRenderJob([true,true,true,true]);
+        this.setBackgroundColor(this.game.levelData.backgroundColor);
+    }
+
+    togglePauseUI(state){
+        this.uiManager.toggle("pauseMenu",state);
+        this.pause=state;
+    }
+
+    setRenderJob(jobs){
+        if(jobs.length!==this.toggleRenderJob.length)return;
+        this.toggleRenderJob=jobs;
+        this.clearScreen(this.contextBackground);
+        this.clearScreen(this.context);
+        this.clearScreen(this.contextDebug);
+    }
+
+    //#endregion
 
     // render fnc
     wordToScreenPosition(pos){
@@ -216,40 +255,12 @@ export class Renderer{
         this.context.drawImage(img, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
     }
 
-    // render tile function
-    getTileRenderContinuseMap(x,y,tileClass = Tile){
-
-        const map = [
-            [false,false,false],
-            [false,false,false],
-            [false,false,false]
-        ]
-
-        const a = tileSize/2;
-
-        const pos_x = Math.round((x-a)/tileSize);
-        const pos_y = Math.round((y-a)/tileSize);
-
-
-        for (let y = -1; y < 2; y++) {
-            for (let x = -1; x < 2; x++) {
-                if(x===0 && x===y)continue;
-                const testPos_x = pos_x + x;
-                const testPos_y = pos_y + y;
-                const tile = this.game.getTile(testPos_x,testPos_y);
-                if(tile===null)continue;
-                map[1+y][1+x]= (tile instanceof tileClass)?true:false;
-            }
-        }
-
-
-        return map;
-    }
-
 
 
 
     debugRenderPoint(x,y,color="#ffff99"){
+        if(!this.toggleRenderJob[3])return;
+
         const size = 10;
         this.context.fillStyle=color;
         this.context.fillRect(
@@ -260,6 +271,8 @@ export class Renderer{
     }
 
     debugRenderShape(context,shape,color = "#ffff99",showNormal=true,outline=false){
+        if(!this.toggleRenderJob[3])return;
+
         context.beginPath();
         context.fillStyle=color;
         const points=shape.getEdge();
@@ -315,6 +328,8 @@ export class Renderer{
     }
 
     debugRenderPointRelative(x,y,col){
+        if(!this.toggleRenderJob[3])return;
+
         const p = this.wordToScreenPosition(new Vector(x,y));
         this.debugRenderPoint(p.x,p.y,col);
     }

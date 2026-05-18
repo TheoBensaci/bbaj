@@ -1,4 +1,5 @@
-import { renderResolution, tileSize } from "./constant.js";
+import { RENDER_RESOLUTION, TILE_SIZE } from "./constant.js";
+import { Director } from "./director.js";
 import { GroundTile } from "./game/tile/groundTile.js";
 import { JumpPadTile } from "./game/tile/jumpPadTile.js";
 import { Slope } from "./game/tile/slope.js";
@@ -15,6 +16,10 @@ export function initSmallEditor(canvas,game,renderer){
 
     window.addEventListener("keypress",(e)=>{
 
+        if(e.key==='p'){
+            Director.togglePauseGame(!game.pause);
+        }
+
         if(e.key==='0'){
             placedTile=-1;
         }
@@ -28,21 +33,29 @@ export function initSmallEditor(canvas,game,renderer){
             placedTile=2;
         }
 
+        if(e.key==='.'){
+            Director.switchSceen("loading");
+        }
+
+        if(e.key==='-'){
+            Director.switchSceen("game");
+        }
+
         if(e.key==='r'){
             tileParams[0] = (tileParams[0]+1)%4;
         }
     })
 
     canvas.addEventListener("click",(e)=>{
-        const scaleX = (window.innerWidth) / (renderResolution[0]);
-        const scaleY = (window.innerHeight) / (renderResolution[1]);
+        const scaleX = (window.innerWidth) / (RENDER_RESOLUTION[0]);
+        const scaleY = (window.innerHeight) / (RENDER_RESOLUTION[1]);
 
         const scale = Math.min(scaleX, scaleY);
         const rect = e.target.getBoundingClientRect();
         const targetPos = new Vector(e.clientX - rect.left,e.clientY - rect.top).scale(1/scale);
         const pos = renderer
             .screenToWordPosition(targetPos)
-            .scale((1/tileSize))
+            .scale((1/TILE_SIZE))
             .floor();
 
         if(lastPlacedPos.x === pos.x && lastPlacedPos.y===pos.y){

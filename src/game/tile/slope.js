@@ -1,4 +1,4 @@
-import { tileSize } from "../../constant.js";
+import { TILE_SIZE } from "../../constant.js";
 import { Shape, ShapeType } from "../../utils/shape.js";
 import { MathUtils } from "../../utils/utils.js";
 import { Vector } from "../../utils/vector.js";
@@ -10,7 +10,7 @@ export class Slope extends Tile{
             Shape.createShape(
                 ShapeType.TRIANGLE_SQR,
                 Vector.zero(),
-                new Vector(tileSize,tileSize*mult),
+                new Vector(TILE_SIZE,TILE_SIZE*mult),
                 MathUtils.degToRad(rotation * 90)
             )
         ]);

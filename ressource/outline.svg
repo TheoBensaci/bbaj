@@ -1,0 +1,13 @@
+<svg width="0" height="0" xmlns="http://www.w3.org/2000/svg">
+    <filter id="filter">
+        <feMorphology in="SourceAlpha" result="DILATED" operator="dilate" radius="5"></feMorphology>
+
+        <feFlood flood-color="#000000ff" flood-opacity="1" result="PINK"></feFlood>
+        <feComposite in="PINK" in2="DILATED" operator="in" result="OUTLINE"></feComposite>
+
+        <feMerge>
+            <feMergeNode in="OUTLINE" />
+            <feMergeNode in="SourceGraphic" />
+        </feMerge>
+    </filter>
+</svg>

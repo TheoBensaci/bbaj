@@ -10,10 +10,30 @@
             <canvas id="canvas" tabindex='1' width="400" height="300"></canvas>
             <canvas id="canvasDebug" width="400" height="300"></canvas>
             <div id = "ui">
+                <div class="uiSceen" id="pauseMenu">
+                    <h1>PAUSE</h1>
+                    <button id = "goToMain" class="bnt">Main Menu</button>
+                    <button class="bnt">Main Menu</button>
+                    <button class="bnt">Main Menu</button>
+                    <button class="bnt">Main Menu</button>
+                </div>
+
+                <div class="uiSceen" id="loadingScreen">
+
+                    <div class="loading">
+                        <h3>Loading</h3><div class="loadingIcon"></div>
+                    </div>
+
+                </div>
+
+                <div class="uiSceen" id="mainMenu">
+                    <div class="logo"></div>
+                    <button id = "startGame" class="bnt">Start game</button>
+                </div>
                 <div id = "debugLabel">
                 </div>
             </div>
         </div>
-        <script src="/src/app.js" type="module"></script>
+        <script src="./src/app.js" type="module"></script>
     </body>
 </html>

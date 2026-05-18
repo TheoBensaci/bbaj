@@ -55,8 +55,22 @@ export class Input{
                 }
             }
         );
+    }
 
+    static getInputs(){
+        const buffer = [];
+        for (const key in Input) {
+            if (Object.hasOwnProperty.call(Input, key)) {
+                const el = Input[key];
+                if(el instanceof InputKey){
+                    buffer.push({name : key,keys : el.keys});
+                }
+            }
+        }
+        return buffer;
+    }
 
+    static setInput(name,key){
 
     }
 

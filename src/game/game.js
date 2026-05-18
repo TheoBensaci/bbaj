@@ -1,8 +1,10 @@
-import { tileSize } from "../constant.js";
+import { TILE_SIZE } from "../constant.js";
+import { Director } from "../director.js";
 import { Input } from "../utils/input.js";
 import { Shape, ShapeType } from "../utils/shape.js";
 import { Vector } from "../utils/vector.js";
 import { Player } from "./player/player.js";
+import { PlayerRollDash } from "./player/playerRollDash.js";
 import { GroundTile } from "./tile/groundTile.js";
 import { Tile } from "./tileSystem/tile.js";
 import { TileIndex } from "./tileSystem/tileIndexer.js";
@@ -13,6 +15,8 @@ export class Game{
         this.lastTime=new Date();
         this.t=0;
 
+        this.levelData=null;
+
         this.level=[];
 
         // list of tile which is concidarate
@@ -21,6 +25,8 @@ export class Game{
         this.player=null;
 
         this.cameraPosition=new Vector(0,0);
+
+        this.pause = false;
     }
 
     //#region ============== TILE GESTION ==============
@@ -33,7 +39,7 @@ export class Game{
 
 
     setTile(x,y,value){
-        if(y<0 || x<0)return;
+        if(y<0 || (!this.level[y]) || x<0 || x>=this.level[y].length)return;
         let newRow = y>=this.level.length;
         let col = (newRow)?[]:this.level[y];
         col[x]=value;
@@ -50,8 +56,8 @@ export class Game{
 
     getSuroundTiles(x,y,radius=1){
         const buffer=[];
-        const gridPos_x=Math.floor(x/tileSize);
-        const gridPos_y=Math.floor(y/tileSize);
+        const gridPos_x=Math.floor(x/TILE_SIZE);
+        const gridPos_y=Math.floor(y/TILE_SIZE);
         buffer.push(this.getTile(gridPos_x,gridPos_y));
         for (let y = -radius; y < radius; y++) {
             for (let x = -radius; x < radius; x++) {
@@ -83,10 +89,10 @@ export class Game{
         let map = 0x00;
 
 
-        const a = tileSize/2;
+        const a = TILE_SIZE/2;
 
-        const pos_x = Math.round((x-a)/tileSize);
-        const pos_y = Math.round((y-a)/tileSize);
+        const pos_x = Math.round((x-a)/TILE_SIZE);
+        const pos_y = Math.round((y-a)/TILE_SIZE);
 
 
         for (let y = -1; y < 2; y++) {
@@ -113,7 +119,12 @@ export class Game{
         }
     }
 
-    generateLevel(levelContructData){
+    clearLevel(){
+        this.level=[];
+        this.player=null;
+    }
+
+    generateLevel(levelContructData,callback=()=>{}){
         for (let i = 0; i < 100; i++) {
             const b = [];
             for (let j = 0; j < 200; j++) {
@@ -132,10 +143,16 @@ export class Game{
         this.foreachTile((tile)=>{
             tile.postCreate(this);
         });
+
+        this.levelData={backgroundColor : "#555555"};
+
+        callback();
+
+        this.createPlayer();
     }
 
     getTilePos(x,y){
-        return new Vector(x*tileSize + tileSize/2,y*tileSize + tileSize/2);
+        return new Vector(x*TILE_SIZE + TILE_SIZE/2,y*TILE_SIZE + TILE_SIZE/2);
     }
 
     updateActiveTile(){
@@ -177,7 +194,7 @@ export class Game{
             // spawn player at the spawn
         }else{
             // spawn player at origine
-            this.player=new Player(0,0);
+            this.player=new PlayerRollDash(0,0);
         }
         this.player.onCreate(this);
         return this.player;
@@ -198,6 +215,13 @@ export class Game{
     }
 
     step(){
+
+        if(this.pause){
+            this.t=0;
+            this.lastTime=new Date();
+            return;
+        }
+
         const newDate=new Date();
         this.t = (newDate.getTime() - this.lastTime.getTime())/1000;
 

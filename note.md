@@ -31,8 +31,8 @@
   - [x] pixelated render
   - [x] shadow like
   - [ ] basic ass particule for jump, death and more
-  - [ ] UI lmao
-  - [ ] Pre-compute auto-tilling
+  - [x] UI lmao
+  - [x] Pre-compute auto-tilling
 
 - [ ] Camera
   - [ ] Camera smooting
@@ -50,15 +50,16 @@
   - [x] Basic movment
   - [x] gravity
   - [x] buffer system
+  - [x] croutch
   - [ ] respawn
   - [ ] friction
-  - [ ] jump correction
+  - [x] jump correction
   - [x] coyotie time
-  - [ ] action movment
+  - [x] action movment
     - [X] IDK, need to figure that out lmao
-    - [ ] simple roll dash
-    - [ ] heavy roll dash
-    - [ ] velocity re-direction
+    - [x] simple roll dash
+    - [x] heavy roll dash
+    - [x] velocity re-direction
   - [ ] Effect
     - In nutshel, it's a way to modify the player dynamicly with a call back system, a effect can have multiple callback which will be called by the player in time, thoses callback can be use to alter the player behaviure like, change the jump, make it teleport or dash on action or even preventing the jump
     - [ ] jump callback

@@ -1,7 +1,7 @@
 
 //#region Auto tiling
 
-import { tileSize } from "../../constant.js";
+import { TILE_SIZE } from "../../constant.js";
 import { RessourceLoader } from "../../utils/ressouceLoader.js";
 import { Vector } from "../../utils/vector.js";
 
@@ -102,7 +102,7 @@ export class AutoTilingIndex{
     render(x,y,context){
         const r = RessourceLoader.getRessourceLoader();
         const image=r.get(this.imagePath);
-        context.renderTexture(image, this.tileIndex.x, this.tileIndex.y, this.tileSize, this.tileSize, x, y, tileSize, tileSize);
+        context.renderTexture(image, this.tileIndex.x, this.tileIndex.y, this.tileSize, this.tileSize, x, y, TILE_SIZE, TILE_SIZE);
     }
 }
 
