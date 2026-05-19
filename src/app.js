@@ -17,7 +17,7 @@ const canvasContainer = document.getElementById("gameCanavas");
 
 const game=new Game();
 
-const uiManager = new UiManager(document.getElementById("ui"));
+const uiManager = new UiManager(document.getElementById("ui"),document.getElementById("transition"));
 
 const renderer=new Renderer(
     game,
@@ -41,7 +41,7 @@ requestAnimationFrame(loop);
 // setUp director
 Director.init(game,null,renderer);
 
-Director.switchSceen("loading");
+Director.setSceen("loading");
 
 // set up ressource loader
 RessourceLoader.getRessourceLoader().preload_Image(PERLOADED_TEXTURE,()=>{

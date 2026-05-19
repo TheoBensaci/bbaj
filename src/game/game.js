@@ -7,9 +7,21 @@ import { Vector } from "../utils/vector.js";
 import { Player } from "./player/player.js";
 import { PlayerRollDash } from "./player/playerRollDash.js";
 import { GroundTile } from "./tile/groundTile.js";
+import { MovingPlatform } from "./tile/movingPlatform.js";
 import { Tile } from "./tileSystem/tile.js";
 import { TileIndex } from "./tileSystem/tileIndexer.js";
 import { CONTACT_TILE_MASK_MAP } from "./tileSystem/tileUtils.js";
+
+
+function cameraStepFunction(distance,mult,t){
+    const d = Math.abs(distance);
+    let m = 1;
+    if(d>=m){
+        m=d;
+    }
+
+    return t * mult * m;
+}
 
 export class Game{
     constructor(){
@@ -21,7 +33,16 @@ export class Game{
         this.level=[];
 
         // list of tile which is concidarate
-        this.activeTile=[];
+        this.activeTile=[]
+
+        /*
+            Continue collision tile are tile who need special attention for collision, for exemple :
+            the tile could move like a moving platforme, in that case, we can no longer use the classic check surround tile
+            and we need to check this tile any way. To prevent none sence, we use AABB in the Broad-Phase Collision
+
+            id of the map are create with the x and y cordonate of the orinal tile
+        */
+        this.continueCollisionTile=[];
 
         this.player=null;
 
@@ -56,12 +77,17 @@ export class Game{
         // post process
 
         // TODO : only updat suround tile
-        this.foreachTile((tile)=>{
-            tile.postCreate(this);
-        });
+        if(value instanceof MovingPlatform){
+            value.postCreate(this);
+        }
+        else{
+            this.foreachTile((tile)=>{
+                tile.postCreate(this);
+            });
+        }
     }
 
-    getSuroundTiles(x,y,radius=1){
+    getSuroundTiles(x,y,boudingBox,radius=1){
         const buffer=[];
         const gridPos_x=Math.floor(x/TILE_SIZE);
         const gridPos_y=Math.floor(y/TILE_SIZE);
@@ -73,7 +99,24 @@ export class Game{
         }
 
         // add active tile
-        return [...buffer,...this.activeTile];
+
+
+        for (const cord of this.continueCollisionTile) {
+
+            if(
+                gridPos_x-radius<cord.x && gridPos_x+radius>cord.x
+                && gridPos_y-radius<cord.y && gridPos_y+radius>cord.y
+            )continue;
+
+            const tile = this.getTile(cord.x,cord.y);
+            if(Shape.AABB(tile.getBoundingBox(),boudingBox)){
+                buffer.push(tile);
+            }
+        }
+
+
+
+        return buffer;
     }
 
     /**
@@ -162,22 +205,26 @@ export class Game{
         return new Vector(x*TILE_SIZE + TILE_SIZE/2,y*TILE_SIZE + TILE_SIZE/2);
     }
 
-    updateActiveTile(){
-
+    updateActiveTile(t){
+        for (const iterator of this.activeTile) {
+            const tile = this.getTile(iterator.x,iterator.y);
+            tile.update(this,t);
+        }
     }
 
     registerActiveTile(x,y){
-
+        this.activeTile.push({x:x,y:y});
     }
 
     unregisterActiveTile(x,y){
 
     }
 
-    registerStaticCollisionTile(x,y){
 
+    registerContinueCollisionTile(x,y){
+        this.continueCollisionTile.push({x:x,y:y});
     }
-    unregisterStaticCollisionTile(x,y){
+    unregisterContinueCollisionTile(x,y){
 
     }
 
@@ -247,6 +294,8 @@ export class Game{
 
         // tile update
 
+        this.updateActiveTile(this.t);
+
         // player update
         if(this.player){
 
@@ -259,7 +308,8 @@ export class Game{
         const targetPos = (this.cameraForceTarget!==null?this.cameraForceTarget:this.cameraTarget).clone();
         //targetPos.x = MathUtils.clamp(targetPos.x,this.cameraTarget.x-CAMERA_DEAD_ZONE[0]/2,this.cameraTarget.x+CAMERA_DEAD_ZONE[0]/2);
         targetPos.add(this.cameraOffset);
-        this.setCameraPosition(this.cameraPosition.lerp(targetPos,this.t*CAMERA_SPEED));
+
+        this.setCameraPosition(targetPos);
 
 
 

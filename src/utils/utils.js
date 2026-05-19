@@ -134,6 +134,12 @@ export class MathUtils{
         return value > target ? Math.max(value - step, target) : Math.min(value + step, target);
     }
 
+    static approche_nLinear(value,target, stepFunction){
+        const disatnce = target-value;
+        const step = stepFunction(disatnce);
+        return value > target ? Math.max(value - step, target) : Math.min(value + step, target);
+    }
+
     static clamp(value,min,max){
         return Math.max(min,Math.min(max,value));
     }

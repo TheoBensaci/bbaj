@@ -2,7 +2,8 @@ import { Vector } from "./vector.js";
 
 const shapePoints=[
     [
-        new Vector(1,0)
+        new Vector(0,0),
+        new Vector(1,0),
     ],
     [
         new Vector(-0.5,0.5),
@@ -24,7 +25,7 @@ const shapePoints=[
 ];
 
 export const ShapeType = Object.freeze({
-    NONE : 0,
+    RAY : 0,
     SQUARE : 1,
     TRIANGLE_SQR : 2,
     OTHER : 3
@@ -152,7 +153,7 @@ export class Shape{
         return Shape.getNormal(this.points,this.getCenter());
     }
 
-    static getBoudingBox(points){
+    static getBoundingBox(points){
         const min = [points[0].x,points[0].y];
         const max = [min[0],min[1]];
         for (const p of points) {
@@ -164,13 +165,13 @@ export class Shape{
         return [new Vector(min[0],min[1]), new Vector(max[0],max[1])];
     }
 
-    getBoudingBox(){
-        return Shape.getBoudingBox(this.getEdge());
+    getBoundingBox(){
+        return Shape.getBoundingBox(this.getEdge());
     }
 
 
     getCenter(){
-        const boudingBox = this.getBoudingBox();
+        const boudingBox = this.getBoundingBox();
         return Vector.add(boudingBox[0],Vector.sub(boudingBox[1],boudingBox[0]).scale(0.5));
     }
 
@@ -191,12 +192,19 @@ export class Shape{
 
 
     static #minMaxOverlap(minMaxA,minMaxB){
+
+        if(minMaxA[1]-minMaxA[0] === 0){
+            return minMaxB[1]-minMaxB[0];
+        }
+        if(minMaxB[1]-minMaxB[0] === 0){
+            return minMaxA[1]-minMaxA[0];
+        }
+
         const min = Math.min(minMaxA[0],minMaxB[0]);
         const max = Math.max(minMaxA[1],minMaxB[1]);
 
         const result = (max-min) - (minMaxA[1]-minMaxA[0]) - (minMaxB[1]-minMaxB[0]);
-
-        return  result;
+        return result;
     }
 
 
@@ -206,12 +214,20 @@ export class Shape{
      * @param {*} shapeA
      * @param {*} shapeB
      */
-    static collide(shapeA, shapeB,resolve = true){
+    static collide(shapeA, shapeB,resolve = true,banAxis = []){
         const axisA = shapeA.getNormal();
         const axisB = shapeB.getNormal();
 
 
-        const totalAxis=[...axisA,...axisB];
+        let totalAxis=[...axisA,...axisB];
+
+        // ban axis
+        for (const banAxi of banAxis) {
+            totalAxis=totalAxis.filter((item) => {
+                return Math.abs(banAxi.dot(item))!==1;
+            });
+        }
+
         let smallestAxis = totalAxis[0];
         let smalestScale = Infinity;
 
@@ -244,5 +260,13 @@ export class Shape{
         const mult = Vector.dot(smallestAxis,Vector.sub(shapeA.getCenter(),shapeB.getCenter()))>0?-1:1;
 
         return smallestAxis.normalize().scale(smalestScale*mult);
+    }
+
+    static AABB(boundingBoxA,boundingBoxB){
+        const r1 = this.#minMaxOverlap([boundingBoxA[0].x,boundingBoxA[1].x],[boundingBoxB[0].x,boundingBoxB[1].x]);
+        if(r1>=0)return false;
+        const r2 = this.#minMaxOverlap([boundingBoxA[0].y,boundingBoxA[1].y],[boundingBoxB[0].y,boundingBoxB[1].y]);
+        if(r2>=0)return false;
+        return true;
     }
 }

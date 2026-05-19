@@ -8,7 +8,7 @@
 html,body{
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 
-    background-color: #19191a;
+    background-color: var(--backgroundColor);
     min-width: 100%;
     min-height: 100%;
     margin: 0;
@@ -85,6 +85,37 @@ body{
     opacity: 0.75;
 }
 
+/*----- UI -----*/
+
+#transition{
+    position: absolute;
+    width: 100%;
+    height: 200%;
+    background-color: var(--backgroundColor);
+    z-index: 100;
+}
+
+#transition.showTransi{
+    display: block;
+    animation: transiAnimation 0.75s cubic-bezier(0.97,0.12,0.22,0.75);
+}
+
+@keyframes transiAnimation {
+    0% {
+        transform: scale(1,1) translate(-100%,0);
+    }
+    35%{
+        transform: scale(1,1);
+    }
+    75%{
+        transform: scale(1,1);
+    }
+    100%{
+        transform: scale(1,1) translate(100%,0);
+    }
+}
+
+
 
 /*----- UI -----*/
 .uiSceen{
@@ -157,7 +188,8 @@ body{
     border-radius: 5px;
     background-image: url("./ressource/loading.gif");
     background-position: center;
-    background-size: contain;
+    background-size: cover;
+    background-repeat: no-repeat;
 }
 
 #loadingScreen.uiShow{
@@ -193,76 +225,6 @@ body{
 #mainMenu.uiHide>.logo{
     transform: scale(1.5,0.5) translate(0,-600px);
     transition: none;
-}
-
-
-.bnt{
-    --color_1 : rgb(138, 138, 138);
-    --color_2 : #ffffff;
-    --color_3 : #19191a;
-
-    border: none;
-    background:transparent;
-    color: var(--color_1);
-    font-weight: bold;
-    padding: 10px 15px;
-    cursor: pointer;
-    transform: scale(1);
-    animation: none;
-    transition: all 0.25s cubic-bezier(0.23,2,0,1.23);
-}
-
-.bnt::after,.bnt::before{
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: -1;
-    box-sizing: inherit;
-    border: inherit;
-    content: " ";
-    min-width: 100%;
-    height: 100%;
-    background-color: var(--color_3);
-    transform: scale(0,1) skew(10deg, 0deg);
-    transition: none;
-}
-
-
-
-.bnt:hover{
-    color: var(--color_2);
-    transform: scale(1.2) !important;
-}
-.bnt:active{
-    color: var(--color_3);
-    transform: scale(1.05)!important;
-}
-.bnt:active::after,.bnt:active::before{
-    background-color: var(--color_2);
-    transform: scale(0.95,1) skew(20deg, 0deg) !important;
-}
-
-
-.bnt:hover::after,.bnt:hover::before{
-    transform: scale(1,1) skew(30deg, 0deg);
-    transition: all 0.25s cubic-bezier(0.23,2,0,1.23);
-}
-
-.bnt:hover::before{
-    opacity: 0.5;
-    animation: basicBntHover 3s infinite linear;
-}
-
-@keyframes basicBntHover {
-    0% {
-        filter: drop-shadow( 0 0 5px var(--color_2))
-    }
-    50% {
-        filter: drop-shadow( 0 0 7px var(--color_2))
-    }
-    100% {
-        filter: drop-shadow( 0 0 5px var(--color_2))
-    }
 }
 
 

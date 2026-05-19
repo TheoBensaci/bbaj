@@ -1,0 +1,123 @@
+.bnt{
+    --color_disabel : rgb(138, 138, 138);
+    --color_1 : #ffffff;
+    --color_2 : hsla(197, 100%, 64%, 1);
+    --color_3 : hsla(339, 100%, 55%, 1);
+    --color_background : #19191a;
+
+    border: none;
+    background:transparent;
+    text-align: center;
+
+    color: var(--color_disabel);
+    font-weight: bold;
+    padding: 10px 15px;
+    cursor: pointer;
+    transform: scale(1);
+    animation: none;
+    transition: all 0.25s cubic-bezier(0.23,2,0,1.23), color 0s;
+    margin: 5px;
+}
+
+.bnt::after,.bnt::before{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    z-index: -1;
+    box-sizing: inherit;
+    border: inherit;
+    content: " ";
+    min-width: 100%;
+    height: 100%;
+    background-color: var(--color_disabel);
+    transform: translate(-50%,-50%) scale(0,1) skew(10deg, 0deg);
+    transition: none;
+}
+
+.bnt::before{
+    --borderWidth_W : 10px;
+    --borderWidth_H : 7px;
+    background: linear-gradient(
+        90deg,
+        var(--color_2) 0%,
+        var(--color_3) 50%,
+        var(--color_2) 100%
+    );
+    background-size: 200% 100%;
+    z-index: -1;
+    min-width: calc(100% + var(--borderWidth_W));
+    min-height: calc(100% + var(--borderWidth_H));
+}
+
+
+
+.bnt:hover{
+    transform: scale(1.15) !important;
+    color:var(--color_1);
+    z-index: 1;
+}
+
+@keyframes basicBntHoverText {
+    0% {
+        text-shadow:
+        0 5px 0.5em red,
+        0 -5px 0.5em blue
+    }
+    50%{
+        text-shadow:
+        0 -5px 0.5em red,
+        0 5px 0.5em blue
+    }
+    100%{
+        text-shadow:
+        0 5px 0.5em red,
+        0 -5px 0.5em blue
+    }
+}
+
+
+.bnt:hover::after,.bnt:hover::before{
+    transform: translate(-50%,-50%) scale(1,1) skew(30deg, 0deg);
+    background-color: var(--color_background);
+    transition:
+    all 0.3s cubic-bezier(0.23,2,0,1.23),
+    background-color 0.25s linear;
+}
+
+.bnt:hover::before{
+    animation: basicBntHover 1s infinite linear;
+}
+
+@keyframes basicBntHover {
+    to {
+        background-position-x: -200%;
+    }
+}
+
+.bnt:active{
+    color: var(--color_1);
+    transform: scale(0.98) !important;
+    animation: none;
+}
+
+.bnt:active::before,.bnt:active::after{
+    transform: translate(-50%,-50%)  scale(0.95,1) skew(20deg, 0deg);
+}
+
+.bnt:active::before{
+    background: none;
+    animation: none;
+    background-color: var(--color_1);
+    transition:background-color 0s;
+}
+
+.bnt:active::after{
+    background: linear-gradient(
+        90deg,
+        var(--color_2) 0%,
+        var(--color_3) 50%,
+        var(--color_2) 100%
+    );
+    background-size: 200% 100%;
+    animation: basicBntHover 1s infinite linear;
+}

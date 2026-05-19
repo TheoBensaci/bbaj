@@ -9,3 +9,9 @@ document.getElementById("startGame").onclick=()=>{
 document.getElementById("goToMain").onclick=()=>{
     Director.switchSceen("main",null);
 }
+
+document.getElementById("test_transi").onclick=()=>{
+    Director.transition(()=>{
+        console.log("test");
+    });
+}

@@ -32,6 +32,19 @@ export class Tile{
         return this.collider;
     }
 
+    getBoundingBox(){
+        const min = [this.collider[0].x,this.collider[0].y];
+        const max = [min[0],min[1]];
+        for (const iterator of this.collider) {
+            const bounding = iterator.getBoundingBox();
+            min[0] = Math.min(min[0],bounding[0].x);
+            min[1] = Math.min(min[1],bounding[0].y);
+            max[0] = Math.max(max[0],bounding[1].x);
+            max[1] = Math.max(max[1],bounding[1].y);
+        }
+        return [new Vector(min[0],min[1]), new Vector(max[0],max[1])];
+    }
+
 
     /**
      * callback use right after the level as fully generated, usefule for auto tiling for example
@@ -48,7 +61,7 @@ export class Tile{
      * @param {*} game
      * @param {*} t
      */
-    onUpdate(game, t){
+    update(game, t){
 
     }
 

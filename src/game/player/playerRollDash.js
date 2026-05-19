@@ -122,6 +122,8 @@ export class PlayerRollDash extends Player{
 
         this.rollDashTimer=ROLLDASH_TIME;
 
+        this.cameraHeadTimer=0;
+
 
         this.isRollDashing=true;
         this.canRollDashBounce=true;
@@ -257,12 +259,13 @@ export class PlayerRollDash extends Player{
                 this.rollDashNumber=1;
             }
             this.onCroutch=false;
+            this.cameraHeadTimer=0;
         }
         return super.initJump(vel_y,t);
     }
 
     canCroutch(){
-        return super.canCroutch() && (!this.isRollDashing && !this.isRollDashCharging);
+        return super.canCroutch() && (!this.canRollDashBounce && !this.isRollDashCharging);
     }
 
     canMove(){

@@ -32,9 +32,20 @@ export function initSmallEditor(canvas,game,renderer){
         if(e.key==='3'){
             placedTile=2;
         }
+        if(e.key==='4'){
+            placedTile=3;
+        }
 
         if(e.key==='.'){
             Director.switchSceen("loading");
+        }
+
+        if(e.key==='c'){
+            game.player.toggleFreeCam(true);
+        }
+
+        if(e.key==='v'){
+            game.player.toggleFreeCam(false);
         }
 
         if(e.key==='-'){

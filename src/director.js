@@ -67,6 +67,13 @@ export class Director {
 
     static switchSceen(sceenName,...params){
         if(Director.#instance.sceens[sceenName]===undefined)return;
+        Director.#instance.render.uiManager.transition(()=>{
+            Director.#instance.switchSceen(sceenName,...params);
+        });
+    }
+
+    static setSceen(sceenName,...params){
+        if(Director.#instance.sceens[sceenName]===undefined)return;
         Director.#instance.switchSceen(sceenName,...params);
     }
 
@@ -74,6 +81,7 @@ export class Director {
         Director.#instance.game.pause=state;
         Director.#instance.render.togglePauseUI(state);
     }
+
 
     switchSceen(nextSceenName,...params){
         if(this.lastSceen!=="")this.sceens[this.lastSceen].out();

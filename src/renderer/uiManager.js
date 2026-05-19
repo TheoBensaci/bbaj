@@ -10,9 +10,13 @@
 
 
 export class UiManager{
-    constructor(sceenContainer){
+    constructor(sceenContainer,tarnsition){
         // get all sceen
         this.sceen = sceenContainer.getElementsByClassName("uiSceen");
+        this.transitionNode = tarnsition;
+        this.transitionNode.addEventListener("animationend", (event) => {
+            this.#endTransition();
+        })
         this.clear();
     }
 
@@ -45,6 +49,23 @@ export class UiManager{
             iterator.classList.remove("uiShow");
             iterator.classList.add("uiHide");
         }
+    }
+
+
+    transition(callback){
+        setTimeout(()=>{
+            callback();
+        },500)
+        this.transitionNode.hidden=false;
+        this.transitionNode.classList.remove("showTransi");
+        void this.transitionNode.offsetWidth;
+        this.transitionNode.classList.add("showTransi");
+    }
+
+    #endTransition(){
+        console.log("end");
+        this.transitionNode.hidden=true;
+        this.transitionNode.classList.remove("showTransi");
     }
 
 

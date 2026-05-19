@@ -40,6 +40,8 @@ ____
   - **[ x ]** shadow like
   - [ _ ] basic ass particule for jump, death and more
   - **[ x ]** UI lmao
+  - [ _ ] Screen shake
+  - [ _ ] transition
 
 - [ _ ] Camera
   - **[ x ]** Camera smooting
@@ -53,6 +55,7 @@ ____
   *( camera trigger point on the level which will be use change camera offset and target (will surly not implement but just in case ) )*
     - [ _ ] Offset trigger
     - [ _ ] target trigger
+    - [ _ ] Camera offset base on player direction
 
 - [ _ ] Tile system
   - **[ x ]** Tile collision
@@ -94,3 +97,11 @@ ____
   - [ _ ] Grid mark
   - [ _ ] Grid over effect
   - [ _ ] Place effect
+
+- [ _ ] Level Object
+  - [ _ ] check point
+  - [ _ ] spawn point
+  - [ _ ] spike
+  - [ _ ] trigger spike
+  - [ _ ] jump pad
+  - [ _ ] one way platform

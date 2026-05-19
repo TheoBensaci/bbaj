@@ -295,7 +295,7 @@ export class Renderer{
         ]);
 
         context.closePath();
-        if(outline){
+        if(outline || points.length===2){
             context.lineWidth = 1;
             context.strokeStyle=color;
             context.stroke();

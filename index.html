@@ -2,7 +2,8 @@
 <html>
     <head>
         <title>Page Title</title>
-        <link href="style.css" rel="stylesheet" type="text/css">
+        <link href="./style.css" rel="stylesheet" type="text/css">
+        <link href="./bntstyle.css" rel="stylesheet" type="text/css">
     </head>
     <body>
         <div id="gameCanavas">
@@ -13,11 +14,10 @@
                 <div class="uiSceen" id="pauseMenu">
                     <h1>PAUSE</h1>
                     <button id = "goToMain" class="bnt">Main Menu</button>
-                    <button class="bnt">Main Menu</button>
-                    <button class="bnt">Main Menu</button>
+                    <button class="bnt" style="--color_2:#ff0055;--color_3:#00ff99">really long text damn :]</button>
+                    <button class="bnt" id="test_transi">testTransi</button>
                     <button class="bnt">Main Menu</button>
                 </div>
-
                 <div class="uiSceen" id="loadingScreen">
 
                     <div class="loading">
@@ -25,12 +25,13 @@
                     </div>
 
                 </div>
-
                 <div class="uiSceen" id="mainMenu">
                     <div class="logo"></div>
                     <button id = "startGame" class="bnt">Start game</button>
                 </div>
                 <div id = "debugLabel">
+                </div>
+                <div id="transition" hidden>
                 </div>
             </div>
         </div>
