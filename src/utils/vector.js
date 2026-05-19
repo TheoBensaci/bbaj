@@ -1,3 +1,5 @@
+import { MathUtils } from "./utils.js";
+
 export class Vector{
     constructor(x,y){
         this.x=x;
@@ -160,6 +162,12 @@ export class Vector{
         const x = this.x*c - this.y*s
         const y =this.x*s + this.y*c
         return this.set(x,y);
+    }
+
+    approche(targetVec,step){
+        this.x=MathUtils.approche(this.x,targetVec.x,step);
+        this.y=MathUtils.approche(this.y,targetVec.y,step);
+        return this;
     }
 
     static rotate(vec,rad){

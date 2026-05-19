@@ -12,6 +12,7 @@ import { MathUtils } from "./utils/utils.js";
 import "./ui/menu.js";
 
 
+
 const canvasContainer = document.getElementById("gameCanavas");
 
 const game=new Game();

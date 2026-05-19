@@ -15,6 +15,9 @@ export const TILE_SIZE=20;
 // world limit in tile pos
 export const WORLD_LIMIT=[1000,255];
 
+export const CAMERA_SPEED=20;
+export const CAMERA_DEAD_ZONE=[100,300];
+
 export const RENDER_RESOLUTION=[600,400];
 
 export const PERLOADED_TEXTURE=[

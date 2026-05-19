@@ -249,7 +249,8 @@ body{
 }
 
 .bnt:hover::before{
-    animation: basicBntHover 1s infinite cubic-bezier(0.41,1.66,0.14,1.67);
+    opacity: 0.5;
+    animation: basicBntHover 3s infinite linear;
 }
 
 @keyframes basicBntHover {
@@ -257,7 +258,7 @@ body{
         filter: drop-shadow( 0 0 5px var(--color_2))
     }
     50% {
-        filter: drop-shadow( 0 0 6px var(--color_2))
+        filter: drop-shadow( 0 0 7px var(--color_2))
     }
     100% {
         filter: drop-shadow( 0 0 5px var(--color_2))

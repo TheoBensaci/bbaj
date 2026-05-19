@@ -13,67 +13,79 @@
 
 
 ### TODO
-- [X] : Collision SAT
-  - [X] : MTV
-  - [x] : basic SAT
-  - [x] mini optimization
+**[ x ]** = done
+[ _ ] = not done
+**[ ^ ]** = parcialy done
+**[ ? ]** = not imperative and will only be done if time allow
+____
 
-- [ ] Render
-  - [ ] WebGL (i guess, in reallity, i dont think i can poll it off without the need of a crunch, so for the first time in my life, i am ... not doing the dumd but coolest things and chose the mid but chill things...)
-  - *[x] tile render basic
-  - *[x] baic camera
-  - *[x] basic background
-  - [x] a Good auto tiling
-    - [x] Pre compute of tiling
-  - [ ] custom background
-  - [ ] paralax background
-  - [ ] pre-renderin of sprite
-  - [x] pixelated render
-  - [x] shadow like
-  - [ ] basic ass particule for jump, death and more
-  - [x] UI lmao
-  - [x] Pre-compute auto-tilling
 
-- [ ] Camera
-  - [ ] Camera smooting
-  - [ ] Camera level lock (the camera dont go outside of the level)
+- **[ x ]** : Collision SAT
+  - **[ x ]** : MTV
+  - **[ x ]** : basic SAT
+  - **[ x ]** mini optimization
 
-- [ ] Tile system
-  - [x] Tile collision
-  - [x] Tile manager
-  - [x] Tile generation
-  - [ ] Tile update
-  - [ ] Tile active collision
-  - [ ] Tile post-process function
+- [ _ ] Render
+  - **[ ? ]** WebGL (i guess, in reallity, i dont think i can poll it off without the need of a crunch, so for the first time in my life, i am ... not doing the dumd but coolest things and chose the mid but chill things...)
+  - **[ x ]** tile render basic
+  - **[ x ]** baic camera
+  - **[ x ]** basic background
+  - **[ x ]** a Good auto tiling
+    - **[ x ]** Pre compute of tiling
+  - [ _ ] custom background
+  - **[ ? ]** paralax background
+  - [ _ ] pre-rendering of sprite
+  - **[ x ]** pixelated render
+  - **[ x ]** shadow like
+  - [ _ ] basic ass particule for jump, death and more
+  - **[ x ]** UI lmao
 
-- [ ] Player
-  - [x] Basic movment
-  - [x] gravity
-  - [x] buffer system
-  - [x] croutch
-  - [ ] respawn
-  - [ ] friction
-  - [x] jump correction
-  - [x] coyotie time
-  - [x] action movment
-    - [X] IDK, need to figure that out lmao
-    - [x] simple roll dash
-    - [x] heavy roll dash
-    - [x] velocity re-direction
-  - [ ] Effect
+- [ _ ] Camera
+  - **[ x ]** Camera smooting
+  - **[ ^ ]** Camera level lock (the camera dont go outside of the level)
+    - **[ x ]** Camera World limit lock
+    - **[ ^ ]** Real Camera level lock
+  - **[ x ]** Camera offset
+  - **[ x ]** Camera multi target
+  - **[ ? ]** Camera trigger (camera trigger point on the level which will be use change camera offset and target) (will surly not implement but just in case)
+    - [ _ ] Offset trigger
+    - [ _ ] target trigger
+
+- [ _ ] Tile system
+  - **[ x ]** Tile collision
+  - **[ x ]** Tile manager
+  - **[ x ]** Tile generation
+  - [ _ ] Tile update
+  - [ _ ] Tile active collision
+  - [ _ ] Tile post-process function
+
+- [ _ ] Player
+  - **[ x ]** Basic movment
+  - **[ x ]** gravity
+  - **[ x ]** buffer system
+  - **[ x ]** croutch
+  - [ _ ] respawn
+  - [ _ ] friction
+  - **[ x ]** jump correction
+  - **[ x ]** coyotie time
+  - **[ x ]** action movment
+    - **[ x ]** IDK, need to figure that out lmao
+    - **[ x ]** simple roll dash
+    - **[ x ]** heavy roll dash
+    - **[ x ]** velocity re-direction
+  - [ _ ] Effect
     - In nutshel, it's a way to modify the player dynamicly with a call back system, a effect can have multiple callback which will be called by the player in time, thoses callback can be use to alter the player behaviure like, change the jump, make it teleport or dash on action or even preventing the jump
-    - [ ] jump callback
-    - [ ] action callback
-    - [ ] update callback
-    - [ ] death callback
-    - [ ] prevent jump
-    - [ ] prevent move
-    - [ ] prevent action
-    - [ ] clear callback
-    - [ ] set-up callback
+    - [ _ ] jump callback
+    - [ _ ] action callback
+    - [ _ ] update callback
+    - [ _ ] death callback
+    - [ _ ] prevent jump
+    - [ _ ] prevent move
+    - [ _ ] prevent action
+    - [ _ ] clear callback
+    - [ _ ] set-up callback
 
-- [ ] Builder Grid render help
-  - [ ] Grid mark
-  - [ ] Grid over effect
-  - [ ] Place effect
-  - [ ]
+- [ _ ] Builder Grid render help
+  - [ _ ] Grid mark
+  - [ _ ] Grid over effect
+  - [ _ ] Place effect

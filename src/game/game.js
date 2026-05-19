@@ -1,7 +1,8 @@
-import { TILE_SIZE } from "../constant.js";
+import { CAMERA_DEAD_ZONE, CAMERA_SPEED, RENDER_RESOLUTION, TILE_SIZE, WORLD_LIMIT } from "../constant.js";
 import { Director } from "../director.js";
 import { Input } from "../utils/input.js";
 import { Shape, ShapeType } from "../utils/shape.js";
+import { MathUtils } from "../utils/utils.js";
 import { Vector } from "../utils/vector.js";
 import { Player } from "./player/player.js";
 import { PlayerRollDash } from "./player/playerRollDash.js";
@@ -24,7 +25,13 @@ export class Game{
 
         this.player=null;
 
+        this.levelLimit=new Vector(WORLD_LIMIT[0],WORLD_LIMIT[1]);
+
         this.cameraPosition=new Vector(0,0);
+        this.cameraTarget=new Vector(0,0);
+        this.cameraOffset=new Vector(0,0);
+        this.cameraForceTarget=null;
+
 
         this.pause = false;
     }
@@ -179,8 +186,21 @@ export class Game{
 
     //#region ============== CAMERA ==============
 
-    setCamera(position){
-        this.cameraPosition.set(position);
+    setCameraPosition(position){
+        const r_x=RENDER_RESOLUTION[0]/2;
+        const r_y=RENDER_RESOLUTION[1]/2;
+        this.cameraPosition.set(
+            MathUtils.clamp(position.x,r_x,this.levelLimit.x*TILE_SIZE-r_x),
+            MathUtils.clamp(position.y,r_y, this.levelLimit.y*TILE_SIZE-r_y)
+        );
+    }
+
+    setCameraTarget(target){
+        this.cameraTarget=target;
+    }
+
+    setCameraOffset(offset){
+        this.cameraOffset.set(offset);
     }
 
     //#endregion
@@ -232,12 +252,14 @@ export class Game{
 
             // update player
             this.player.update(this.t);
-            this.setCamera(this.player.position);
         }
 
 
         // update camera pos
-
+        const targetPos = (this.cameraForceTarget!==null?this.cameraForceTarget:this.cameraTarget).clone();
+        //targetPos.x = MathUtils.clamp(targetPos.x,this.cameraTarget.x-CAMERA_DEAD_ZONE[0]/2,this.cameraTarget.x+CAMERA_DEAD_ZONE[0]/2);
+        targetPos.add(this.cameraOffset);
+        this.setCameraPosition(this.cameraPosition.lerp(targetPos,this.t*CAMERA_SPEED));
 
 
 

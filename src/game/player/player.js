@@ -4,7 +4,7 @@
  * @ Description: Player class
  */
 
-import { TILE_SIZE } from "../../constant.js";
+import { RENDER_RESOLUTION, TILE_SIZE, WORLD_LIMIT } from "../../constant.js";
 import { Input } from "../../utils/input.js";
 import { RessourceLoader } from "../../utils/ressouceLoader.js";
 import { Shape, ShapeType } from "../../utils/shape.js";
@@ -646,6 +646,8 @@ export class Player extends Actor{
 
     onCreate(game){
         this.game=game;
+        game.setCameraTarget(this.position);
+        game.setCameraPosition(this.position);
     }
 
     update(t){
@@ -698,7 +700,17 @@ export class Player extends Actor{
         // buffer update
         this.bufferSystem.step(t);
 
-        if(this.position.y>200*TILE_SIZE)this.position.set(0,0);
+        if(this.position.y>200*TILE_SIZE){
+            this.position.set(0,0);
+            this.game.setCameraPosition(this.position);
+        }
+
+        // world limit
+        const max_x = this.game.levelLimit.x*TILE_SIZE;
+        const max_y = this.game.levelLimit.y*TILE_SIZE;
+        this.position.set(MathUtils.clamp(this.position.x,0,max_x),MathUtils.clamp(this.position.y,0,max_y));
+
+
     }
 
     onDestroy(context){
