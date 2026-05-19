@@ -26,7 +26,8 @@ ____
   - **[ x ]** mini optimization
 
 - [ _ ] Render
-  - **[ ? ]** WebGL (i guess, in reallity, i dont think i can poll it off without the need of a crunch, so for the first time in my life, i am ... not doing the dumd but coolest things and chose the mid but chill things...)
+  - **[ ? ]** WebGL
+  *( i guess, in reallity, i dont think i can poll it off without the need of a crunch, so for the first time in my life, i am ... not doing the dumd but coolest things and chose the mid but chill things... )*
   - **[ x ]** tile render basic
   - **[ x ]** baic camera
   - **[ x ]** basic background
@@ -42,12 +43,14 @@ ____
 
 - [ _ ] Camera
   - **[ x ]** Camera smooting
-  - **[ ^ ]** Camera level lock (the camera dont go outside of the level)
+  - **[ ^ ]** Camera level lock
+  *( the camera dont go outside of the level )*
     - **[ x ]** Camera World limit lock
-    - **[ ^ ]** Real Camera level lock
+    - [ _ ] Real Camera level lock
   - **[ x ]** Camera offset
   - **[ x ]** Camera multi target
-  - **[ ? ]** Camera trigger (camera trigger point on the level which will be use change camera offset and target) (will surly not implement but just in case)
+  - **[ ? ]** Camera trigger
+  *( camera trigger point on the level which will be use change camera offset and target (will surly not implement but just in case ) )*
     - [ _ ] Offset trigger
     - [ _ ] target trigger
 
@@ -66,6 +69,8 @@ ____
   - **[ x ]** croutch
   - [ _ ] respawn
   - [ _ ] friction
+  - [ _ ] find a new movement mecanic
+    *( The actual movement mecanic is not realy good in my opion, i thinks we need to change it )*
   - **[ x ]** jump correction
   - **[ x ]** coyotie time
   - **[ x ]** action movment
@@ -74,7 +79,7 @@ ____
     - **[ x ]** heavy roll dash
     - **[ x ]** velocity re-direction
   - [ _ ] Effect
-    - In nutshel, it's a way to modify the player dynamicly with a call back system, a effect can have multiple callback which will be called by the player in time, thoses callback can be use to alter the player behaviure like, change the jump, make it teleport or dash on action or even preventing the jump
+  *( In nutshel, it's a way to modify the player dynamicly with a call back system, a effect can have multiple callback which will be called by the player in time, thoses callback can be use to alter the player behaviure like, change the jump, make it teleport or dash on action or even preventing the jump )*
     - [ _ ] jump callback
     - [ _ ] action callback
     - [ _ ] update callback
