@@ -61,9 +61,10 @@ ____
   - **[ x ]** Tile collision
   - **[ x ]** Tile manager
   - **[ x ]** Tile generation
-  - [ _ ] Tile update
-  - [ _ ] Tile active collision
-  - [ _ ] Tile post-process function
+  - **[ x ]** Tile update
+  - **[ x ]** Tile active collision
+  - **[ x ]** Tile post-process function
+  - [ _ ] Tile reset
 
 - [ _ ] Player
   - **[ x ]** Basic movment

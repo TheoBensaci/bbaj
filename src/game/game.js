@@ -1,5 +1,6 @@
 import { CAMERA_DEAD_ZONE, CAMERA_SPEED, RENDER_RESOLUTION, TILE_SIZE, WORLD_LIMIT } from "../constant.js";
 import { Director } from "../director.js";
+import { downloadJsonFile } from "../utils/fileUtils.js";
 import { Input } from "../utils/input.js";
 import { Shape, ShapeType } from "../utils/shape.js";
 import { MathUtils } from "../utils/utils.js";
@@ -33,7 +34,7 @@ export class Game{
         this.level=[];
 
         // list of tile which is concidarate
-        this.activeTile=[]
+        this.activeTile={};
 
         /*
             Continue collision tile are tile who need special attention for collision, for exemple :
@@ -42,9 +43,10 @@ export class Game{
 
             id of the map are create with the x and y cordonate of the orinal tile
         */
-        this.continueCollisionTile=[];
+        this.advanceCollisionTile={};
 
         this.player=null;
+        this.playerSpawnPoint=new Vector(0,0);
 
         this.levelLimit=new Vector(WORLD_LIMIT[0],WORLD_LIMIT[1]);
 
@@ -72,7 +74,8 @@ export class Game{
         let col = (newRow)?[]:this.level[y];
         col[x]=value;
         this.level[y]=col;
-        value.setPos(this.getTilePos(x,y));
+        if(value===null)return;
+        value.setOriginePosition(this.getTilePos(x,y));
 
         // post process
 
@@ -101,19 +104,16 @@ export class Game{
         // add active tile
 
 
-        for (const cord of this.continueCollisionTile) {
-
+        this.foreachSpecialTile((tile,x,y)=>{
             if(
-                gridPos_x-radius<cord.x && gridPos_x+radius>cord.x
-                && gridPos_y-radius<cord.y && gridPos_y+radius>cord.y
-            )continue;
+                gridPos_x-radius<x && gridPos_x+radius>x
+                && gridPos_y-radius<y && gridPos_y+radius>y
+            )return;
 
-            const tile = this.getTile(cord.x,cord.y);
             if(Shape.AABB(tile.getBoundingBox(),boudingBox)){
                 buffer.push(tile);
             }
-        }
-
+        },this.advanceCollisionTile);
 
 
         return buffer;
@@ -169,6 +169,18 @@ export class Game{
         }
     }
 
+    foreachSpecialTile(fnc,specialTiles){
+        for (const key in specialTiles) {
+            if (Object.hasOwnProperty.call(specialTiles, key)) {
+                const element = specialTiles[key];
+                const tile = this.getTile(element.x,element.y);
+                if(tile===null)continue;
+                fnc(tile,element.x,element.y);
+            }
+        }
+    }
+
+
     clearLevel(){
         this.level=[];
         this.player=null;
@@ -180,7 +192,7 @@ export class Game{
             for (let j = 0; j < 200; j++) {
                 const y = i % 20;
                 if(y>15 && y<19 && !(j>20 && j<25)){
-                    b.push(TileIndex.createTile("main",0).setPos(this.getTilePos(j,i)));
+                    b.push(TileIndex.createTile("main",0).setOriginePosition(this.getTilePos(j,i)));
                 }
                 else{
                     b.push(null);
@@ -199,33 +211,55 @@ export class Game{
         callback();
 
         this.createPlayer();
+        this.spawnPlayer();
     }
 
     getTilePos(x,y){
         return new Vector(x*TILE_SIZE + TILE_SIZE/2,y*TILE_SIZE + TILE_SIZE/2);
     }
 
+    getTileId(x,y){
+        return x+":"+y;
+    }
+
     updateActiveTile(t){
-        for (const iterator of this.activeTile) {
-            const tile = this.getTile(iterator.x,iterator.y);
-            tile.update(this,t);
-        }
+        this.foreachSpecialTile((tile)=>{
+            tile.update(t);
+        },this.activeTile);
     }
 
     registerActiveTile(x,y){
-        this.activeTile.push({x:x,y:y});
+        const id = this.getTileId(x,y);
+        if(this.activeTile[id]===undefined){
+            this.activeTile[id]={x:x,y:y};
+        }
+        else{
+            throw new Error("tile all ready register in the active tiles");
+        }
     }
 
     unregisterActiveTile(x,y){
-
+        const id = this.getTileId(x,y);
+        if(this.activeTile[id]!==undefined){
+            delete this.activeTile[id];
+        }
     }
 
 
-    registerContinueCollisionTile(x,y){
-        this.continueCollisionTile.push({x:x,y:y});
+    registerAdvanceCollisionTile(x,y){
+        const id = this.getTileId(x,y);
+        if(this.advanceCollisionTile[id]===undefined){
+            this.advanceCollisionTile[id]={x:x,y:y};
+        }
+        else{
+            throw new Error("tile all ready register in the continue collision tiles");
+        }
     }
-    unregisterContinueCollisionTile(x,y){
-
+    unregisterAdvanceCollisionTile(x,y){
+        const id = this.getTileId(x,y);
+        if(this.advanceCollisionTile[id]!==undefined){
+            delete this.advanceCollisionTile[id];
+        }
     }
 
     //#endregion
@@ -256,14 +290,9 @@ export class Game{
 
     createPlayer(){
 
-        // if spawn point found
-        if(false){
-            // spawn player at the spawn
-        }else{
-            // spawn player at origine
-            this.player=new PlayerRollDash(0,0);
-        }
+        this.player=new PlayerRollDash(0,0);
         this.player.onCreate(this);
+        this.player.dead=true;
         return this.player;
     }
 
@@ -271,6 +300,15 @@ export class Game{
     destroyPlayer(){
         this.player.onDestroy(this);
         this.player=null;
+    }
+
+    spawnPlayer(){
+        this.player.position.set(this.playerSpawnPoint);
+        this.player.onSpawn();
+    }
+
+    setPlayerSpawnPoint(position){
+        this.playerSpawnPoint.set(position);
     }
 
     //#endregion
@@ -310,9 +348,6 @@ export class Game{
         targetPos.add(this.cameraOffset);
 
         this.setCameraPosition(targetPos);
-
-
-
 
 
         this.lastTime=newDate;

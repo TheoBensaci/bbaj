@@ -1,7 +1,7 @@
 import { Input } from "../../utils/input.js";
 import { Vector } from "../../utils/vector.js";
 import { Buffer } from "./bufferSystem.js";
-import { BUFFER_LENGHT, GRAVITY_STRENGHT, JUMP_STENGHT, Player } from "./player.js";
+import { BUFFER_LENGTH, GRAVITY_STRENGHT, JUMP_STRENGTH, Player } from "./player.js";
 
 // roll dash
 const ROLLDASH_COULDOWN=0.15;
@@ -26,21 +26,21 @@ const ROLLDASH_BOUNCE_MIN_SPEED = 2;
 export class PlayerRollDash extends Player{
 
 
-    constructor(x,y){
-        super(x,y);
+    constructor(){
+        super();
 
         this.bufferSystem.register("initRollDashCharge",new Buffer(
             ()=>{
                 return this.canRollDash() && !this.isRollDashCharging;
             },
-            BUFFER_LENGHT
+            BUFFER_LENGTH
         ));
 
         this.bufferSystem.register("initRollDash",new Buffer(
             ()=>{
                 return this.canRollDash() && this.isRollDashCharging;
             },
-            BUFFER_LENGHT
+            BUFFER_LENGTH
         ));
 
         this.isRollDashing = false;
@@ -219,13 +219,13 @@ export class PlayerRollDash extends Player{
         return false;
     }
 
-    rollDashBounceUpdate(){
+    rollDashBounceUpdate(t){
 
         this.canRollDashBounce=this.velocity.magnetude()>=ROLLDASH_BOUNCE_MIN_SPEED;
 
         if(!this.canRollDashBounce)return;
 
-        const collide = this.moveAndCollide(this.velocity);
+        const collide = this.moveAndCollide(t,this.velocity);
 
         const colVec = collide.colVec.normalize();
 
@@ -268,8 +268,8 @@ export class PlayerRollDash extends Player{
         return super.canCroutch() && (!this.canRollDashBounce && !this.isRollDashCharging);
     }
 
-    canMove(){
-        return (!this.isRollDashing && !this.isRollDashCharging) && super.canMove();
+    canWalk(){
+        return (!this.isRollDashing && !this.isRollDashCharging) && super.canWalk();
     }
 
     getMovmentFactor(){
@@ -328,7 +328,7 @@ export class PlayerRollDash extends Player{
     update(t){
         super.update(t);
         this.rollDashUpdate(t);
-        if(this.canRollDashBounce)this.rollDashBounceUpdate();
+        if(this.canRollDashBounce)this.rollDashBounceUpdate(t);
     }
 
     render(x,y,context,t){
@@ -354,7 +354,7 @@ export class PlayerRollDash extends Player{
 
     getDebugText(){
         return [...super.getDebugText(),
-            "can move : "+this.canMove(),
+            "can move : "+this.canWalk(),
             "can jump : "+this.canJump(),
             "Is Roll dashing : " +this.isRollDashing,
             "Velocit y : "+this.velocity.y

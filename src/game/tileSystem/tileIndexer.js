@@ -20,6 +20,12 @@ export class TileIndex{
         TileIndex.#data.set(groupID,[]);
     }
 
+    /**
+     * Register a tile
+     * @param {string} groupID group id
+     * @param {Class} TileClass Tile class
+     * @returns
+     */
     static registerTile(groupID,TileClass){
         if(!TileIndex.#data.has(groupID)){
             throw new Error("Group ID '"+groupID+"' dosn't exist");
@@ -30,6 +36,13 @@ export class TileIndex{
         return id;
     }
 
+    /**
+     * Create a tile with parameters
+     * @param {*} groupID
+     * @param {*} id
+     * @param {*} params
+     * @returns
+     */
     static createTile(groupID,id,params=[]){
         if(!TileIndex.#data.has(groupID)){
             throw new Error("Group ID '"+groupID+"' dosn't exist");

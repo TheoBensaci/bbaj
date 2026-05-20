@@ -1,19 +1,17 @@
 import { TILE_SIZE } from "../../constant.js";
 import { Shape, ShapeType } from "../../utils/shape.js";
 import { Vector } from "../../utils/vector.js";
-import { Tile } from "../tileSystem/tile.js";
+import { MovingTile } from "../tileSystem/tile.js";
 
-export class MovingPlatform extends Tile{
+export class MovingPlatform extends MovingTile{
 
     constructor(){
         super([
             Shape.createShape(
             ShapeType.SQUARE,
             Vector.zero(),
-            new Vector(TILE_SIZE*4,TILE_SIZE/2)
+            new Vector(TILE_SIZE*10,TILE_SIZE/2)
         )]);
-
-        this.velocity=new Vector(0,0);
 
         this.t = 0;
     }
@@ -31,20 +29,16 @@ export class MovingPlatform extends Tile{
     }
 
     postCreate(game){
-        const x = Math.floor(this.position.x/TILE_SIZE);
-        const y = Math.floor(this.position.y/TILE_SIZE);
-
-        this.x=this.position.x;
-        game.registerContinueCollisionTile(x,y);
-        game.registerActiveTile(x,y);
-        console.log(game);
+        super.postCreate(game);
+        this.activeMoving();
     }
 
-    update(game,t){
+    update(t){
         this.t= (this.t + t)%(2*Math.PI);
-        this.velocity.x = Math.cos(this.t*3) * 3;
 
-        this.position.add(this.velocity);
+        this.velocity.y = Math.cos(this.t*2) * 100;
+
+        this.position.add(0,this.velocity.y* t);
     }
 
 

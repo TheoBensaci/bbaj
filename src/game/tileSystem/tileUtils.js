@@ -90,6 +90,11 @@ export class AutoTilingIndex{
         this.tileIndex=new Vector(0,0);
     }
 
+    /**
+     * Compute auto tiling
+     * @param {*} contactMap
+     * @returns
+     */
     compute(contactMap){
         for (const iterator of CELEST_FORMAT_AUTOTILING) {
             if((contactMap & iterator[0]) === iterator[0]){
@@ -99,6 +104,12 @@ export class AutoTilingIndex{
         }
     }
 
+    /**
+     * Render a tile with autotiling
+     * @param {number} x position X on screen
+     * @param {number} y position Y on screen
+     * @param {context2D extended} context js context 2d with additional utils function given by the Renderer
+     */
     render(x,y,context){
         const r = RessourceLoader.getRessourceLoader();
         const image=r.get(this.imagePath);

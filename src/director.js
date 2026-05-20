@@ -7,6 +7,7 @@
 
 
 
+
 export class Director {
     static #instance=null;
     constructor(game_instance,editor_instance,render_instance){

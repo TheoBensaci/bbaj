@@ -6,26 +6,30 @@ import { Vector } from "../utils/vector.js";
 
 
 
-const DROP_SHADOW_MARGE = 50;
+const DROP_SHADOW_MARGE = 50;       // marge add to prevent the drop shadow filter to been cut
 
 export class Renderer{
     constructor(game,canvas,uiManager){
         this.game=game;
 
-        this.uiManager = uiManager;
+        this.uiManager = uiManager;     // ui manage
 
-        this.gameWidth=RENDER_RESOLUTION[0];
-        this.gameHeight=RENDER_RESOLUTION[1];
+        this.gameWidth=RENDER_RESOLUTION[0];    // game width resolution
+        this.gameHeight=RENDER_RESOLUTION[1];  // game height resolution
 
         // use to prevent drop shadow cut off
         canvas[1].width = RENDER_RESOLUTION[0] + DROP_SHADOW_MARGE;
 
+        // background data
         this.background={scroll : 0, scrollSpeed:0.5,color : "#555555"};
+
+        // last render date
         this.lastTime=new Date();
 
         // pause render update
         this.pause = false;
 
+        // use to toggle render job
         this.toggleRenderJob = [
             true,   // background
             true,   // tile
@@ -34,6 +38,8 @@ export class Renderer{
         ];
 
 
+        // init all context2D
+
         this.contextBackground=canvas[0].getContext("2d", { alpha: false });
 
         this.context=canvas[1].getContext("2d");
@@ -41,46 +47,62 @@ export class Renderer{
 
         this.contextDebug=canvas[2].getContext("2d");
 
-        // add function to the context
 
+        // add function to the context to create the "context2D extended"
+        /**
+         * Get background context2D
+         */
         this.context.getBackgroundContext=()=>{
             return this.contextBackground;
         }
 
+        /**
+         * Get debug context2D
+         */
         this.context.getDebugContext=()=>{
             return this.contextDebug;
         }
 
+        // same as "this.wordToScreenPosition"
         this.context.wordToScreenPosition = (...args)=>{
             return this.wordToScreenPosition(...args);
         };
 
+        // same as "this.renderTexture"
         this.context.renderTexture=(...args)=>{
             return this.renderTexture(...args);
         }
 
 
         // debug
+
+        // same as "this.debugRenderPoint"
         this.context.debugRenderPoint = (...agrs) => {
             return this.debugRenderPoint(...agrs);
         }
-        this.context.debugRenderPointRelative = (...agrs) => {
-            return this.debugRenderPointRelative(...agrs);
-        }
+
+        // same as "this.debugRenderShape" but set for the context
         this.context.debugRenderShape = (...agrs) => {
             return this.debugRenderShape(this.context,...agrs);
         }
 
+        // this.debugRenderShape but for the debug context
         this.context.debugContextRenderShape = (...agrs) => {
             return this.debugRenderShape(this.contextDebug,...agrs);
         }
 
+        // this.debugRenderShape but for the debug context and with outline
         this.context.debugContextRenderShapeOutline = (...agrs) => {
             return this.debugRenderShape(this.contextDebug,...agrs,true);
         }
 
         // debug
+
         this.debugLabel=document.getElementById("debugLabel");
+
+        /**
+         * Print label in a debug ui
+         */
         this.context.printDebugLabel = (labels) => {
             let result = "";
             for (const iterator of labels) {
@@ -92,10 +114,20 @@ export class Renderer{
 
     //#region ======== Render ========
 
+    /**
+     * set background color
+     * @param {string} color color code
+     */
     setBackgroundColor(color){
         this.background.color=color;
     }
 
+    /**
+     * Render check board background
+     * @param {number} t delta t
+     * @param {string} color color code
+     * @param {context2D} context context to use
+     */
     renderBackground(t,color = this.background.color,context = this.contextBackground){
         // get background color
         const col = Color.hexToRgb(color);
@@ -148,6 +180,10 @@ export class Renderer{
         context.fillRect(0, 0, this.gameWidth, this.gameHeight);
     }
 
+    /**
+     * render level tiles
+     * @param {number} t delta t
+     */
     renderLevel(t){
 
         // render camera
@@ -168,25 +204,30 @@ export class Renderer{
     }
 
 
+    /**
+     * Render player
+     * @param {number} t delta t
+     */
     renderPlayer(t){
         if(this.game.player===null)return;
         const pos = this.wordToScreenPosition(this.game.player.position);
         this.game.player.render(pos.x,pos.y,this.context,t);
     }
 
-    renderWorldBorder(){
-        this.context.lineWidth = 1;
-        this.context.strokeStyle="#ff0055";
-        const v = this.wordToScreenPosition(new Vector(0,0));
-        this.context.strokeRect(
-            v.x,v.y,WORLD_LIMIT[0]*TILE_SIZE,WORLD_LIMIT[1]*TILE_SIZE
-        );
-    }
 
+    /**
+     * Clear screen
+     * @param {*} context context to use
+     * @param {*} width width of the screen
+     * @param {*} height height of the screen
+     */
     clearScreen(context = this.context,width=this.gameWidth,height=this.gameHeight){
         context.clearRect(0,0,width,height);
     }
 
+    /**
+     * Render main function
+     */
     render(){
 
         if(this.pause){
@@ -221,17 +262,29 @@ export class Renderer{
 
     //#region ======== UI ========
 
+    /**
+     * Set up game render sceem
+     */
     setUpGameRender(){
         this.uiManager.clear();
         this.setRenderJob([true,true,true,true]);
         this.setBackgroundColor(this.game.levelData.backgroundColor);
     }
 
+    /**
+     * toggle pause UI
+     * @param {boolean} state
+     */
     togglePauseUI(state){
         this.uiManager.toggle("pauseMenu",state);
+        this.uiManager.toggle("blackBackground",state);
         this.pause=state;
     }
 
+    /**
+     * set render job state
+     * @param {boolean[]} jobs [background,tile,player,debug]
+     */
     setRenderJob(jobs){
         if(jobs.length!==this.toggleRenderJob.length)return;
         this.toggleRenderJob=jobs;
@@ -243,14 +296,37 @@ export class Renderer{
     //#endregion
 
     // render fnc
+
+    /**
+     * Transform a world position to screen position
+     * @param {Vector} pos world position
+     * @returns {Vector}
+     */
     wordToScreenPosition(pos){
         return new Vector(pos.x - this.game.cameraPosition.x + this.gameWidth/2,pos.y - this.game.cameraPosition.y + this.gameHeight/2).round();
     }
 
+    /**
+     * Transform a screen position to a world position
+     * @param {Vector} pos screen position
+     * @returns {Vector}
+     */
     screenToWordPosition(pos){
         return new Vector(pos.x + this.game.cameraPosition.x - this.gameWidth/2,pos.y + this.game.cameraPosition.y - this.gameHeight/2).round();
     }
 
+    /**
+     * Render a texture
+     * @param {*} img texture image
+     * @param {*} sx source x
+     * @param {*} sy source y
+     * @param {*} sWidth source width
+     * @param {*} sHeight source height
+     * @param {*} dx destination x
+     * @param {*} dy destination y
+     * @param {*} dWidth destination width
+     * @param {*} dHeight destination height
+     */
     renderTexture(img, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight){
         this.context.drawImage(img, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
     }
@@ -258,18 +334,14 @@ export class Renderer{
 
 
 
-    debugRenderPoint(x,y,color="#ffff99"){
-        if(!this.toggleRenderJob[3])return;
-
-        const size = 10;
-        this.context.fillStyle=color;
-        this.context.fillRect(
-            x-size/2,y-size/2,
-            size,
-            size
-        );
-    }
-
+    /**
+     * Render a debug shape on screen
+     * @param {context2D} context context use
+     * @param {*} shape Shape to render
+     * @param {*} color color of the shape
+     * @param {*} showNormal is normals of the shape as be render
+     * @param {*} outline is outline is needed
+     */
     debugRenderShape(context,shape,color = "#ffff99",showNormal=true,outline=false){
         if(!this.toggleRenderJob[3])return;
 
@@ -306,6 +378,8 @@ export class Renderer{
 
         if(!showNormal)return;
 
+
+        // render normal
         const col = [
             "#ff0055",
             "#00ff99",
@@ -327,10 +401,22 @@ export class Renderer{
         }
     }
 
-    debugRenderPointRelative(x,y,col){
+    /**
+     * Render a debug point on screen
+     * @param {number} x world position x
+     * @param {number} y world position x
+     * @param {string} color color code
+     */
+    debugRenderPoint(x,y,color="#ffff99"){
         if(!this.toggleRenderJob[3])return;
 
         const p = this.wordToScreenPosition(new Vector(x,y));
-        this.debugRenderPoint(p.x,p.y,col);
+        const size = 10;
+        this.context.fillStyle=color;
+        this.context.fillRect(
+            p.x-size/2,p.y-size/2,
+            size,
+            size
+        );
     }
 }

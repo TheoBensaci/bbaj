@@ -10,12 +10,18 @@
 
 
 export class UiManager{
+    /**
+     * UI manager
+     * @param {Node} sceenContainer Ui container
+     * @param {Node} tarnsition transition node
+     */
     constructor(sceenContainer,tarnsition){
         // get all sceen
         this.sceen = sceenContainer.getElementsByClassName("uiSceen");
         this.transitionNode = tarnsition;
         this.transitionNode.addEventListener("animationend", (event) => {
-            this.#endTransition();
+            this.transitionNode.hidden=true;
+            this.transitionNode.classList.remove("showTransi");
         })
         this.clear();
     }
@@ -31,10 +37,12 @@ export class UiManager{
                 if(state){
                     iterator.classList.add("uiShow");
                     iterator.classList.remove("uiHide");
+                    iterator.hidden=false;
                 }
                 else{
                     iterator.classList.remove("uiShow");
                     iterator.classList.add("uiHide");
+                    iterator.hidden=true;
                 }
                 void iterator.offsetWidth;
             }
@@ -48,10 +56,15 @@ export class UiManager{
         for (const iterator of this.sceen) {
             iterator.classList.remove("uiShow");
             iterator.classList.add("uiHide");
+            iterator.hidden=true;
         }
     }
 
 
+    /**
+     * Call a transition
+     * @param {fonction} callback callback invoke in the middle of the transition animation, so, during the moment of transition
+     */
     transition(callback){
         setTimeout(()=>{
             callback();
@@ -61,13 +74,5 @@ export class UiManager{
         void this.transitionNode.offsetWidth;
         this.transitionNode.classList.add("showTransi");
     }
-
-    #endTransition(){
-        console.log("end");
-        this.transitionNode.hidden=true;
-        this.transitionNode.classList.remove("showTransi");
-    }
-
-
 }
 

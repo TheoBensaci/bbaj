@@ -1,20 +1,14 @@
 export class InputKey{
+
     constructor(keys){
         this.keys=keys;
         this.pressed=false;
-        this.justPress=false;
     }
 
     setPress(value){
-        if(value===this.pressed){
-            if(this.justPress===value){
-                this.justPress=false;
-            }
-            return;
-        }
-        this.justPress=value;
         this.pressed=value;
     }
+
 }
 
 

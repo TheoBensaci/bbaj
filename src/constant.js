@@ -4,7 +4,7 @@ import { MovingPlatform } from "./game/tile/movingPlatform.js";
 import { Slope } from "./game/tile/slope.js";
 import { TileIndex } from "./game/tileSystem/tileIndexer.js";
 
-export const GAME_UPDATE_INTERVAL=1;
+export const GAME_UPDATE_INTERVAL=10;
 
 //const lvlSquareSize=1;
 

@@ -1,3 +1,9 @@
+/**
+ * @ Autheur: Theo Bensaci
+ * @ Date: 19:58 18.05.2026
+ * @ Description: Init menu bnt
+ */
+
 import { Director } from "../director.js"
 
 

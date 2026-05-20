@@ -11,6 +11,7 @@ import { Shape, ShapeType } from "../../utils/shape.js";
 import { MathUtils } from "../../utils/utils.js";
 import { Vector } from "../../utils/vector.js";
 import { Actor } from "../actor.js";
+import { MovingTile } from "../tileSystem/tile.js";
 import { Buffer, BufferSystem } from "./bufferSystem.js";
 
 
@@ -19,43 +20,47 @@ import { Buffer, BufferSystem } from "./bufferSystem.js";
 
 
 // buffer
-export const BUFFER_LENGHT = 0.15;
-export const COYOTIE_TIME=0.1;
+export const BUFFER_LENGTH = 0.15;                          // Buffer time lenght in sec
+export const COYOTIE_TIME_LENGTH=0.1;                       // coyotie time time lenght in sec
 
-const VERTICAL_CORNER_CORRECTION_LENGHT = TILE_SIZE/3;
+const VERTICAL_CORNER_CORRECTION_SIZE = TILE_SIZE/3;        // Vertical corner correction size
 
 
 // physic step
-export const COLLISION_STEP=1;
+export const COLLISION_STEP_MAGNETUDE=1;                    // magnetude min use for the displacement vector for collision checking/resolution
 
 
 // physic settings
-export const MAX_DOWN_SPEED = 5;
-export const GRAVITY_STRENGHT = 6.5;
+export const MAX_DOWN_SPEED = 700;                          // max downward speed the player can achive
+export const GRAVITY_STRENGHT = 1500;                       // gravity strength
 
-export const MAX_FAST_FALL_DOWN_SPEED = 8;
-export const GRAVITY_FAST_FALL_STRENGHT = 13;
+export const MAX_FAST_FALL_DOWN_SPEED = 1000;               // max downward speed the player can achive when fast falling
+export const GRAVITY_FAST_FALL_STRENGHT = 3000;             // gravity strength when fast falling
 
 // walk speed
-export const WALK_SPEED=1;
-export const WALK_ACC=10;
-export const WALK_DEC=10;
+export const WALK_SPEED=200;                                // walk speed of the player
+export const WALK_ACC=1500;                                 // how quickly the player reatch a desire speed
+export const COUNTER_WALK_MUL=2;                            // counter walk multiplicator, help changing direction quickly
+export const WALK_DEC=1000;                                 // how quickly the player goses back to the target speed if he's faster
 
 
-export const JUMP_STENGHT=1.25;
-export const JUMP_MAX_LENGHT=0.2;
-export const JUMP_MIN_LENGHT=0.02;
-export const AIR_MUL = 0.7;
-export const JUMP_END_MULT=0.3;
+export const JUMP_STRENGTH=250;                             // jump vertical strength
+export const JUMP_MAX_LENGHT=0.2;                           // jump max time length
+export const JUMP_MIN_LENGHT=0.02;                          // jump min time length
+export const AIR_MUL = 0.7;                                 // air multiplyer, use to reduce air controlle for example
+export const JUMP_END_MULT=0.3;                             // amount of which the vertical speed of the player will be multipl when ending a jump
 
-const CROUTCH_MUL=1.5;
-const CROUTCH_MOVE_PENALITY=0.5;
+const CROUTCH_MUL=1.5;                                      // croutch friction multiplyer
+const CROUTCH_MOVE_PENALITY=0.5;                            // croutch movement penality multiplyer
+
+
+
 
 
 // camera
-const CAMERA_LOOK_HEAD_STRENGHT=100;
-const CAMEAR_LOOK_HEAD_SPEED=2;
-const CAMEAR_LOOK_HEAD_TIMER=0.5;
+const CAMERA_LOOK_AHEAD_STRENGTH=100;                       // camera look ahead strength
+const CAMEAR_LOOK_AHEAD_SPEED=2;                            // camera speed to reatch to lock ahead
+const CAMEAR_LOOK_AHEAD_TIMER=0.5;                          // how long the player need to go in one direction to have the look ahead camear effect in the direction
 
 
 const DEFAULT_RIDE_VELOCITY=new Vector(0,0);
@@ -63,25 +68,28 @@ const DEFAULT_RIDE_VELOCITY=new Vector(0,0);
 
 
 const debug={
-    freeCam:false,
-    debugInfo:false,
-    debugCollision:false
+    debugInfo:true,
+    debugCollision:true
 }
 
 
 
 export class Player extends Actor{
 
-    constructor(x,y){
-        super(x,y);
+    constructor(){
+        super();
+
+        this.dead=false;    // if the player dead {skull emoji}
 
 
         this.game=null; // game instance
 
 
-        this.velocity=new Vector(0,0);
+        this.velocity=new Vector(0,0);  // velocity of the player
 
-        this.rideVelocity=null;
+        this.rideTile=null;             // tile rided by the player
+
+        this.ridePositionBuffer=new Vector(0,0);    // last tile rided position
 
 
         // list of tile needed to be triggered during the last update (clear with each update)
@@ -90,7 +98,6 @@ export class Player extends Actor{
 
 
         // input
-
         this.input={
             releaseJump:true,
             releaseAction:true
@@ -104,14 +111,14 @@ export class Player extends Actor{
             ()=>{
                 return this.canJump();
             },
-            BUFFER_LENGHT
+            BUFFER_LENGTH
         ));
 
         this.bufferSystem.register("endJump",new Buffer(
             ()=>{
                 return this.onJump;
             },
-            BUFFER_LENGHT
+            BUFFER_LENGTH
         ));
 
 
@@ -121,29 +128,32 @@ export class Player extends Actor{
         // collision
         this.collider=Shape.createShape(ShapeType.SQUARE).setScale(new Vector(TILE_SIZE,TILE_SIZE));
 
+        // collider when croutched
         this.croutchCollider=Shape.createShape(ShapeType.SQUARE,new Vector(0,TILE_SIZE/4),new Vector(TILE_SIZE,TILE_SIZE/2));
 
+        // trigger use to check if grounded
         this.groundTriggerBox = Shape.createShape(
             ShapeType.SQUARE,
             new Vector(0,TILE_SIZE/2 + 1),
             new Vector(TILE_SIZE-1,2)
         );
 
+        // trigger use to check for corner correction
         this.jumpCorrectionBox = [
             Shape.createShape(
                 ShapeType.SQUARE,
-                new Vector(-TILE_SIZE/2 + VERTICAL_CORNER_CORRECTION_LENGHT/2,0),
-                new Vector(VERTICAL_CORNER_CORRECTION_LENGHT,2)
+                new Vector(-TILE_SIZE/2 + VERTICAL_CORNER_CORRECTION_SIZE/2,0),
+                new Vector(VERTICAL_CORNER_CORRECTION_SIZE,2)
             ),
             Shape.createShape(
                 ShapeType.SQUARE,
-                new Vector(+TILE_SIZE/2 - VERTICAL_CORNER_CORRECTION_LENGHT/2,0),
-                new Vector(VERTICAL_CORNER_CORRECTION_LENGHT,2)
+                new Vector(+TILE_SIZE/2 - VERTICAL_CORNER_CORRECTION_SIZE/2,0),
+                new Vector(VERTICAL_CORNER_CORRECTION_SIZE,2)
             ),
             Shape.createShape(
                 ShapeType.SQUARE,
                 new Vector(0,-TILE_SIZE/2-1),
-                new Vector(TILE_SIZE-2*VERTICAL_CORNER_CORRECTION_LENGHT,2)
+                new Vector(TILE_SIZE-2*VERTICAL_CORNER_CORRECTION_SIZE,2)
             ),
 
             /*
@@ -185,14 +195,14 @@ export class Player extends Actor{
         // camera
         this.cameraOffsetX=0;
         this.cameraHeadDir=1;
-        this.cameraHeadTimer=CAMEAR_LOOK_HEAD_TIMER;
+        this.cameraHeadTimer=CAMEAR_LOOK_AHEAD_TIMER;
 
+        // if free camera is activated
         this.onFreeCam=false;
         this.freeCamOffset=new Vector(0,0);
 
 
         // animation
-
 
         this.walkAnimation = {
             dis : 0,
@@ -212,6 +222,9 @@ export class Player extends Actor{
 
     //#region ============== INPUT ==============
 
+    /**
+     * Update input reconition
+     */
     inputUpdate(){
         if(Input.jump.pressed && this.input.releaseJump){
             this.bufferSystem.init("initJump");
@@ -232,6 +245,11 @@ export class Player extends Actor{
 
 
 
+    /**
+     * Get the collider of the player
+     * @param {Vector} position position of the player
+     * @returns {Shape}
+     */
     getCollider(position = this.position){
         return ((this.onCroutch)?this.croutchCollider:this.collider).setOrigine(position);
     }
@@ -245,6 +263,7 @@ export class Player extends Actor{
         let colVec=new Vector(0,0);
         const tiles = this.game.getSuroundTiles(position.x,position.y,this.getCollider().getBoundingBox(),2);
 
+        // sort tiles by distance
         tiles.sort((a,b)=>{
             if(a===null && b!==null){
                 return 1;
@@ -257,6 +276,7 @@ export class Player extends Actor{
             }
             return Vector.sub(a.position,position).sqrt_magnetude() - Vector.sub(b.position,position).sqrt_magnetude()
         });
+
         for (const tile of tiles) {
             if(tile===null)continue;
             const collider = tile.getCollider();
@@ -292,7 +312,7 @@ export class Player extends Actor{
         const velMagnetude = vel.magnetude();
 
         // we use max since it's possible to go slower then a velocity step and we still need to move in that case
-        const nStep = Math.max(1,Math.round(velMagnetude/COLLISION_STEP));
+        const nStep = Math.max(1,Math.round(velMagnetude/COLLISION_STEP_MAGNETUDE));
 
         const stepVel = Vector.normalize(vel).scale(velMagnetude/nStep);
 
@@ -312,10 +332,12 @@ export class Player extends Actor{
 
 
 
+
     /**
      * Project a trigger shape
-     * @param {Shape} shape
-     * @returns
+     * @param {Shape} shape shape use
+     * @param {Tile[]} preComputeTile if set, list of tile to use for the trigger test
+     * @returns {Tile[]} list of tile catch by the trigger
      */
     projectTrigger(shape,preComputeTile=[]){
         const result=[];
@@ -343,23 +365,31 @@ export class Player extends Actor{
 
     //#region ============== CAMERA ==============
 
+    /**
+     * Toggle free camera
+     * @param {*} state
+     */
     toggleFreeCam(state){
         this.onFreeCam=state;
         this.freeCamOffset.set(0,0);
     }
 
+    /**
+     * Update camera behavior
+     * @param {number} t delta t
+     */
     updateCamera(t){
         const d = this.getTargetFacingDir();
 
         if(this.cameraHeadTimer>=0){
-            this.cameraOffsetX = MathUtils.approche_nLinear(this.cameraOffsetX,this.cameraHeadDir,(distance)=>{
+            this.cameraOffsetX = MathUtils.approche_noneLinear(this.cameraOffsetX,this.cameraHeadDir,(distance)=>{
                 let m = 0.2;
                 const d = Math.abs(distance);
                 if(d>m){
                     m=d;
                 }
 
-                return t * CAMEAR_LOOK_HEAD_SPEED * m
+                return t * CAMEAR_LOOK_AHEAD_SPEED * m
 
             });
         }
@@ -369,15 +399,15 @@ export class Player extends Actor{
                 this.cameraHeadTimer-=t;
             }
             else{
-                this.cameraHeadTimer=CAMEAR_LOOK_HEAD_TIMER;
+                this.cameraHeadTimer=CAMEAR_LOOK_AHEAD_TIMER;
                 this.cameraHeadDir=d;
             }
         }
         else if(d!==0){
-            this.cameraHeadTimer=CAMEAR_LOOK_HEAD_TIMER;
+            this.cameraHeadTimer=CAMEAR_LOOK_AHEAD_TIMER;
         }
 
-        this.game.setCameraOffset(new Vector(this.cameraOffsetX*CAMERA_LOOK_HEAD_STRENGHT,0));
+        this.game.setCameraOffset(new Vector(this.cameraOffsetX*CAMERA_LOOK_AHEAD_STRENGTH,0));
 
 
     }
@@ -406,8 +436,8 @@ export class Player extends Actor{
 
     /**
      * Start a jump
-     * @param {*} vel_y actual velocity y
-     * @returns new velocty y
+     * @param {number} vel_y actual velocity y
+     * @returns {number} new velocty y
      */
     initJump(vel_y){
         this.onJump=true;
@@ -415,13 +445,13 @@ export class Player extends Actor{
         this.airAnimation.skich=0.5;
         this.coyotie_timer=-1;
 
-        return -JUMP_STENGHT;
+        return -JUMP_STRENGTH;
     }
 
     /**
      * end a jump
-     * @param {*} vel_y actual velocity y
-     * @returns new velocty y
+     * @param {number} vel_y actual velocity y
+     * @returns {number} new velocty y
      */
     endJump(vel_y){
         if(this.jumpTimer>(JUMP_MAX_LENGHT-JUMP_MIN_LENGHT)){
@@ -437,14 +467,14 @@ export class Player extends Actor{
 
     /**
      * Jump update
-     * @param {*} vel_y actual velocity y
-     * @param {*} t delta t
-     * @returns new velocity y
+     * @param {number} vel_y actual velocity y
+     * @param {number} t delta t
+     * @returns {number} new velocity y
     */
     jumpUpdate(vel_y,t){
 
         if(this.onGround){
-            this.coyotie_timer=COYOTIE_TIME;
+            this.coyotie_timer=COYOTIE_TIME_LENGTH;
         }
         else if(this.coyotie_timer>0){
             this.coyotie_timer-=t;
@@ -479,7 +509,11 @@ export class Player extends Actor{
 
     //#region =========== Move X
 
-    canMove(){
+    /**
+     * Can the player move horizontaly
+     * @returns {boolean}
+     */
+    canWalk(){
         return !(this.onCroutch && this.onGround);
     }
 
@@ -505,7 +539,7 @@ export class Player extends Actor{
     /**
      * Get the movement factor use to compute things like air controlle of accéleration
      * Basicly, if small factor = ice friction, big factor = big friction
-     * @returns
+     * @returns {number}
      */
     getMovmentFactor(){
         let mult = this.onGround?1:AIR_MUL;
@@ -519,13 +553,13 @@ export class Player extends Actor{
 
     /**
      * Update movement
-     * @param {*} vel_x actual velocity x
-     * @param {*} t delta t
-     * @returns new velocity x
+     * @param {number} vel_x actual velocity x
+     * @param {number} t delta t
+     * @returns {number} new velocity x
      */
     movementUpdate(vel_x,t){
 
-        let dir=this.canMove()?this.getTargetFacingDir():0;
+        let dir=this.canWalk()?this.getTargetFacingDir():0;
 
         this.facing=(dir!=0)?dir:this.facing;
 
@@ -540,6 +574,9 @@ export class Player extends Actor{
         }
         else{
             mult *= this.walkAcc;
+            if(dir !== 0 && dir !==Math.sign(vel_x)){
+                mult*=COUNTER_WALK_MUL;
+            }
         }
 
         return MathUtils.approche(vel_x,this.getBaseVelocity().x + dir * this.walkSpeed,  mult * t);
@@ -551,19 +588,27 @@ export class Player extends Actor{
 
     //#region =========== Move Y
 
+    /**
+     * Get actual max down speed
+     * @returns {number}
+     */
     getMaxDownSpeed(){
         return Input.down.pressed?MAX_FAST_FALL_DOWN_SPEED:MAX_DOWN_SPEED;
     }
 
+    /**
+     * Get actual gravity strenght
+     * @returns {number}
+     */
     getGravity(){
         return Input.down.pressed?GRAVITY_FAST_FALL_STRENGHT:GRAVITY_STRENGHT;
     }
 
     /**
      * gravity update
-     * @param {*} vel_y actual velocity y
-     * @param {*} t delta t
-     * @returns new velocity y
+     * @param {number} vel_y actual velocity y
+     * @param {number} t delta t
+     * @returns {number}  new velocity y
      */
     gravitUpdate(vel_y,t){
         // if jump, no gravity
@@ -580,19 +625,51 @@ export class Player extends Actor{
 
     //#region ============== PHYSIC ==============
 
-    setRideVelocity(vel){
-        if(this.rideVelocity===vel)return;
-        this.rideVelocity=vel;
-        this.velocity.add(vel);
+    /**
+     * set a tile as a riding tile
+     * @param {Tile} tile
+     */
+    setRidingTile(tile){
+        if(this.rideTile===tile)return;
+        if(!(tile instanceof MovingTile))return;
+
+        this.rideTile=tile;
+        this.ridePositionBuffer.set(this.rideTile.position);
+
+        this.velocity.set(tile.velocity.clone().add(Vector.sub(this.velocity,tile.velocity)));
     }
 
+    /**
+     * end riding a tile
+     */
     endRide(){
-        if(this.rideVelocity===null)return;
-        this.rideVelocity=null;
+        if(this.rideTile===null)return;
+        this.velocity.add(this.rideTile.velocity);
+        this.rideTile=null;
+        this.ridePositionBuffer.set(0,0);
+
+
     }
 
+    /**
+     * Update tile riding
+     */
+    updateRideTile(){
+        if(this.rideTile===null)return;
+        const buffer =this.rideTile.position.clone();
+        buffer.sub(this.ridePositionBuffer);
+        this.position.add(buffer.x,buffer.y);
+        this.ridePositionBuffer.set(this.rideTile.position);
+    }
+
+
+
+    /**
+     * Get the default velocity (the zero if you want);
+     * @returns
+     */
     getBaseVelocity(){
-        return this.rideVelocity===null?DEFAULT_RIDE_VELOCITY:this.rideVelocity;
+        return DEFAULT_RIDE_VELOCITY;
     }
 
 
@@ -611,11 +688,9 @@ export class Player extends Actor{
         // check for ridding
         if(this.onGround){
             for (const tile of groundTile) {
-                if(tile.velocity!==undefined){
-                    this.setRideVelocity(tile.velocity);
-                    riding=true;
-                    break;
-                }
+                this.setRidingTile(tile);
+                riding=true;
+                break;
             }
         }
 
@@ -627,8 +702,7 @@ export class Player extends Actor{
 
     /**
      * Check if a vertical corner correction is need and if yes
-     * apply it
-     * @returns
+     * correct it
      */
     checkVerticalCornerCorrection(){
 
@@ -688,11 +762,18 @@ export class Player extends Actor{
     }
 
 
+    /**
+     * Can the player croutch
+     * @returns {boolean}
+     */
     canCroutch(){
         return this.onGround && !this.onJump;
     }
 
 
+    /**
+     * Coutch update
+     */
     croutchUpdate(){
         if(this.onCroutch){
             if(!Input.down.pressed || this.velocity.y>0){
@@ -729,6 +810,12 @@ export class Player extends Actor{
         return true;
     }
 
+    /**
+     * Compute and move along the X axis
+     * @param {number} vel velociy in the X axis
+     * @param {number} t delta t
+     * @returns {number} new velocity in the X axis
+     */
     moveX(vel,t){
         let vel_x=vel;
 
@@ -736,7 +823,7 @@ export class Player extends Actor{
 
 
         // mindot is higher here to prevent stop agains slop
-        if(!this.moveWithVelCollision(new Vector(vel_x,0),0.998)){
+        if(!this.moveWithVelCollision(new Vector(vel_x*t,0),0.998)){
             vel_x=this.getBaseVelocity().x;
         }
 
@@ -745,6 +832,12 @@ export class Player extends Actor{
         return vel_x;
     }
 
+    /**
+     * Compute and move along the Y axis
+     * @param {number} vel velociy in the Y axis
+     * @param {number} t delta t
+     * @returns {number} new velocity in the Y axis
+     */
     moveY(vel,t){
         let vel_y=vel;
 
@@ -752,10 +845,11 @@ export class Player extends Actor{
 
         vel_y=this.jumpUpdate(vel_y,t);
 
-        if(!this.moveWithVelCollision(new Vector(0,vel_y),((vel_y<0)?0.998:0.6))){
+        if(!this.moveWithVelCollision(new Vector(0,vel_y*t),((vel_y<0)?0.998:0.6))){
             // check for corner correction
             if(vel_y>=0 || !this.checkVerticalCornerCorrection()){
                 vel_y=this.getBaseVelocity().y;
+                console.log("end");
             }
 
         }
@@ -766,12 +860,27 @@ export class Player extends Actor{
 
     //#endregion
 
+    /**
+     * When player spawn
+     */
+    onSpawn(){
+        this.dead=false;
+        this.velocity.set(0,0);
+        this.onCroutch=false;
+        this.onMove=false;
+        this.onJump=false;
+        this.facing=1;
+        this.rideTile=null;
+    }
+
+
 
     onCreate(game){
         this.game=game;
         game.setCameraTarget(this.position);
         game.setCameraPosition(this.position);
     }
+
 
     update(t){
         if(this.onFreeCam){
@@ -795,8 +904,11 @@ export class Player extends Actor{
             return;
         }
 
+        if(this.dead)return;
+
+
         // update camera
-        this.updateCamera(t);
+        //this.updateCamera(t);
 
         // ground detetction
         this.environmentDetection();
@@ -805,6 +917,7 @@ export class Player extends Actor{
 
 
 
+        // moving update
         this.velocity.x=this.moveX(this.velocity.x,t);
         this.velocity.y=this.moveY(this.velocity.y,t);
 
@@ -821,11 +934,12 @@ export class Player extends Actor{
         // input update
         this.inputUpdate();
 
-
+        // riding update
+        this.updateRideTile();
 
 
         // buffer update
-        this.bufferSystem.step(t);
+        this.bufferSystem.update(t);
 
         if(this.position.y>200*TILE_SIZE){
             this.position.set(0,0);
@@ -845,7 +959,16 @@ export class Player extends Actor{
         console.log("destroy");
     }
 
+    /**
+     * Render the player
+     * @param {number} x position X on screen
+     * @param {number} y position Y on screen
+     * @param {context2D extended} context js context 2d with additional utils function given by the Renderer
+     * @param {number} t delta t between 2 render
+     */
     render(x,y,context,t){
+
+        if(this.dead)return;
 
         const r = RessourceLoader.getRessourceLoader();
         const image=r.get("./ressource/testPlayer.png");
@@ -855,7 +978,7 @@ export class Player extends Actor{
         const offset=new Vector(0,0);
 
         if(this.onMove && this.onGround){
-            this.walkAnimation.dis = MathUtils.approche(this.walkAnimation.dis,(Math.min(1,this.velocity.x/1)*0.2),t*2);
+            this.walkAnimation.dis = MathUtils.approche(this.walkAnimation.dis,(MathUtils.clamp(this.velocity.x/100,-1,1)*0.2),t*2);
             this.walkAnimation.c += t*15;
 
             const v = (Math.abs(Math.cos(this.walkAnimation.c))-0.5)*0.2;
@@ -891,7 +1014,7 @@ export class Player extends Actor{
             scale.y = scale.y+this.airAnimation.skich;
         }
         else if(!this.onCroutch && !this.onGround){
-            this.airAnimation.skich=MathUtils.approche(this.airAnimation.skich,0.5 * Math.min(1, Math.abs(this.velocity.y / 10)),t*2);
+            this.airAnimation.skich=MathUtils.approche(this.airAnimation.skich,0.5 * Math.min(1, Math.abs(this.velocity.y / 1000)),t*2);
             scale.x = scale.x-this.airAnimation.skich;
             scale.y = scale.y+this.airAnimation.skich;
         }
@@ -917,6 +1040,10 @@ export class Player extends Actor{
 
     }
 
+    /**
+     * Get the list of text to show in the debug text
+     * @returns
+     */
     getDebugText(){
         return [
             "ground : "+this.onGround,
@@ -925,6 +1052,13 @@ export class Player extends Actor{
         ]
     }
 
+    /**
+     * Render debugs
+     * @param {*} x
+     * @param {*} y
+     * @param {*} context
+     * @param {*} t
+     */
     renderDebug(x,y,context,t){
         // debug
         const debugContext = context.getDebugContext();

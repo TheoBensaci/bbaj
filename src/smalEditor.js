@@ -1,3 +1,7 @@
+/**
+!!!!!!!!!!!!!!! DEBUG, WILL BE DESTROY !!!!!!!!!!!!!!!
+ */
+
 import { RENDER_RESOLUTION, TILE_SIZE } from "./constant.js";
 import { Director } from "./director.js";
 import { GroundTile } from "./game/tile/groundTile.js";

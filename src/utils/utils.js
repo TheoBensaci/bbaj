@@ -125,16 +125,23 @@ export class MathUtils{
     /**
      * Approche a value by the step
      * (from : monocle-engine)
-     * @param {*} value actual value
-     * @param {*} target target value
-     * @param {*} step step
-     * @returns
+     * @param {number} value actual value
+     * @param {number} target target value
+     * @param {number} step step
+     * @returns {number}
      */
     static approche(value,target, step){
         return value > target ? Math.max(value - step, target) : Math.min(value + step, target);
     }
 
-    static approche_nLinear(value,target, stepFunction){
+    /**
+     * Approche function but with a step function insted of a linear step
+     * @param {number} value actual value
+     * @param {number} target target value
+     * @param {function} stepFunction step function, need to return a {number}
+     * @returns {number}
+     */
+    static approche_noneLinear(value,target, stepFunction){
         const disatnce = target-value;
         const step = stepFunction(disatnce);
         return value > target ? Math.max(value - step, target) : Math.min(value + step, target);
