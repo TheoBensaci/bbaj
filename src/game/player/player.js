@@ -628,15 +628,15 @@ export class Player extends Actor{
     /**
      * set a tile as a riding tile
      * @param {Tile} tile
+     * @returns {boolean} if the player as started to ride a tile or is riding the same tile
      */
     setRidingTile(tile){
-        if(this.rideTile===tile)return;
-        if(!(tile instanceof MovingTile))return;
-
+        if(this.rideTile===tile)return true;
+        if(!(tile instanceof MovingTile))return false;
         this.rideTile=tile;
         this.ridePositionBuffer.set(this.rideTile.position);
-
         this.velocity.set(tile.velocity.clone().add(Vector.sub(this.velocity,tile.velocity)));
+        return true;
     }
 
     /**
@@ -688,9 +688,10 @@ export class Player extends Actor{
         // check for ridding
         if(this.onGround){
             for (const tile of groundTile) {
-                this.setRidingTile(tile);
-                riding=true;
-                break;
+                if(this.setRidingTile(tile)){
+                    riding=true;
+                    break;
+                }
             }
         }
 
@@ -849,7 +850,6 @@ export class Player extends Actor{
             // check for corner correction
             if(vel_y>=0 || !this.checkVerticalCornerCorrection()){
                 vel_y=this.getBaseVelocity().y;
-                console.log("end");
             }
 
         }
@@ -916,6 +916,10 @@ export class Player extends Actor{
         this.croutchUpdate();
 
 
+        // riding update
+        this.updateRideTile();
+
+
 
         // moving update
         this.velocity.x=this.moveX(this.velocity.x,t);
@@ -934,8 +938,7 @@ export class Player extends Actor{
         // input update
         this.inputUpdate();
 
-        // riding update
-        this.updateRideTile();
+
 
 
         // buffer update
@@ -1048,7 +1051,8 @@ export class Player extends Actor{
         return [
             "ground : "+this.onGround,
             "position : "+this.position.to_string(),
-            "velocity x : "+this.velocity.x
+            "velocity x : "+this.velocity.x,
+            "ridding : "+(this.rideTile!==null)
         ]
     }
 

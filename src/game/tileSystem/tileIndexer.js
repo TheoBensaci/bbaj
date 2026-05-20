@@ -49,7 +49,6 @@ export class TileIndex{
         }
         const tileGroup = TileIndex.#data.get(groupID);
         if(id<0 || tileGroup.length <= id ){
-            console.log(tileGroup);
             throw new Error("ID '"+id+"' dosn't exist in the group '"+groupID+"'");
         }
         return tileGroup[id].createTile(params);

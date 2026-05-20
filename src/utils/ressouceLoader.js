@@ -38,8 +38,6 @@ export class RessourceLoader{
      * @param {*} callback
      */
     preload_Image(paths, callback){
-        console.log("start preload");
-        console.log(paths);
         this.loadNext_Image(paths,0,callback);
     }
 

@@ -36,7 +36,7 @@ export class MovingPlatform extends MovingTile{
     update(t){
         this.t= (this.t + t)%(2*Math.PI);
 
-        this.velocity.y = Math.cos(this.t*2) * 100;
+        this.velocity.y = Math.cos(this.t*4) * 400;
 
         this.position.add(0,this.velocity.y* t);
     }
