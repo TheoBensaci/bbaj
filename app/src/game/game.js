@@ -6,6 +6,7 @@ import { Shape, ShapeType } from "../utils/shape.js";
 import { MathUtils } from "../utils/utils.js";
 import { Vector } from "../utils/vector.js";
 import { Player } from "./player/player.js";
+import { PlayerD } from "./player/playerD.js";
 import { PlayerRollDash } from "./player/playerRollDash.js";
 import { GroundTile } from "./tile/groundTile.js";
 import { MovingPlatform } from "./tile/movingPlatform.js";
@@ -290,7 +291,7 @@ export class Game{
 
     createPlayer(){
 
-        this.player=new PlayerRollDash(0,0);
+        this.player=new PlayerD(0,0);
         this.player.onCreate(this);
         this.player.dead=true;
         return this.player;
@@ -344,10 +345,11 @@ export class Game{
 
         // update camera pos
         const targetPos = (this.cameraForceTarget!==null?this.cameraForceTarget:this.cameraTarget).clone();
-        //targetPos.x = MathUtils.clamp(targetPos.x,this.cameraTarget.x-CAMERA_DEAD_ZONE[0]/2,this.cameraTarget.x+CAMERA_DEAD_ZONE[0]/2);
         targetPos.add(this.cameraOffset);
+        this.cameraPosition.x=MathUtils.lerp(this.cameraPosition.x,targetPos.x,this.t*CAMERA_SPEED[0]);
+        this.cameraPosition.y=MathUtils.lerp(this.cameraPosition.y,targetPos.y,this.t*CAMERA_SPEED[1]);
 
-        this.setCameraPosition(targetPos);
+        this.setCameraPosition(this.cameraPosition);
 
 
         this.lastTime=newDate;

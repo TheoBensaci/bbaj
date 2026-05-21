@@ -106,3 +106,7 @@ ____
   - [ _ ] trigger spike
   - [ _ ] jump pad
   - [ _ ] one way platform
+
+- [ _ ] Other
+  - [ _ ] Comment more lmao
+  - [ _ ] Refactor director

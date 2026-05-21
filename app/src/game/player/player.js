@@ -32,23 +32,24 @@ export const COLLISION_STEP_MAGNETUDE=1;                    // magnetude min use
 
 // physic settings
 export const MAX_DOWN_SPEED = 700;                          // max downward speed the player can achive
-export const GRAVITY_STRENGHT = 1500;                       // gravity strength
+export const GRAVITY_STRENGHT = 1000;                       // gravity strength
 
 export const MAX_FAST_FALL_DOWN_SPEED = 1000;               // max downward speed the player can achive when fast falling
-export const GRAVITY_FAST_FALL_STRENGHT = 3000;             // gravity strength when fast falling
+export const GRAVITY_FAST_FALL_STRENGHT = 1500;             // gravity strength when fast falling
 
 // walk speed
 export const WALK_SPEED=200;                                // walk speed of the player
 export const WALK_ACC=1500;                                 // how quickly the player reatch a desire speed
 export const COUNTER_WALK_MUL=2;                            // counter walk multiplicator, help changing direction quickly
-export const WALK_DEC=1000;                                 // how quickly the player goses back to the target speed if he's faster
+export const WALK_DEC=750;                                 // how quickly the player goses back to the target speed if he's faster
 
 
 export const JUMP_STRENGTH=250;                             // jump vertical strength
 export const JUMP_MAX_LENGHT=0.2;                           // jump max time length
 export const JUMP_MIN_LENGHT=0.02;                          // jump min time length
 export const AIR_MUL = 0.7;                                 // air multiplyer, use to reduce air controlle for example
-export const JUMP_END_MULT=0.3;                             // amount of which the vertical speed of the player will be multipl when ending a jump
+export const JUMP_END_COUNTER=50;                             // amount of which the vertical speed of the player will be multipl when ending a jump
+export const JUMP_MIN_END_COUNTER=100;
 
 const CROUTCH_MUL=1.5;                                      // croutch friction multiplyer
 const CROUTCH_MOVE_PENALITY=0.5;                            // croutch movement penality multiplyer
@@ -126,34 +127,34 @@ export class Player extends Actor{
         this.facing=1;  // where the player is facing
 
         // collision
-        this.collider=Shape.createShape(ShapeType.SQUARE).setScale(new Vector(TILE_SIZE,TILE_SIZE));
+        this.collider=Shape.createShape(ShapeType.SQUARE,new Vector(0,0),new Vector(TILE_SIZE*0.8,TILE_SIZE))
 
         // collider when croutched
-        this.croutchCollider=Shape.createShape(ShapeType.SQUARE,new Vector(0,TILE_SIZE/4),new Vector(TILE_SIZE,TILE_SIZE/2));
+        this.croutchCollider=Shape.createShape(ShapeType.SQUARE,new Vector(0,TILE_SIZE/4),new Vector(TILE_SIZE*0.8,TILE_SIZE/2));
 
         // trigger use to check if grounded
         this.groundTriggerBox = Shape.createShape(
             ShapeType.SQUARE,
             new Vector(0,TILE_SIZE/2 + 1),
-            new Vector(TILE_SIZE-1,2)
+            new Vector(TILE_SIZE*0.8-1,2)
         );
 
         // trigger use to check for corner correction
         this.jumpCorrectionBox = [
             Shape.createShape(
                 ShapeType.SQUARE,
-                new Vector(-TILE_SIZE/2 + VERTICAL_CORNER_CORRECTION_SIZE/2,0),
+                new Vector(-(TILE_SIZE*0.8)/2 + VERTICAL_CORNER_CORRECTION_SIZE/2,0),
                 new Vector(VERTICAL_CORNER_CORRECTION_SIZE,2)
             ),
             Shape.createShape(
                 ShapeType.SQUARE,
-                new Vector(+TILE_SIZE/2 - VERTICAL_CORNER_CORRECTION_SIZE/2,0),
+                new Vector(+(TILE_SIZE*0.8)/2 - VERTICAL_CORNER_CORRECTION_SIZE/2,0),
                 new Vector(VERTICAL_CORNER_CORRECTION_SIZE,2)
             ),
             Shape.createShape(
                 ShapeType.SQUARE,
-                new Vector(0,-TILE_SIZE/2-1),
-                new Vector(TILE_SIZE-2*VERTICAL_CORNER_CORRECTION_SIZE,2)
+                new Vector(0,-(TILE_SIZE*0.8)/2-1),
+                new Vector((TILE_SIZE*0.8)-2*VERTICAL_CORNER_CORRECTION_SIZE,2)
             ),
 
             /*
@@ -165,7 +166,7 @@ export class Player extends Actor{
             Shape.createShape(
                 ShapeType.SQUARE,
                 new Vector(0,-TILE_SIZE/2-TILE_SIZE*2),
-                new Vector(TILE_SIZE,TILE_SIZE*4)
+                new Vector((TILE_SIZE*0.8),TILE_SIZE*4)
             )
         ]
 
@@ -187,6 +188,7 @@ export class Player extends Actor{
         this.onJump=false;
         this.jumpTimer=0;
         this.coyotie_timer=0;
+        this.minJump=false;
 
         // croutch
         this.onCroutch=false;
@@ -444,6 +446,7 @@ export class Player extends Actor{
         this.jumpTimer=JUMP_MAX_LENGHT;
         this.airAnimation.skich=0.5;
         this.coyotie_timer=-1;
+        this.minJump=false;
 
         return -JUMP_STRENGTH;
     }
@@ -456,11 +459,12 @@ export class Player extends Actor{
     endJump(vel_y){
         if(this.jumpTimer>(JUMP_MAX_LENGHT-JUMP_MIN_LENGHT)){
             this.jumpTimer=JUMP_MIN_LENGHT;
+            this.minJump=true;
             return vel_y;
         }
         this.onJump=false;
         if(vel_y<0){
-            return vel_y+0.25;
+            return vel_y+((this.minJump)?JUMP_MIN_END_COUNTER:JUMP_END_COUNTER);
         }
         return vel_y;
     }
@@ -589,22 +593,6 @@ export class Player extends Actor{
     //#region =========== Move Y
 
     /**
-     * Get actual max down speed
-     * @returns {number}
-     */
-    getMaxDownSpeed(){
-        return Input.down.pressed?MAX_FAST_FALL_DOWN_SPEED:MAX_DOWN_SPEED;
-    }
-
-    /**
-     * Get actual gravity strenght
-     * @returns {number}
-     */
-    getGravity(){
-        return Input.down.pressed?GRAVITY_FAST_FALL_STRENGHT:GRAVITY_STRENGHT;
-    }
-
-    /**
      * gravity update
      * @param {number} vel_y actual velocity y
      * @param {number} t delta t
@@ -613,11 +601,14 @@ export class Player extends Actor{
     gravitUpdate(vel_y,t){
         // if jump, no gravity
         if(this.onJump  || this.onGround || this.coyotie_timer>0.1){
-            //...
             return vel_y;
         }
 
-        return MathUtils.approche(vel_y,this.getMaxDownSpeed(), GRAVITY_STRENGHT*t);
+        if(Input.down.pressed && !this.onGround && !this.onCroutch){
+            return MathUtils.approche(vel_y,MAX_FAST_FALL_DOWN_SPEED, GRAVITY_FAST_FALL_STRENGHT*t);
+        }
+
+        return MathUtils.approche(vel_y,MAX_DOWN_SPEED, GRAVITY_STRENGHT*t);
     }
     //#endregion
 
@@ -705,7 +696,7 @@ export class Player extends Actor{
      * Check if a vertical corner correction is need and if yes
      * correct it
      */
-    checkVerticalCornerCorrection(){
+    checkVerticalCornerCorrection(t){
 
         const tiles = this.game.getSuroundTiles(this.position.x,this.position.y,this.getCollider().getBoundingBox(),2);
 
@@ -755,6 +746,12 @@ export class Player extends Actor{
                 }
 
                 if((v1 && collide.x<0) || (v0 && collide.x>0))return false;
+
+                // check if we are going in the opposite diretion of the corner correction, and if yes and we are fasster, then we inverse de collide
+                // this aim to made essayer things like enter a small gaps will croutching
+                if(Math.sign(collide.x)===Math.sign(this.velocity.x) && Math.abs(collide.x) > Math.abs(this.velocity.x * t)){
+                    collide.x*=-1;
+                }
                 this.position.sub(collide.set(collide.x,0));
                 return true;
             }
@@ -848,7 +845,7 @@ export class Player extends Actor{
 
         if(!this.moveWithVelCollision(new Vector(0,vel_y*t),((vel_y<0)?0.998:0.6))){
             // check for corner correction
-            if(vel_y>=0 || !this.checkVerticalCornerCorrection()){
+            if(vel_y>=0 || (!this.checkVerticalCornerCorrection(t))){
                 vel_y=this.getBaseVelocity().y;
             }
 
