@@ -1,5 +1,5 @@
 {
-  "name": "05-tetris-03-websockets",
+  "name": "build_and_jump",
   "version": "1.0.0",
   "description": "",
   "type": "module",
@@ -11,7 +11,7 @@
     "watch": "nodemon --experimental-modules server.js",
     "test": "mocha --experimental-modules"
   },
-  "author": "Bertil Chapuis, Olivier Lemer & Vincent Guidoux",
+  "author": "Theo Bensaci, Maxime Regenass & Santiago Sugrañes",
   "dependencies": {
     "express": "^5.2.1",
     "express-ws": "^5.0.2"

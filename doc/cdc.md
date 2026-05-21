@@ -7,8 +7,8 @@
 ## 1. Informations générales
 
 - **Nom du projet** : Build and Jump
-- **Membres de l'équipe** : Theo Bensaci, Maxime Regenass, Santiago Sugrañes
-- **Lien du dépôt Git** :
+- **Membres de l'équipe** : Theo Bensaci, Maxime Regenass & Santiago Sugrañes
+- **Lien du dépôt Git** : https://github.com/Me-Theo/Build_And_Jump
 
 ## 2. Description du projet
 

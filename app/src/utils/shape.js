@@ -219,14 +219,43 @@ export class Shape{
         const axisB = shapeB.getNormal();
 
 
-        let totalAxis=[...axisA,...axisB];
+        const totalAxisBuffer=[...axisA,...axisB];
 
-        // ban axis
-        for (const banAxi of banAxis) {
-            totalAxis=totalAxis.filter((item) => {
-                return Math.abs(banAxi.dot(item))!==1;
-            });
+        // track if a axe as been avoide
+        const avoidedAxis = Array(totalAxisBuffer.length);
+        avoidedAxis.fill(false);
+
+        // final total axis
+        const totalAxis = [];
+
+        // axis banned and avoided
+        for (let i = 0; i < totalAxisBuffer.length; i++) {
+            if(avoidedAxis[i])continue;
+
+            // ban axis
+            // check if the axe [i] as been ban and there for avoided
+            for (const banAxi of banAxis) {
+                if(Math.abs(totalAxisBuffer[i].dot(banAxi))===1){
+                    avoidedAxis[i]=true;
+                    break;
+                }
+            }
+
+            // if not avoided add it to the total axis
+            if(!avoidedAxis[i]){
+                // the axe[i] is ok
+                totalAxis.push(totalAxisBuffer[i]);
+            }
+
+            // then we can avoid any axis who's align with this axe
+            for (let j = i; j < totalAxisBuffer.length; j++) {
+                if(avoidedAxis[j])continue;
+
+                // check if axe align and if so, check if the axe as been ban (avoing re-checking with the ban axis array)
+                avoidedAxis[j]=Math.abs(totalAxisBuffer[i].dot(totalAxisBuffer[j]))===1 && avoidedAxis[i];
+            }
         }
+
 
         let smallestAxis = totalAxis[0];
         let smalestScale = Infinity;

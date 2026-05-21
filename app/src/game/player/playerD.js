@@ -15,6 +15,7 @@ const ROLL_ATTACK_SPEED = 500;
 const ROLL_ATTACK_END_SPEED = 500;
 const ROLL_ATTACK_VERTICAL_END_SPEED = 100;
 const ROLL_FRICTION = 1;
+const ROLL_COULDOWN = 0.2;
 
 
 
@@ -42,10 +43,13 @@ export class PlayerD extends Player{
         // roll
         this.canRoll=true;
         this.rollTimer=0;
+        this.rollCouldownTimer=0;
         this.rollDir=1;
 
         this.onRoll=false;
         this.onRollAttack=false;
+
+        this.onDemoRoll = false;
     }
 
     inputUpdate(){
@@ -61,27 +65,49 @@ export class PlayerD extends Player{
         this.input.releaseAction=(!Input.action.pressed)?true:this.input.releaseAction;
     }
 
+    getCollider(position = this.position){
+        if(this.onDemoRoll && this.onRollAttack){
+            return this.croutchCollider.setOrigine(position);
+        }
+        return super.getCollider(position);
+    }
+
     // roll
-
-
     initRoll(vel_x,t){
         this.rollTimer=ROLL_LENGTH;
         this.velocity.y=0;
         this.rollDir=this.getTargetFacingDir(true);
         this.onRoll=true;
         this.onRollAttack=true;
+
+        this.canRoll=false;
+
+        this.onDemoRoll=Input.down.pressed;
+
+        this.onCroutch=false;
+
         return ROLL_ATTACK_SPEED * this.rollDir;
     }
 
-    endRoll(vel_x,t){
+    endRoll(){
         this.rollTimer=0;
         this.onRoll=false;
         this.onRollAttack=false;
-        return vel_x;
+        this.onDemoRoll=false;
+        this.rollCouldownTimer=ROLL_COULDOWN;
     }
 
 
     rollUpdate(vel_x,t){
+
+        if(!this.onRoll && !this.canRoll){
+            if(this.rollCouldownTimer>0){
+                this.rollCouldownTimer-=t;
+            }
+            else{
+                this.canRoll = this.onGround;
+            }
+        }
 
         if(this.bufferSystem.consume("initRoll")){
             return this.initRoll(vel_x,t);
@@ -92,7 +118,8 @@ export class PlayerD extends Player{
                 this.rollTimer-=t;
             }
             else{
-                return this.endRoll(vel_x,t);
+                this.endRoll(vel_x,t);
+                return vel_x;
             }
 
             if(this.onRollAttack && this.rollTimer<=ROLL_ATTACK_END_TIME){
@@ -110,6 +137,22 @@ export class PlayerD extends Player{
         return !this.onRollAttack && super.canWalk();
     }
 
+    canCroutch(){
+        return !this.onRollAttack && super.canCroutch();
+    }
+
+
+    initJump(vel_y){
+        if(this.onRoll){
+            this.endRoll()
+            if(this.onRollAttack){
+
+            }
+        }
+
+        return super.initJump(vel_y);
+    }
+
 
     gravitUpdate(vel_y,t){
         if(this.onRollAttack){
@@ -125,7 +168,13 @@ export class PlayerD extends Player{
 
     moveX(vel,t){
         let vel_x = this.rollUpdate(vel,t);
-        return super.moveX(vel_x,t);
+        if(this.onRollAttack)return vel_x;
+
+        vel_x = super.moveX(vel_x,t);
+        if(this.onRoll && vel_x===this.getBaseVelocity().x){
+            this.endRoll();
+        }
+        return vel_x;
     }
 
     render(x,y,context,t){
@@ -151,7 +200,10 @@ export class PlayerD extends Player{
     getDebugText(){
         return [...super.getDebugText(),
             "on roll : " + this.onRoll + " | "+this.onRollAttack,
-            "roll timer : "+ this.rollTimer
+            "roll timer : "+ this.rollTimer,
+            "croutch : "+this.onCroutch,
+            "can roll : "+this.canRoll,
+            "roll couldown : "+this.rollCouldownTimer
         ]
     }
 

@@ -69,7 +69,7 @@ const DEFAULT_RIDE_VELOCITY=new Vector(0,0);
 
 
 const debug={
-    debugInfo:true,
+    debugInfo:false,
     debugCollision:true
 }
 
@@ -907,14 +907,14 @@ export class Player extends Actor{
         // update camera
         //this.updateCamera(t);
 
+
+        // riding update
+        this.updateRideTile();
+
         // ground detetction
         this.environmentDetection();
 
         this.croutchUpdate();
-
-
-        // riding update
-        this.updateRideTile();
 
 
 
