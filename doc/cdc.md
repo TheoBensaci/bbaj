@@ -50,7 +50,7 @@ L’utilisateur doit pouvoir :
   - plateformes mobiles
   - checkpoints
   - etc.
-- Intégrer plusieurs mécaniques de déplacement inspirées de Celeste :
+- Intégrer plusieurs mécaniques de d'aide au déplacement inspirées de Celeste :
   - Coyote Time
   - Input Buffering
   - Halved-Gravity Jump Peak
