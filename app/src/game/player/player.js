@@ -26,8 +26,15 @@ export const COYOTIE_TIME_LENGTH=0.1;                       // coyotie time time
 const VERTICAL_CORNER_CORRECTION_SIZE = TILE_SIZE/3;        // Vertical corner correction size
 
 
+export const PLAYER_COLLISION_BOX_SIZE=[TILE_SIZE*0.8,TILE_SIZE*0.9];
+export const PLAYER_COLLISION_BOX_OFFSET=[0,TILE_SIZE*(1-PLAYER_COLLISION_BOX_SIZE[1]/TILE_SIZE)*0.5];
+
+
 // physic step
 export const COLLISION_STEP_MAGNETUDE=1;                    // magnetude min use for the displacement vector for collision checking/resolution
+
+export const SLOP_DOT_PRODUCT=0.6;
+export const GROUND_DOT_PRODUCT = 0.98;
 
 
 // physic settings
@@ -41,7 +48,7 @@ export const GRAVITY_FAST_FALL_STRENGHT = 1500;             // gravity strength 
 export const WALK_SPEED=200;                                // walk speed of the player
 export const WALK_ACC=1500;                                 // how quickly the player reatch a desire speed
 export const COUNTER_WALK_MUL=2;                            // counter walk multiplicator, help changing direction quickly
-export const WALK_DEC=750;                                 // how quickly the player goses back to the target speed if he's faster
+export const WALK_DEC=600;                                 // how quickly the player goses back to the target speed if he's faster
 
 
 export const JUMP_STRENGTH=250;                             // jump vertical strength
@@ -51,8 +58,8 @@ export const AIR_MUL = 0.7;                                 // air multiplyer, u
 export const JUMP_END_COUNTER=50;                             // amount of which the vertical speed of the player will be multipl when ending a jump
 export const JUMP_MIN_END_COUNTER=100;
 
-const CROUTCH_MUL=1.5;                                      // croutch friction multiplyer
-const CROUTCH_MOVE_PENALITY=0.5;                            // croutch movement penality multiplyer
+export const CROUTCH_MUL=1.5;                                      // croutch friction multiplyer
+export const CROUTCH_MOVE_PENALITY=0.5;                            // croutch movement penality multiplyer
 
 
 
@@ -69,7 +76,7 @@ const DEFAULT_RIDE_VELOCITY=new Vector(0,0);
 
 
 const debug={
-    debugInfo:false,
+    debugInfo:true,
     debugCollision:true
 }
 
@@ -87,6 +94,8 @@ export class Player extends Actor{
 
 
         this.velocity=new Vector(0,0);  // velocity of the player
+
+        this.bufferRidingTile=null;
 
         this.rideTile=null;             // tile rided by the player
 
@@ -127,34 +136,42 @@ export class Player extends Actor{
         this.facing=1;  // where the player is facing
 
         // collision
-        this.collider=Shape.createShape(ShapeType.SQUARE,new Vector(0,0),new Vector(TILE_SIZE*0.8,TILE_SIZE))
+        this.collider=Shape.createShape(
+            ShapeType.SQUARE,
+            new Vector(PLAYER_COLLISION_BOX_OFFSET[0],PLAYER_COLLISION_BOX_OFFSET[1]),
+            new Vector(PLAYER_COLLISION_BOX_SIZE[0],PLAYER_COLLISION_BOX_SIZE[1])
+        );
 
         // collider when croutched
-        this.croutchCollider=Shape.createShape(ShapeType.SQUARE,new Vector(0,TILE_SIZE/4),new Vector(TILE_SIZE*0.8,TILE_SIZE/2));
+        this.croutchCollider=Shape.createShape(
+            ShapeType.SQUARE,
+            new Vector(PLAYER_COLLISION_BOX_OFFSET[0],PLAYER_COLLISION_BOX_OFFSET[1]+PLAYER_COLLISION_BOX_SIZE[1]/4),
+            new Vector(PLAYER_COLLISION_BOX_SIZE[0],PLAYER_COLLISION_BOX_SIZE[1]/2)
+        );
 
         // trigger use to check if grounded
         this.groundTriggerBox = Shape.createShape(
             ShapeType.SQUARE,
-            new Vector(0,TILE_SIZE/2 + 1),
-            new Vector(TILE_SIZE*0.8-1,2)
+            new Vector(PLAYER_COLLISION_BOX_OFFSET[0], PLAYER_COLLISION_BOX_OFFSET[1] + PLAYER_COLLISION_BOX_SIZE[1]/2 + 0.25),
+            new Vector(TILE_SIZE*0.8-1,0.5)
         );
 
         // trigger use to check for corner correction
         this.jumpCorrectionBox = [
             Shape.createShape(
                 ShapeType.SQUARE,
-                new Vector(-(TILE_SIZE*0.8)/2 + VERTICAL_CORNER_CORRECTION_SIZE/2,0),
+                new Vector(-PLAYER_COLLISION_BOX_SIZE[0]/2 + VERTICAL_CORNER_CORRECTION_SIZE/2,0),
                 new Vector(VERTICAL_CORNER_CORRECTION_SIZE,2)
             ),
             Shape.createShape(
                 ShapeType.SQUARE,
-                new Vector(+(TILE_SIZE*0.8)/2 - VERTICAL_CORNER_CORRECTION_SIZE/2,0),
+                new Vector(+PLAYER_COLLISION_BOX_SIZE[0]/2 - VERTICAL_CORNER_CORRECTION_SIZE/2,0),
                 new Vector(VERTICAL_CORNER_CORRECTION_SIZE,2)
             ),
             Shape.createShape(
                 ShapeType.SQUARE,
-                new Vector(0,-(TILE_SIZE*0.8)/2-1),
-                new Vector((TILE_SIZE*0.8)-2*VERTICAL_CORNER_CORRECTION_SIZE,2)
+                new Vector(0,0),
+                new Vector(PLAYER_COLLISION_BOX_SIZE[0]-2*VERTICAL_CORNER_CORRECTION_SIZE,2)
             ),
 
             /*
@@ -165,8 +182,8 @@ export class Player extends Actor{
             */
             Shape.createShape(
                 ShapeType.SQUARE,
-                new Vector(0,-TILE_SIZE/2-TILE_SIZE*2),
-                new Vector((TILE_SIZE*0.8),TILE_SIZE*4)
+                new Vector(0,-PLAYER_COLLISION_BOX_SIZE[1]/2-TILE_SIZE*2),
+                new Vector(PLAYER_COLLISION_BOX_SIZE[0],TILE_SIZE*4)
             )
         ]
 
@@ -563,9 +580,11 @@ export class Player extends Actor{
      */
     movementUpdate(vel_x,t){
 
-        let dir=this.canWalk()?this.getTargetFacingDir():0;
+        let targetDir = this.getTargetFacingDir();
 
-        this.facing=(dir!=0)?dir:this.facing;
+        let dir=this.canWalk()?targetDir:0;
+
+        this.facing=(targetDir!=0)?targetDir:this.facing;
 
         this.onMove=(dir!==0);
 
@@ -617,17 +636,36 @@ export class Player extends Actor{
     //#region ============== PHYSIC ==============
 
     /**
+     * Get the default velocity (the zero if you want);
+     * @returns
+     */
+    getBaseVelocity(){
+        return DEFAULT_RIDE_VELOCITY;
+    }
+
+
+    /**
      * set a tile as a riding tile
      * @param {Tile} tile
      * @returns {boolean} if the player as started to ride a tile or is riding the same tile
      */
     setRidingTile(tile){
         if(this.rideTile===tile)return true;
-        if(!(tile instanceof MovingTile))return false;
         this.rideTile=tile;
         this.ridePositionBuffer.set(this.rideTile.position);
-        this.velocity.set(tile.velocity.clone().add(Vector.sub(this.velocity,tile.velocity)));
+        const targetVel = Vector.sub(tile.velocity,this.velocity);
+        targetVel.x = (Math.sign(targetVel.x)===Math.sign(this.velocity.x))?targetVel.x:0;
+        targetVel.y = (Math.sign(targetVel.y)===Math.sign(this.velocity.y))?targetVel.y:0;
+        this.velocity.set(targetVel);
         return true;
+    }
+
+    setBufferRidingTile(tile){
+        if(this.rideTile===tile || (tile instanceof MovingTile)){
+            this.bufferRidingTile=tile;
+            return true;
+        }
+        return false;
     }
 
     /**
@@ -638,8 +676,6 @@ export class Player extends Actor{
         this.velocity.add(this.rideTile.velocity);
         this.rideTile=null;
         this.ridePositionBuffer.set(0,0);
-
-
     }
 
     /**
@@ -655,39 +691,23 @@ export class Player extends Actor{
 
 
 
-    /**
-     * Get the default velocity (the zero if you want);
-     * @returns
-     */
-    getBaseVelocity(){
-        return DEFAULT_RIDE_VELOCITY;
-    }
-
-
 
     /**
      * Check environment
      */
-    environmentDetection(){
+    environmentDetection(tiles){
         // check ground
         const groundTile = this.projectTrigger(
-            this.groundTriggerBox.setOrigine(this.position)
+            this.groundTriggerBox.setOrigine(this.position),
+            tiles
         );
         this.onGround=groundTile.length>0;
-
-        let riding = false;
         // check for ridding
         if(this.onGround){
             for (const tile of groundTile) {
-                if(this.setRidingTile(tile)){
-                    riding=true;
-                    break;
-                }
-            }
-        }
 
-        if(!riding){
-            this.endRide();
+                if(this.setBufferRidingTile(tile))break;
+            }
         }
     }
 
@@ -699,8 +719,6 @@ export class Player extends Actor{
     checkVerticalCornerCorrection(t){
 
         const tiles = this.game.getSuroundTiles(this.position.x,this.position.y,this.getCollider().getBoundingBox(),2);
-
-
 
         tiles.sort((a,b)=>{
             if(a===null && b!==null){
@@ -728,6 +746,7 @@ export class Player extends Actor{
             this.jumpCorrectionBox[2].setOrigine(orgine),tiles
         ).length > 0;
 
+        console.log(v3,v1,v0);
 
         if(v3 || !v1 && !v0)return false;
 
@@ -808,49 +827,89 @@ export class Player extends Actor{
         return true;
     }
 
+
     /**
-     * Compute and move along the X axis
-     * @param {number} vel velociy in the X axis
+     * Resolve the movement velocity when stopped in the X axe
+     * @param {number} vel_y velocity x befor stop
+     * @returns {number} new Velocity x
+     */
+    movementStopResolutionX(vel_x,t){
+        return this.getBaseVelocity().x;
+    }
+
+
+    /**
+     * Move, compute collision and resolve the velocity along the x axis
+     * @param {number} vel_x velocity x
+     * @param {number} t delta t
+     * @returns {number} new velocity x
+     */
+    resolveMoveX(vel_x,t){
+        vel_x = this.moveX(vel_x,t);
+        // mindot is higher here to prevent stop agains slop
+        if(!this.moveWithVelCollision(new Vector(vel_x*t,0),GROUND_DOT_PRODUCT)){
+            return this.movementStopResolutionX(vel_x,t);
+        }
+
+        return vel_x;
+
+    }
+
+    /**
+     * Compute velocity in the X axe
+     * @param {number} vel_x velociy in the X axis
      * @param {number} t delta t
      * @returns {number} new velocity in the X axis
      */
-    moveX(vel,t){
-        let vel_x=vel;
+    moveX(vel_x,t){
 
         vel_x=this.movementUpdate(vel_x,t);
-
-
-        // mindot is higher here to prevent stop agains slop
-        if(!this.moveWithVelCollision(new Vector(vel_x*t,0),0.998)){
-            vel_x=this.getBaseVelocity().x;
-        }
-
 
 
         return vel_x;
     }
 
     /**
-     * Compute and move along the Y axis
-     * @param {number} vel velociy in the Y axis
+     * Resolve the movement velocity when stopped in the y axe
+     * @param {number} vel_y velocity y befor stop
+     * @returns {number} new Velocity y
+     */
+    movementStopResolutionY(vel_y,t){
+        // check for corner correction
+        if(vel_y>=0 || (!this.checkVerticalCornerCorrection(t))){
+            return this.getBaseVelocity().y;
+        }
+        return vel_y;
+    }
+
+
+    /**
+     * Move, compute collision and resolve the velocity along the y axis
+     * @param {number} vel_x velocity y
+     * @param {number} t delta t
+     * @returns {number} new velocity y
+     */
+    resolveMoveY(vel_y,t){
+
+        vel_y = this.moveY(vel_y,t);
+
+        if(!this.moveWithVelCollision(new Vector(0,vel_y*t),((vel_y<0)?GROUND_DOT_PRODUCT:SLOP_DOT_PRODUCT))){
+            return this.movementStopResolutionY(vel_y,t)
+        }
+        return vel_y;
+    }
+
+    /**
+     * Compute velocity in the Y axe
+     * @param {number} vel_y velociy in the Y axis
      * @param {number} t delta t
      * @returns {number} new velocity in the Y axis
      */
-    moveY(vel,t){
-        let vel_y=vel;
+    moveY(vel_y,t){
 
         vel_y=this.gravitUpdate(vel_y,t);
 
         vel_y=this.jumpUpdate(vel_y,t);
-
-        if(!this.moveWithVelCollision(new Vector(0,vel_y*t),((vel_y<0)?0.998:0.6))){
-            // check for corner correction
-            if(vel_y>=0 || (!this.checkVerticalCornerCorrection(t))){
-                vel_y=this.getBaseVelocity().y;
-            }
-
-        }
-
 
         return vel_y;
     }
@@ -912,15 +971,24 @@ export class Player extends Actor{
         this.updateRideTile();
 
         // ground detetction
-        this.environmentDetection();
+        this.environmentDetection(this.game.getSuroundTiles(this.position.x,this.position.y,this.getCollider().getBoundingBox(),2));
+
+        if(this.bufferRidingTile===null){
+            this.endRide();
+        }
+        else{
+            this.setRidingTile(this.bufferRidingTile);
+        }
+        this.bufferRidingTile=null;
+
 
         this.croutchUpdate();
 
 
 
         // moving update
-        this.velocity.x=this.moveX(this.velocity.x,t);
-        this.velocity.y=this.moveY(this.velocity.y,t);
+        this.velocity.x=this.resolveMoveX(this.velocity.x,t);
+        this.velocity.y=this.resolveMoveY(this.velocity.y,t);
 
 
         // resolve trigger
@@ -1069,6 +1137,7 @@ export class Player extends Actor{
             context.debugContextRenderShape(this.groundTriggerBox.setOrigine(this.position.x,this.position.y),"#ffff9955",false);
             context.debugContextRenderShape(this.jumpCorrectionBox[0].setOrigine(orgine),"#ff005555",false);
             context.debugContextRenderShape(this.jumpCorrectionBox[1].setOrigine(orgine),"#ff005555",false);
+
         }
 
         if(debug.debugInfo){

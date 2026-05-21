@@ -64,6 +64,7 @@ export class Game{
 
     getTile(x,y){
         if(y<0 || (!this.level[y]) || x<0 || x>=this.level[y].length)return null;
+        if(this.level[y][x]===undefined)return null;
         return this.level[y][x];
     }
 
@@ -164,7 +165,7 @@ export class Game{
     foreachTile(fnc){
         for (const i of this.level) {
             for (const tile of i) {
-                if(tile===null)continue;
+                if(tile===null || tile===undefined)continue;
                 fnc(tile);
             }
         }

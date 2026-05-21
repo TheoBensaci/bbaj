@@ -124,6 +124,7 @@ export class DynamicTile extends Tile{
         const y = Math.floor(pos.y/TILE_SIZE);
         this.gridOriginePos[0]=x;
         this.gridOriginePos[1]=y;
+        return this;
     }
 
     postCreate(game){
