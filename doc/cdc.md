@@ -1,103 +1,139 @@
-
-
 # Cahier des charges — Projet libre
-
-> Template pour votre cahier des charges. Adaptez-le à votre projet.
 
 ## 1. Informations générales
 
 - **Nom du projet** : Build and Jump
-- **Membres de l'équipe** : Theo Bensaci, Maxime Regenass & Santiago Sugrañes
+- **Membres de l'équipe** : Theo Bensaci, Maxime Regenass, Santiago Sugrañes
 - **Lien du dépôt Git** : https://github.com/Me-Theo/Build_And_Jump
+
+---
 
 ## 2. Description du projet
 
-Un petit platformeur web où l'on peut créer un niveau avec un editeur et affronter d'autre jouer (que l'on voit en temps réel (comme des fantômes dans les jeux de course) ) pour voir qui sais est le plus rappide
+Build and Jump est un jeu de plateforme web dans lequel les joueurs peuvent créer leurs propres niveaux grâce à un éditeur intégré, puis les partager et les essayer en multijoueur.
 
-Un peu un genre de mario maker si on veut.
-Si le temps le permette, le but serais de pouvoir faire des courses sur des niveaux crée par les joueur, mais si non, un mode time attaque serais déja un bon début
+Le jeu permet également d’faffronter d’autres joueurs en temps réel. Les déplacements des autres participants sont visibles sous forme de "fantômes", pour voir comment les joueurs negocient la carte.
+
+Le concept s’inspire notamment de jeux comme Mario Maker.
+
+Si le temps le permet, nous aimerions intégrer un véritable mode course sur des niveaux créés par les joueurs. Sinon, un mode "time attack" constituera déjà une première version satisfaisante, où les joueurs essaient d'obtenir le meilleur temps de la salle.
+
+---
 
 ## 3. Objectifs
-L'utilisateur dois pouvoir :
-- crée un niveaux
-- upload un niveaux et permettre a d'autre de le jouer
-- jouer un niveaux crée par un autre utilisateur
-- crée une salle (pour fair un time attaque contre d'autre joueur)
-- rejoindre une salle
-- voir les autre joueur de la salle ce déplacer en temps réel
-- voir les meilleurs temps de tous les joueur de la salle de la session actuel
-- voir le top 5 des meilleur temps du niveaux
 
+L’utilisateur doit pouvoir :
 
-Objectifs principaux du point de vue utilisateur (par ex. *"permettre à un·e utilisateur·rice de…"*).
+- créer un niveau
+- sauvegarder un niveau localement
+- publier un niveau afin que d’autres joueurs puissent y jouer
+- jouer à des niveaux créés par d’autres utilisateurs
+- créer une salle multijoueur
+- rejoindre une salle existante
+- voir les autres joueurs se déplacer en temps réel
+- consulter les meilleurs temps des joueurs présents dans la salle
+- consulter le classement global des meilleurs temps d’un niveau
+
+---
 
 ## 4. Fonctionnalités
 
-### 4.1 Principales
+### 4.1 Fonctionnalités principales
 
-- jeu
-  - jouer un niveaux en local
-  - pouvoire recommencer un niveaux facilement
-  - avoir un selection d'objet plus grande simplement des bloces (donc par exemple, des piques, des platforme qui bouge, des checkpoints, etc...)
-  - pouvoir avoir la majorité des mecanique de base qu'a democtratiser "celeste" (https://maddythorson.medium.com/celeste-forgiveness-31e4a40399f1), sois dans notre cas :
-    - Coyote time
-    - Buffer system
-    - Halved-Gravity Jump Peak
-    - Jump Corner Correction
-    - Semi-Solid Popping (si nos mecanique nous le permette)
-    - Lift Momentum Storage
+#### Jeu
 
-- editeur
-  - load un niveaux depuis un fichier local
-  - jouer le niveaux
-  - sauvegarder le niveaux en local (fichier json)
-  - selection un outile parmit une selections
-  - pouvoir placer tous les objets que propose le jeu (on doit pouvoir crée un niveau qu'avec l'editeur sans devoir passer par du code ou d'autre moyen)
-- online
-  - niveaux
-    - upload un niveaux sur le server
-      - chaque niveaux dois être attrbuer a un ID sur le sever
-    - download un niveaux crée par un autre utilisateur depuis le server
-  - salle
-    - crée une sallee time attaque sur le server
-      - y attribuer un niveaux
-      - la salle est relier a ID
-    - les autre joueur peuvent rejoindre une salle
-      - pouvoir rejoindre la salle vier un ID
-    - voir les autre joueur de la salle ce déplacer en temps réel
-    - voir les meilleur temps des joueur de la salle
-  - upload un temps sur le sever relier un niveaux et un nom de psodo
-  - voir les top 5 meilleur temps du niveau qu'on est en train de fair
+- Jouer à un niveau en local
+- Recommencer rapidement un niveau
+- Disposer d’une variété d’objets de gameplay :
+  - blocs
+  - piques
+  - plateformes mobiles
+  - checkpoints
+  - etc.
+- Intégrer plusieurs mécaniques de déplacement inspirées de Celeste :
+  - Coyote Time
+  - Input Buffering
+  - Halved-Gravity Jump Peak
+  - Jump Corner Correction
+  - Semi-Solid Popping (si compatible avec notre système de mouvement)
+  - Lift Momentum Storage
 
-Les fonctionnalités que votre application **doit** offrir pour être considérée
-comme aboutie.
+Référence : https://maddythorson.medium.com/celeste-forgiveness-31e4a40399f1
 
-- …
+#### Éditeur de niveaux
 
-### 4.2 Optionnelles
+- Charger un niveau depuis un fichier local
+- Tester directement le niveau créé
+- Sauvegarder un niveau localement au format JSON
+- Sélectionner différents outils d’édition
+- Pouvoir placer tous les objets disponibles dans le jeu afin de créer un niveau complet sans devoir modifier de code
 
-- plus d'objet de jeu (a voir)
-- mode alternatife de salle (knock out ou race)
-- compte utilisateur
-- mode Jam (où N joueur doivent crée un niveaux dans un temps impartie, puis c'est N joueur devront faire la course sur chaqu'un des niveaux crée, le gagant étant le joueur avec le meilleur placement moyen)
+#### Fonctionnalités en ligne
+
+##### Gestion des niveaux
+
+- Publier un niveau sur le serveur avec un nom
+- Télécharger des niveaux créés par d’autres utilisateurs
+
+##### Système de salles
+
+- Créer une salle "time attack"
+- Associer un niveau à une salle
+- Rejoindre une salle via un identifiant (code généré automatiquement)
+- Voir les autres joueurs se déplacer en temps réel
+- Afficher les meilleurs temps des joueurs présents dans la salle
+
+##### Classements
+
+- Enregistrer les temps réalisés par les joueurs sur le serveur
+- Associer chaque score à un niveau et à un pseudonyme
+- Afficher le top 5 des meilleurs temps pour chaque niveau
+
+---
+
+## 4.2 Fonctionnalités optionnelles
+
+- Ajouter davantage d’objets de gameplay
+- Ajouter différents modes de jeu en ligne
+  - knockout
+  - race
+- Ajouter un système de comptes utilisateurs
+- Ajouter un mode "Jam"
+  - plusieurs joueurs disposent d’un temps limité pour créer un niveau
+  - tous les joueurs doivent ensuite jouer sur chacun des niveaux créés
+  - le gagnant est celui ayant obtenu le meilleur classement moyen
+
+---
 
 ## 5. Technologies
 
-Listez les technologies envisagées et **justifiez brièvement chaque choix**.
-
-- **Moteur de jeu** : moteur fait maison durant la durée du projet par nos soins :] (en vanila JS)
-  - **Frontend** : Canvas (géré par la moteur de jeu)
-- **Comunication** : WebSocket
-- **Base de données** : Firebase/FireStore
+- **Moteur de jeu** : moteur maison développé durant la durée du projet par nos soins en JavaScript vanilla :]
+  - **Frontend** : rendu graphique via l’API Canvas (géré par le moteur de jeu)
+- **Communication réseau** : WebSocket
+- **Base de données** : Firebase / Firestore
 - **Back-end** : Express
 
+---
 
 ## 6. Architecture
 
-Vue d'ensemble des composants et de leurs interactions (client, serveur, base
-de données, services tiers…). Un petit schéma est bienvenu.
+L’application sera composée :
+
+- d’un client web contenant le moteur de jeu et l’éditeur de niveaux
+- d’un serveur Express gérant les communications en ligne
+- d’une base de données Firebase / Firestore pour stocker
+  - les niveaux
+  - les scores
+  - les informations des salles
+
+Les communications en temps réel entre les joueurs seront via WebSocket
+
+![diagramme](./ghj.png)
+
+---
 
 ## 7. Évolutions possibles
 
-
-*(Optionnel)* Pistes d'évolution identifiées mais hors périmètre du labo.
+- Ajout de nouveaux objets et mécaniques de gameplay
+- Création de modes de jeu compétitifs supplémentaires
+- Ajout d’un système de comptes et de profils utilisateurs
