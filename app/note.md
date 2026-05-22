@@ -41,7 +41,7 @@ ____
   - [ _ ] basic ass particule for jump, death and more
   - **[ x ]** UI lmao
   - [ _ ] Screen shake
-  - [ _ ] transition
+  - **[ x ]** transition
 
 - [ _ ] Camera
   - **[ x ]** Camera smooting
@@ -95,7 +95,7 @@ ____
     - [ _ ] set-up callback
 
 - [ _ ] Builder Grid render help
-  - [ _ ] Grid mark
+  - **[ x ]** Grid mark
   - [ _ ] Grid over effect
   - [ _ ] Place effect
 

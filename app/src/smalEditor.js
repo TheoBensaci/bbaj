@@ -10,79 +10,129 @@ import { Slope } from "./game/tile/slope.js";
 import { TileIndex } from "./game/tileSystem/tileIndexer.js";
 import { Vector } from "./utils/vector.js";
 
-export function initSmallEditor(canvas,game,renderer){
+export function initSmallEditor(canvas,editor,renderer){
 
     let placedTile = -1;
     let lastPlacedPos = new Vector(-1,-1);
-    let tileParams=[0];
+    let tileParams={rotation : 0};
+
+    let pos = new Vector(0,0);
+
+    const tilePreview = document.getElementById("tilePreview");
+
+    function setTile(id){
+        if(id<0){
+            tilePreview.hidden=true;
+            placedTile=-1;
+            return;
+        }
+        tilePreview.hidden=false;
+        placedTile=id;
+        renderer.setTilePreview(tilePreview,["main",id,tileParams]);
+    }
 
 
 
     window.addEventListener("keypress",(e)=>{
 
-        if(e.key==='p'){
-            Director.togglePauseGame(!game.pause);
+        if(!Director.inEditor() && e.key==='p'){
+            Director.togglePauseGame(!Director.onPause());
         }
 
-        if(e.key==='0'){
-            placedTile=-1;
-        }
-        if(e.key==='1'){
-            placedTile=0;
-        }
-        if(e.key==='2'){
-            placedTile=1;
-        }
-        if(e.key==='3'){
-            placedTile=2;
-        }
-        if(e.key==='4'){
-            placedTile=3;
-        }
+        if(Director.inEditor()){
 
-        if(e.key==='.'){
-            Director.switchSceen("loading");
-        }
+            if(e.key==='d'){
+                editor.moveCamera(10,0);
+            }
+            if(e.key==='w'){
+                editor.moveCamera(0,-10);
+            }
+            if(e.key==='a'){
+                editor.moveCamera(-10,0);
+            }
+            if(e.key==='s'){
+                editor.moveCamera(0,10);
+            }
 
-        if(e.key==='c'){
-            game.player.toggleFreeCam(true);
-        }
+            if(e.key==='0'){
+                setTile(-1);
+            }
+            if(e.key==='1'){
+                setTile(0);
+            }
+            if(e.key==='2'){
+                setTile(1);
+            }
+            if(e.key==='3'){
+                setTile(2);
+            }
+            if(e.key==='4'){
+                setTile(3);
+            }
 
-        if(e.key==='v'){
-            game.player.toggleFreeCam(false);
-        }
+            if(e.key==='c'){
+                editor.player.toggleFreeCam(true);
+            }
 
-        if(e.key==='-'){
-            Director.switchSceen("game");
-        }
+            if(e.key==='v'){
+                editor.player.toggleFreeCam(false);
+            }
 
-        if(e.key==='r'){
-            tileParams[0] = (tileParams[0]+1)%4;
+            if(e.key==='-'){
+                tilePreview.hidden=true;
+                Director.loadLevel(editor.export());
+            }
+
+            if(e.key==='r'){
+                tileParams.rotation = (tileParams.rotation+1)%4;
+                setTile(placedTile);
+            }
+        }
+        else{
+            if(e.key==='.'){
+                tilePreview.hidden=false;
+                Director.switchSceen("editor");
+            }
         }
     })
 
     canvas.addEventListener("click",(e)=>{
-        const scaleX = (window.innerWidth) / (RENDER_RESOLUTION[0]);
-        const scaleY = (window.innerHeight) / (RENDER_RESOLUTION[1]);
-
-        const scale = Math.min(scaleX, scaleY);
-        const rect = e.target.getBoundingClientRect();
-        const targetPos = new Vector(e.clientX - rect.left,e.clientY - rect.top).scale(1/scale);
-        const pos = renderer
-            .screenToWordPosition(targetPos)
-            .scale((1/TILE_SIZE))
-            .floor();
 
         if(lastPlacedPos.x === pos.x && lastPlacedPos.y===pos.y){
             return;
         }
 
         if(placedTile<0){
-            game.setTile(pos.x,pos.y,null);
+            editor.setTile(pos.x,pos.y,null);
             return;
         }
-        game.setTile(pos.x,pos.y,TileIndex.createTile("main",placedTile,tileParams));
-        console.log(game.level);
+        editor.setTile(pos.x,pos.y,["main",placedTile,Object.assign({},tileParams)]);
+    });
+
+
+
+    canvas.addEventListener("mousemove",(e)=>{
+        if(!Director.inEditor())return;
+        const scaleX = (window.innerWidth) / (RENDER_RESOLUTION[0]);
+        const scaleY = (window.innerHeight) / (RENDER_RESOLUTION[1]);
+
+        const scale = Math.min(scaleX, scaleY);
+        const rect = e.target.getBoundingClientRect();
+        const targetPos = new Vector(e.clientX - rect.left,e.clientY - rect.top).scale(1/scale);
+        const newPos = renderer
+            .screenToWordPosition(targetPos)
+            .scale((1/TILE_SIZE))
+            .floor();
+        if(newPos.x===pos.x && newPos.y === pos.y){
+            return;
+        }
+
+        pos.set(newPos);
+
+        const posOnScreen = renderer.wordToScreenPosition(newPos.add(0.5,0.5).scale(TILE_SIZE));
+
+        tilePreview.style.top = ((posOnScreen.y))+ "px";
+        tilePreview.style.left = ((posOnScreen.x)) + "px";
     });
 
 

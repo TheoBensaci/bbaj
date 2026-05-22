@@ -76,8 +76,8 @@ const DEFAULT_RIDE_VELOCITY=new Vector(0,0);
 
 
 const debug={
-    debugInfo:true,
-    debugCollision:true
+    debugInfo:false,
+    debugCollision:false
 }
 
 
@@ -182,8 +182,8 @@ export class Player extends Actor{
             */
             Shape.createShape(
                 ShapeType.SQUARE,
-                new Vector(0,-PLAYER_COLLISION_BOX_SIZE[1]/2-TILE_SIZE*2),
-                new Vector(PLAYER_COLLISION_BOX_SIZE[0],TILE_SIZE*4)
+                new Vector(0,-PLAYER_COLLISION_BOX_SIZE[1]/2),
+                new Vector(PLAYER_COLLISION_BOX_SIZE[0],TILE_SIZE)
             )
         ]
 
@@ -742,13 +742,7 @@ export class Player extends Actor{
             this.jumpCorrectionBox[1].setOrigine(orgine),tiles
         ).length > 0;
 
-        const v3 = this.projectTrigger(
-            this.jumpCorrectionBox[2].setOrigine(orgine),tiles
-        ).length > 0;
-
-        console.log(v3,v1,v0);
-
-        if(v3 || !v1 && !v0)return false;
+        if(!v1 && !v0)return false;
 
         for (const tile of tiles) {
             if(tile===null)continue;
@@ -764,7 +758,9 @@ export class Player extends Actor{
                 if(!shape.trigger){
                 }
 
-                if((v1 && collide.x<0) || (v0 && collide.x>0))return false;
+                if((v1 && collide.x<0) || (v0 && collide.x>0)){
+                    continue;
+                }
 
                 // check if we are going in the opposite diretion of the corner correction, and if yes and we are fasster, then we inverse de collide
                 // this aim to made essayer things like enter a small gaps will croutching
@@ -772,6 +768,7 @@ export class Player extends Actor{
                     collide.x*=-1;
                 }
                 this.position.sub(collide.set(collide.x,0));
+                console.log("corner correction");
                 return true;
             }
         }
@@ -877,6 +874,7 @@ export class Player extends Actor{
     movementStopResolutionY(vel_y,t){
         // check for corner correction
         if(vel_y>=0 || (!this.checkVerticalCornerCorrection(t))){
+            console.log("-----2",vel_y);
             return this.getBaseVelocity().y;
         }
         return vel_y;
@@ -894,6 +892,7 @@ export class Player extends Actor{
         vel_y = this.moveY(vel_y,t);
 
         if(!this.moveWithVelCollision(new Vector(0,vel_y*t),((vel_y<0)?GROUND_DOT_PRODUCT:SLOP_DOT_PRODUCT))){
+            console.log("-----",vel_y);
             return this.movementStopResolutionY(vel_y,t)
         }
         return vel_y;
@@ -1015,8 +1014,8 @@ export class Player extends Actor{
         }
 
         // world limit
-        const max_x = this.game.levelLimit.x*TILE_SIZE;
-        const max_y = this.game.levelLimit.y*TILE_SIZE;
+        const max_x = this.game.worldLimit.x*TILE_SIZE;
+        const max_y = this.game.worldLimit.y*TILE_SIZE;
         this.position.set(MathUtils.clamp(this.position.x,0,max_x),MathUtils.clamp(this.position.y,0,max_y));
 
 
@@ -1101,6 +1100,14 @@ export class Player extends Actor{
         context.renderTexture(image, 0, 0, 16, 16, 0,0, TILE_SIZE, TILE_SIZE);
 
 
+        // text face
+        /*
+        context.rotate(Math.PI/2);
+
+        context.font = "bold 15px Segoe UI";
+        context.fillText(">:(", 5, -7);
+        */
+
         context.resetTransform();
 
 
@@ -1137,6 +1144,7 @@ export class Player extends Actor{
             context.debugContextRenderShape(this.groundTriggerBox.setOrigine(this.position.x,this.position.y),"#ffff9955",false);
             context.debugContextRenderShape(this.jumpCorrectionBox[0].setOrigine(orgine),"#ff005555",false);
             context.debugContextRenderShape(this.jumpCorrectionBox[1].setOrigine(orgine),"#ff005555",false);
+            context.debugContextRenderShape(this.jumpCorrectionBox[3].setOrigine(orgine),"#ff005555",false);
 
         }
 

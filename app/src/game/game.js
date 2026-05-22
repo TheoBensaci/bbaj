@@ -5,6 +5,7 @@ import { Input } from "../utils/input.js";
 import { Shape, ShapeType } from "../utils/shape.js";
 import { MathUtils } from "../utils/utils.js";
 import { Vector } from "../utils/vector.js";
+import { World } from "../world.js";
 import { Player } from "./player/player.js";
 import { PlayerD } from "./player/playerD.js";
 import { PlayerRollDash } from "./player/playerRollDash.js";
@@ -25,8 +26,9 @@ function cameraStepFunction(distance,mult,t){
     return t * mult * m;
 }
 
-export class Game{
+export class Game extends World{
     constructor(){
+        super();
         this.lastTime=new Date();
         this.t=0;
 
@@ -49,9 +51,6 @@ export class Game{
         this.player=null;
         this.playerSpawnPoint=new Vector(0,0);
 
-        this.levelLimit=new Vector(WORLD_LIMIT[0],WORLD_LIMIT[1]);
-
-        this.cameraPosition=new Vector(0,0);
         this.cameraTarget=new Vector(0,0);
         this.cameraOffset=new Vector(0,0);
         this.cameraForceTarget=null;
@@ -93,19 +92,11 @@ export class Game{
     }
 
     getSuroundTiles(x,y,boudingBox,radius=1){
-        const buffer=[];
+        const buffer=super.getSuroundTiles(x,y,radius);
+
         const gridPos_x=Math.floor(x/TILE_SIZE);
         const gridPos_y=Math.floor(y/TILE_SIZE);
-        buffer.push(this.getTile(gridPos_x,gridPos_y));
-        for (let y = -radius; y < radius; y++) {
-            for (let x = -radius; x < radius; x++) {
-                buffer.push(this.getTile(gridPos_x+x,gridPos_y+y));
-            }
-        }
-
         // add active tile
-
-
         this.foreachSpecialTile((tile,x,y)=>{
             if(
                 gridPos_x-radius<x && gridPos_x+radius>x
@@ -121,45 +112,6 @@ export class Game{
         return buffer;
     }
 
-    /**
-     * compute the contact map a given tile
-     * @param {*} x tile x position in the world
-     * @param {*} y tile y position in the world
-     * @param {*} tileClass class of tile considerate
-     * @returns a number with this form 0xtopLeft|top|topRight|left|right|downLeft|down|downRight
-     */
-    getTileContactMap(x,y,tileClass = Tile){
-        /*
-        to compute auto tiling, we can use bit map like this :
-            [topLeft , top , topRight]
-            [left    , main,    right]
-            [downLeft, down,downRight]
-            => 0xtopLeft|top|topRight|left|right|downLeft|down|downRight
-            => 0xff
-            (main can be ignore since it's all ways true)
-        */
-        let map = 0x00;
-
-
-        const a = TILE_SIZE/2;
-
-        const pos_x = Math.round((x-a)/TILE_SIZE);
-        const pos_y = Math.round((y-a)/TILE_SIZE);
-
-
-        for (let y = -1; y < 2; y++) {
-            for (let x = -1; x < 2; x++) {
-                if(x===0 && x===y)continue;
-                const testPos_x = pos_x + x;
-                const testPos_y = pos_y + y;
-                const tile = this.getTile(testPos_x,testPos_y);
-                if(tile===null || !(tile instanceof tileClass))continue;
-                map = map | CONTACT_TILE_MASK_MAP[1+y][1+x];
-            }
-        }
-
-        return map;
-    }
 
 
     foreachTile(fnc){
@@ -189,19 +141,25 @@ export class Game{
     }
 
     generateLevel(levelContructData,callback=()=>{}){
-        for (let i = 0; i < 100; i++) {
+        const buffer = [];
+        for (let y = 0; y < levelContructData.length; y++) {
             const b = [];
-            for (let j = 0; j < 200; j++) {
-                const y = i % 20;
-                if(y>15 && y<19 && !(j>20 && j<25)){
-                    b.push(TileIndex.createTile("main",0).setOriginePosition(this.getTilePos(j,i)));
-                }
-                else{
+            for (let x = 0; x < levelContructData[y].length; x++) {
+                const data = levelContructData[y][x];
+                if(data.length===0){
                     b.push(null);
                 }
+                else{
+                    b.push(TileIndex.createTile(data[0],data[1],data[2]).setOriginePosition(this.getTilePos(x,y)));
+                }
             }
-            this.level.push(b);
+            buffer.push(b);
         }
+        this.level=buffer;
+
+        this.activeTile={};
+        this.advanceCollisionTile={};
+
 
         // post process
         this.foreachTile((tile)=>{
@@ -268,16 +226,6 @@ export class Game{
 
 
     //#region ============== CAMERA ==============
-
-    setCameraPosition(position){
-        const r_x=RENDER_RESOLUTION[0]/2;
-        const r_y=RENDER_RESOLUTION[1]/2;
-        this.cameraPosition.set(
-            MathUtils.clamp(position.x,r_x,this.levelLimit.x*TILE_SIZE-r_x),
-            MathUtils.clamp(position.y,r_y, this.levelLimit.y*TILE_SIZE-r_y)
-        );
-    }
-
     setCameraTarget(target){
         this.cameraTarget=target;
     }

@@ -24,7 +24,10 @@ export const RENDER_RESOLUTION=[600,400];
 export const PERLOADED_TEXTURE=[
     "./ressource/basicTileSet.png",
     "./ressource/completBasicTileSet.png",
-    "./ressource/testPlayer.png"
+    "./ressource/testPlayer.png",
+    "./ressource/testPlayer2.png",
+    "./ressource/testPlayer3.png",
+    "./ressource/customFruit.png"
 ];
 
 

@@ -10,7 +10,7 @@ export class MovingPlatform extends MovingTile{
             Shape.createShape(
             ShapeType.SQUARE,
             Vector.zero(),
-            new Vector(TILE_SIZE*10,TILE_SIZE/2)
+            new Vector(TILE_SIZE*5,TILE_SIZE/2)
         )]);
 
         this.t = 0;
@@ -29,6 +29,7 @@ export class MovingPlatform extends MovingTile{
     }
 
     postCreate(game){
+        console.log(this);
         super.postCreate(game);
         this.activeMoving();
     }
@@ -39,6 +40,18 @@ export class MovingPlatform extends MovingTile{
         this.velocity.y = Math.cos(this.t*4) * 400;
 
         this.position.add(0,this.velocity.y* t);
+    }
+
+
+    static editorRender(tileWrapper,x,y,context){
+        context.debugRenderShape(tileWrapper.shape,"#ff0055",false);
+    }
+
+    static setWrapperState(tileWrapper,context,x,y){
+        const b = new MovingPlatform();
+        b.position.set(x,y);
+        tileWrapper.shape = b.getCollider()[0];
+        console.log(tileWrapper);
     }
 
 

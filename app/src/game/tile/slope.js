@@ -27,6 +27,18 @@ export class Slope extends Tile{
 
     static createTile(param){
 
-        return new Slope(1,param[0]);
+        console.log(param);
+        return new Slope(1,param.rotation);
+    }
+
+    static editorRender(tileWrapper,x,y,context){
+        context.debugRenderShape(tileWrapper.shape,"#ff0055",false);
+    }
+
+    static setWrapperState(tileWrapper,context,x,y){
+        console.log(tileWrapper.tileParams);
+        const b = new Slope(1,tileWrapper.tileParams.rotation);
+        b.position.set(x,y);
+        tileWrapper.shape = b.getCollider()[0];
     }
 }

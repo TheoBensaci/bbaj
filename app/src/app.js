@@ -10,13 +10,14 @@ import { RessourceLoader } from "./utils/ressouceLoader.js";
 import { MathUtils } from "./utils/utils.js";
 
 import "./ui/menu.js";
-import { downloadJsonFile } from "./utils/fileUtils.js";
+import { EditorWorld } from "./editor/editorWorld.js";
 
 
 
 const canvasContainer = document.getElementById("gameCanavas");
 
 const game=new Game();
+const editor = new EditorWorld();
 
 const uiManager = new UiManager(document.getElementById("ui"),document.getElementById("transition"));
 
@@ -32,6 +33,7 @@ setInterval(() => {
 
 
 
+
 function loop() {
     renderer.render();
     requestAnimationFrame(loop);
@@ -40,7 +42,7 @@ requestAnimationFrame(loop);
 
 
 // setUp director
-Director.init(game,null,renderer);
+Director.init(game,editor,renderer);
 
 Director.setSceen("loading");
 
@@ -58,7 +60,6 @@ setCanvasScale();
 
 
 
-
 function setCanvasScale(){
     const scaleX = (window.innerWidth) / (RENDER_RESOLUTION[0]);
     const scaleY = (window.innerHeight) / (RENDER_RESOLUTION[1]);
@@ -71,13 +72,13 @@ function setCanvasScale(){
 
 function init(){
 
-    Director.switchSceen("game",true,null);
+    Director.switchSceen("editor");
 
 
     Input.init(window);
 
 
     // add debug click
-    initSmallEditor(canvasContainer,game,renderer);
+    initSmallEditor(canvasContainer,editor,renderer);
 
 }

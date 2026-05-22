@@ -27,8 +27,31 @@ export class GroundTile extends Tile{
         return new GroundTile();
     }
 
+
     postCreate(context){
-        this.autoTiling.compute(context.getTileContactMap(this.position.x,this.position.y,GroundTile));
+        this.autoTiling.compute(
+            context.getTileContactMap(
+                this.position.x,
+                this.position.y,
+                GroundTile
+            )
+        );
+    }
+
+
+    static editorRender(tileWrapper,x,y,context){
+        tileWrapper.autoTiling.render(x,y,context);
+    }
+
+    static setWrapperState(tileWrapper,context,x,y){
+        tileWrapper.autoTiling=new AutoTilingIndex("./ressource/completBasicTileSet.png",16);
+        tileWrapper.autoTiling.compute(
+            context.getTileContactMap(
+                x,
+                y,
+                GroundTile
+            )
+        );
     }
 
 

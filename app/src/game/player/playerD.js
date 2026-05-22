@@ -25,7 +25,7 @@ const ROLL_JUMP_ADD_SPEED=50;
 const SUPER_ROLL_JUMP_ADD_SPEED=150;
 
 
-const WALL_JUMP_HORIZONTAL_SPEED=150;
+const WALL_JUMP_HORIZONTAL_SPEED=200;
 const WALL_JUMP_VERTICAL_SPEED=300;
 const WALL_JUMP_TIME=0.1;
 
@@ -85,8 +85,8 @@ export class PlayerD extends Player{
         this.walkDetection = [
             Shape.createShape(
                 ShapeType.SQUARE,
-                new Vector(0,PLAYER_COLLISION_BOX_OFFSET[1]-PLAYER_COLLISION_BOX_SIZE[1] * 0.1),
-                new Vector(TILE_SIZE/2,PLAYER_COLLISION_BOX_SIZE[1] * 0.75)
+                new Vector(0,PLAYER_COLLISION_BOX_OFFSET[1]-PLAYER_COLLISION_BOX_SIZE[1] * 0.05),
+                new Vector(TILE_SIZE/2 * 0.1,PLAYER_COLLISION_BOX_SIZE[1] * 0.5)
             )
         ];
     }
@@ -201,6 +201,7 @@ export class PlayerD extends Player{
     initWallJump(vel_y){
         if(this.wallDir===0)return;
         this.onWallJump=true;
+        this.canRoll=true;
         this.wallJump_timer=WALL_JUMP_TIME;
         this.velocity.x=-1*this.wallDir*WALL_JUMP_HORIZONTAL_SPEED;
         return -WALL_JUMP_VERTICAL_SPEED;
@@ -360,7 +361,7 @@ export class PlayerD extends Player{
 
     renderDebug(x,y,context,t){
 
-        if(true){
+        if(false){
             const orgine=this.getCollider().getCenter().add(0,-this.getCollider().scale.y/2 - 1);
             context.debugContextRenderShape(this.walkDetection[0].setOrigine(Vector.add(this.position,new Vector(PLAYER_COLLISION_BOX_SIZE[0]/2,0))),"#ff005555",false);
             context.debugContextRenderShape(this.walkDetection[0].setOrigine(this.position.clone().sub(PLAYER_COLLISION_BOX_SIZE[0]/2,0)),"#ff005555",false);

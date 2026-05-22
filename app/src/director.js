@@ -5,11 +5,17 @@
  * In nutshell, it's use to switch from editor mode, main menu and the actual game
  */
 
+import { EditorWorld } from "./editor/editorWorld.js";
+import { Game } from "./game/game.js";
+
+
 
 
 
 export class Director {
-    static #instance=null;
+    // instance of the director
+    static #inst=null;
+
     constructor(game_instance,editor_instance,render_instance){
         this.game = game_instance;
         this.editor = editor_instance;
@@ -18,11 +24,21 @@ export class Director {
 
         this.sceens = {
             "game" : {
-                in : (generateNewLevel=true,levelData=null)=>{
-                    if(generateNewLevel)this.game.generateLevel(levelData);
-                    this.render.setUpGameRender();
+                in : (levelData=null)=>{
+                    this.render.world=this.game;
+
+                    this.render.uiManager.clear();
+                    this.render.setRenderJob({
+                        background : true,
+                        level : true,
+                        player : true,
+                        debug : true
+                    });
+                    Director.setBackgroundColor(levelData.backgroundColor);
                     this.game.pause=false;
                     this.render.pause=false;
+
+
                 },
                 out : ()=>{
                     this.render.pause=false;
@@ -31,6 +47,22 @@ export class Director {
             "editor" : {
                 in : ()=>{
                     // ...
+                    this.render.world=editor_instance;
+
+                    this.editor.setCameraPosition(this.game.cameraPosition);
+
+                    this.render.uiManager.clear();
+                    this.render.setRenderJob({
+                        background : true,
+                        level : true,
+                        player : false,
+                        debug : true,
+                        grid:true
+                    });
+                    Director.setBackgroundColor("#333333");
+                    this.render.pause=false;
+                    this.game.pause=true;
+
                 },
                 out : ()=>{
                     // ...
@@ -40,8 +72,9 @@ export class Director {
                 in : ()=>{
                     this.render.uiManager.clear();
                     this.render.uiManager.toggle("loadingScreen");
-                    this.render.setRenderJob([true,false,false,false]);
+                    this.render.setRenderJob({background : true});
                     Director.setBackgroundColor("#19191a");
+                    this.render.pause=false;
                 },
                 out : ()=>{
                     // ...
@@ -51,8 +84,9 @@ export class Director {
                 in : ()=>{
                     this.render.uiManager.clear();
                     this.render.uiManager.toggle("mainMenu");
-                    this.render.setRenderJob([true,false,false,false]);
+                    this.render.setRenderJob({background : true});
                     Director.setBackgroundColor("#16162a");
+                    this.render.pause=false;
                 },
                 out : ()=>{
                     // ...
@@ -62,25 +96,36 @@ export class Director {
     }
 
     static init(game_instance,editor_instance,render_instance){
-        Director.#instance=new Director(game_instance,editor_instance,render_instance);
+        this.#inst=new Director(game_instance,editor_instance,render_instance);
     }
 
 
     static switchSceen(sceenName,...params){
-        if(Director.#instance.sceens[sceenName]===undefined)return;
-        Director.#instance.render.uiManager.transition(()=>{
-            Director.#instance.switchSceen(sceenName,...params);
+        if(this.#inst.sceens[sceenName]===undefined)return;
+        this.#inst.game.pause=true;
+        this.#inst.render.uiManager.transition(()=>{
+            this.#inst.switchSceen(sceenName,...params);
         });
     }
 
     static setSceen(sceenName,...params){
-        if(Director.#instance.sceens[sceenName]===undefined)return;
-        Director.#instance.switchSceen(sceenName,...params);
+        if(this.#inst.sceens[sceenName]===undefined)return;
+        this.#inst.switchSceen(sceenName,...params);
     }
 
     static togglePauseGame(state){
-        Director.#instance.game.pause=state;
-        Director.#instance.render.togglePauseUI(state);
+        this.#inst.game.pause=state;
+        this.#inst.render.uiManager.toggle("pauseMenu",state);
+        this.#inst.render.uiManager.toggle("blackBackground",state);
+        this.#inst.render.pause=state;
+    }
+
+    static loadLevel(levelData){
+        Director.switchSceen("loading");
+        // load level
+        this.#inst.game.generateLevel(levelData,()=>{
+            Director.switchSceen("game",{backgroundColor : "#555555"})
+        });
     }
 
 
@@ -91,7 +136,16 @@ export class Director {
     }
 
     static setBackgroundColor(color){
-        Director.#instance.render.setBackgroundColor(color);
+        this.#inst.render.setBackgroundColor(color);
     }
+
+    static inEditor(){
+        return this.#inst.lastSceen==="editor";
+    }
+
+    static onPause(){
+        return this.#inst.game.pause;
+    }
+
 }
 

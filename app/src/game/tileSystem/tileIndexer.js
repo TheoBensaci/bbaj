@@ -43,7 +43,7 @@ export class TileIndex{
      * @param {*} params
      * @returns
      */
-    static createTile(groupID,id,params=[]){
+    static createTile(groupID,id,params={}){
         if(!TileIndex.#data.has(groupID)){
             throw new Error("Group ID '"+groupID+"' dosn't exist");
         }
@@ -52,6 +52,17 @@ export class TileIndex{
             throw new Error("ID '"+id+"' dosn't exist in the group '"+groupID+"'");
         }
         return tileGroup[id].createTile(params);
+    }
+
+    static getTileClass(groupID,id){
+        if(!TileIndex.#data.has(groupID)){
+            throw new Error("Group ID '"+groupID+"' dosn't exist");
+        }
+        const tileGroup = TileIndex.#data.get(groupID);
+        if(id<0 || tileGroup.length <= id ){
+            throw new Error("ID '"+id+"' dosn't exist in the group '"+groupID+"'");
+        }
+        return tileGroup[id];
     }
 }
 

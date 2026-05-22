@@ -8,7 +8,7 @@ import { Director } from "../director.js"
 
 
 document.getElementById("startGame").onclick=()=>{
-    Director.switchSceen("game",null);
+    Director.switchSceen("game",{backgroundColor : "#ff0055"});
 }
 
 
@@ -17,7 +17,5 @@ document.getElementById("goToMain").onclick=()=>{
 }
 
 document.getElementById("test_transi").onclick=()=>{
-    Director.transition(()=>{
-        console.log("test");
-    });
+    Director.switchSceen("editor",null);
 }

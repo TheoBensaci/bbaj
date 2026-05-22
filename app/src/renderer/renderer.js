@@ -1,8 +1,10 @@
 import { RENDER_RESOLUTION, TILE_SIZE, WORLD_LIMIT } from "../constant.js";
+import { TileEditorWrapper } from "../editor/tileEditorWrapper.js";
 import { Tile } from "../game/tileSystem/tile.js";
 import { Shape, ShapeType } from "../utils/shape.js";
 import { Color, MathUtils } from "../utils/utils.js";
 import { Vector } from "../utils/vector.js";
+import { World } from "../world.js";
 
 
 
@@ -10,7 +12,7 @@ const DROP_SHADOW_MARGE = 50;       // marge add to prevent the drop shadow filt
 
 export class Renderer{
     constructor(game,canvas,uiManager){
-        this.game=game;
+        this.world=game;
 
         this.uiManager = uiManager;     // ui manage
 
@@ -30,16 +32,17 @@ export class Renderer{
         this.pause = false;
 
         // use to toggle render job
-        this.toggleRenderJob = [
-            true,   // background
-            true,   // tile
-            true,   // player
-            true    // debug
-        ];
+        this.renderJob={
+            background : true,
+            grid : true,
+            level : true,
+            player : true,
+            debug : true,
+            tilePreview : true
+        }
 
 
         // init all context2D
-
         this.contextBackground=canvas[0].getContext("2d", { alpha: false });
 
         this.context=canvas[1].getContext("2d");
@@ -49,61 +52,66 @@ export class Renderer{
 
 
         // add function to the context to create the "context2D extended"
+        this.#setContextFunction(this.contextBackground,this.context,this.contextDebug);
+
+        // debug
+        this.debugLabel=document.getElementById("debugLabel");
+
+    }
+
+    #setContextFunction(contextBackground,context,contextDebug){
         /**
          * Get background context2D
          */
-        this.context.getBackgroundContext=()=>{
-            return this.contextBackground;
+        context.getBackgroundContext=()=>{
+            return contextBackground;
         }
 
         /**
          * Get debug context2D
          */
-        this.context.getDebugContext=()=>{
-            return this.contextDebug;
+        context.getDebugContext=()=>{
+            return contextDebug;
         }
 
         // same as "this.wordToScreenPosition"
-        this.context.wordToScreenPosition = (...args)=>{
+        context.wordToScreenPosition = (...args)=>{
             return this.wordToScreenPosition(...args);
         };
 
         // same as "this.renderTexture"
-        this.context.renderTexture=(...args)=>{
-            return this.renderTexture(...args);
+        context.renderTexture=(...args)=>{
+            return this.renderTexture(context,...args);
         }
 
 
         // debug
 
         // same as "this.debugRenderPoint"
-        this.context.debugRenderPoint = (...agrs) => {
+        context.debugRenderPoint = (...agrs) => {
             return this.debugRenderPoint(...agrs);
         }
 
         // same as "this.debugRenderShape" but set for the context
-        this.context.debugRenderShape = (...agrs) => {
-            return this.debugRenderShape(this.context,...agrs);
+        context.debugRenderShape = (...agrs) => {
+            return this.debugRenderShape(context,...agrs);
         }
 
         // this.debugRenderShape but for the debug context
-        this.context.debugContextRenderShape = (...agrs) => {
-            return this.debugRenderShape(this.contextDebug,...agrs);
+        context.debugContextRenderShape = (...agrs) => {
+            return this.debugRenderShape(contextDebug,...agrs);
         }
 
         // this.debugRenderShape but for the debug context and with outline
-        this.context.debugContextRenderShapeOutline = (...agrs) => {
-            return this.debugRenderShape(this.contextDebug,...agrs,true);
+        context.debugContextRenderShapeOutline = (...agrs) => {
+            return this.debugRenderShape(contextDebug,...agrs,true);
         }
 
-        // debug
-
-        this.debugLabel=document.getElementById("debugLabel");
 
         /**
          * Print label in a debug ui
          */
-        this.context.printDebugLabel = (labels) => {
+        context.printDebugLabel = (labels) => {
             let result = "";
             for (const iterator of labels) {
                 result+=iterator+"<br>";
@@ -187,19 +195,38 @@ export class Renderer{
     renderLevel(t){
 
         // render camera
-        const camPosition=Vector.scale(this.game.cameraPosition,1/TILE_SIZE).round();
+        const camPosition=Vector.scale(this.world.cameraPosition,1/TILE_SIZE).round();
         const camWidth=Math.round(this.gameWidth/TILE_SIZE) + 2;
         const camHeight=Math.round(this.gameHeight/TILE_SIZE) + 2;
         for (let y = -camHeight; y < camHeight; y++) {
             for (let x = -camWidth; x < camWidth; x++) {
                 const pos = new Vector(x+camPosition.x,y+camPosition.y);
                 pos.round();
-                const tile = this.game.getTile(pos.x,pos.y);
+                const tile = this.world.getTile(pos.x,pos.y);
                 if(tile===null)continue;
                 const rPos = this.wordToScreenPosition(pos.scale(TILE_SIZE));
                 tile.render(rPos.x,rPos.y,this.context);
             }
         }
+
+
+        /*
+        const point = new Vector(-camWidth,-camHeight);
+        const boudingBox = [this.screenToWordPosition(point),this.screenToWordPosition(point.scale(-1))];
+
+        // add active tile
+        this.game.foreachSpecialTile((tile,x,y)=>{
+            if(
+                gridPos_x-radius<x && gridPos_x+radius>x
+                && gridPos_y-radius<y && gridPos_y+radius>y
+            )return;
+
+            if(Shape.AABB(tile.getBoundingBox(),boudingBox)){
+                buffer.push(tile);
+            }
+        },this.game.advanceCollisionTile);
+
+        */
 
     }
 
@@ -209,9 +236,40 @@ export class Renderer{
      * @param {number} t delta t
      */
     renderPlayer(t){
-        if(this.game.player===null)return;
-        const pos = this.wordToScreenPosition(this.game.player.position);
-        this.game.player.render(pos.x,pos.y,this.context,t);
+        if(this.world.player===null)return;
+        const pos = this.wordToScreenPosition(this.world.player.position);
+        this.world.player.render(pos.x,pos.y,this.context,t);
+    }
+
+
+    renderGrid(context){
+        const camPosition=Vector.scale(this.world.cameraPosition,1/TILE_SIZE).round();
+        const camWidth=Math.round(this.gameWidth/TILE_SIZE) + 2;
+        const camHeight=Math.round(this.gameHeight/TILE_SIZE) + 2;
+
+        context.lineWidth = 1;
+        context.strokeStyle="#ffffff11";
+
+        for (let y = -camHeight; y < camHeight; y++) {
+            const pos = new Vector(camPosition.x-camWidth,y+camPosition.y).scale(TILE_SIZE);
+            context.beginPath();
+            const jr=this.wordToScreenPosition(pos);
+            context.moveTo(jr.x,jr.y);
+            const rPos = this.wordToScreenPosition(pos.add(2*camWidth*TILE_SIZE,0));
+            context.lineTo(rPos.x,rPos.y);
+            context.closePath();
+            context.stroke();
+        }
+        for (let x = -camWidth; x < camWidth; x++) {
+            const pos = new Vector(x+camPosition.x,camPosition.y-camHeight).scale(TILE_SIZE);
+            context.beginPath();
+            const jr=this.wordToScreenPosition(pos);
+            context.moveTo(jr.x,jr.y);
+            const rPos = this.wordToScreenPosition(pos.add(0,2*camHeight*TILE_SIZE));
+            context.lineTo(rPos.x,rPos.y);
+            context.closePath();
+            context.stroke();
+        }
     }
 
 
@@ -223,6 +281,16 @@ export class Renderer{
      */
     clearScreen(context = this.context,width=this.gameWidth,height=this.gameHeight){
         context.clearRect(0,0,width,height);
+    }
+
+    clearAll(){
+        this.clearScreen(this.contextBackground);
+
+        // need to be sync with the drop show cut off prevention
+        this.clearScreen(this.context,this.gameWidth+DROP_SHADOW_MARGE);
+
+        this.clearScreen(this.contextDebug);
+
     }
 
     /**
@@ -240,19 +308,14 @@ export class Renderer{
         let t = newDate.getTime() - this.lastTime.getTime();
         t/=1000;
 
-        // need to be sync with the drop show cut off prevention
-        if(this.toggleRenderJob[0])this.clearScreen(this.contextBackground);
+        this.clearAll();
 
-        if(this.toggleRenderJob[1] || this.toggleRenderJob[2])this.clearScreen(this.context,this.gameWidth+DROP_SHADOW_MARGE);
+        if(this.renderJob.background)this.renderBackground(t);
+        if(this.renderJob.grid)this.renderGrid(this.contextBackground);
 
-        if(this.toggleRenderJob[3])this.clearScreen(this.contextDebug);
+        if(this.renderJob.level)this.renderLevel(t);
 
-
-        if(this.toggleRenderJob[0])this.renderBackground(t);
-
-        if(this.toggleRenderJob[1])this.renderLevel(t);
-
-        if(this.toggleRenderJob[2])this.renderPlayer(t);
+        if(this.renderJob.player)this.renderPlayer(t);
 
 
         this.lastTime=newDate;
@@ -260,40 +323,28 @@ export class Renderer{
 
     //#endregion
 
-    //#region ======== UI ========
-
-    /**
-     * Set up game render sceem
-     */
-    setUpGameRender(){
-        this.uiManager.clear();
-        this.setRenderJob([true,true,true,true]);
-        this.setBackgroundColor(this.game.levelData.backgroundColor);
-    }
-
-    /**
-     * toggle pause UI
-     * @param {boolean} state
-     */
-    togglePauseUI(state){
-        this.uiManager.toggle("pauseMenu",state);
-        this.uiManager.toggle("blackBackground",state);
-        this.pause=state;
-    }
-
     /**
      * set render job state
-     * @param {boolean[]} jobs [background,tile,player,debug]
+     * @param {objet} jobs {
+            background : (true/false),
+            level : (true/false),
+            player : (true/false),
+            debug : (true/false)
+        }
      */
     setRenderJob(jobs){
-        if(jobs.length!==this.toggleRenderJob.length)return;
-        this.toggleRenderJob=jobs;
-        this.clearScreen(this.contextBackground);
-        this.clearScreen(this.context);
-        this.clearScreen(this.contextDebug);
+        this.clearAll();
+        for (const key in this.renderJob) {
+            if(Object.hasOwnProperty.call(this.renderJob, key)){
+                if (Object.hasOwnProperty.call(jobs, key)) {
+                    this.renderJob[key] = jobs[key];
+                }
+                else{
+                    this.renderJob[key] = false;
+                }
+            }
+        }
     }
-
-    //#endregion
 
     // render fnc
 
@@ -303,7 +354,7 @@ export class Renderer{
      * @returns {Vector}
      */
     wordToScreenPosition(pos){
-        return new Vector(pos.x - this.game.cameraPosition.x + this.gameWidth/2,pos.y - this.game.cameraPosition.y + this.gameHeight/2).round();
+        return new Vector(pos.x - this.world.cameraPosition.x + this.gameWidth/2,pos.y - this.world.cameraPosition.y + this.gameHeight/2).round();
     }
 
     /**
@@ -312,7 +363,7 @@ export class Renderer{
      * @returns {Vector}
      */
     screenToWordPosition(pos){
-        return new Vector(pos.x + this.game.cameraPosition.x - this.gameWidth/2,pos.y + this.game.cameraPosition.y - this.gameHeight/2).round();
+        return new Vector(pos.x + this.world.cameraPosition.x - this.gameWidth/2,pos.y + this.world.cameraPosition.y - this.gameHeight/2).round();
     }
 
     /**
@@ -327,8 +378,8 @@ export class Renderer{
      * @param {*} dWidth destination width
      * @param {*} dHeight destination height
      */
-    renderTexture(img, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight){
-        this.context.drawImage(img, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
+    renderTexture(context,img, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight){
+        context.drawImage(img, sx, sy, sWidth, sHeight, dx, dy, dWidth, dHeight);
     }
 
 
@@ -343,7 +394,8 @@ export class Renderer{
      * @param {*} outline is outline is needed
      */
     debugRenderShape(context,shape,color = "#ffff99",showNormal=true,outline=false){
-        if(!this.toggleRenderJob[3])return;
+        if(!this.renderJob.debug)return;
+
 
         context.beginPath();
         context.fillStyle=color;
@@ -351,6 +403,7 @@ export class Renderer{
         const axis=shape.getNormal();
         const axisRender=[];
         let point = this.wordToScreenPosition(points[0]);
+        console.log(point);
         context.moveTo(point.x, point.y);
         for (let index = 1; index < points.length; index++) {
             const i = points[index];
@@ -408,7 +461,7 @@ export class Renderer{
      * @param {string} color color code
      */
     debugRenderPoint(x,y,color="#ffff99"){
-        if(!this.toggleRenderJob[3])return;
+        if(!this.renderJob.debug)return;
 
         const p = this.wordToScreenPosition(new Vector(x,y));
         const size = 10;
@@ -418,5 +471,34 @@ export class Renderer{
             size,
             size
         );
+    }
+
+
+    // context buffering
+
+    setTilePreview(tilePreviewImg,data){
+
+
+        const w = tilePreviewImg.width;
+        const h = tilePreviewImg.height;
+
+        let buffer = new OffscreenCanvas(w, h);
+        let bufferContext = buffer.getContext("2d");
+
+        this.#setContextFunction(bufferContext,bufferContext,bufferContext);
+        const pos = this.world.cameraPosition.clone();
+        console.log(" (=",pos);
+        console.log(" (=",this.wordToScreenPosition(this.world.cameraPosition));
+
+        const tileWrapper = new TileEditorWrapper(pos.x,pos.y,data);
+
+        tileWrapper.setState(new World());
+
+        tileWrapper.render(w/2 - TILE_SIZE/2,h/2 - TILE_SIZE/2,bufferContext);
+
+        buffer.convertToBlob().then((blob) => {
+            const url = URL.createObjectURL(blob);
+            tilePreviewImg.src = url;
+        });
     }
 }

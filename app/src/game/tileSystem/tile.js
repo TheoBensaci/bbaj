@@ -5,8 +5,10 @@
  */
 
 import { TILE_SIZE } from "../../constant.js";
+import { TileEditorWrapper } from "../../editor/tileEditorWrapper.js";
 import { Shape } from "../../utils/shape.js";
 import { Vector } from "../../utils/vector.js";
+import { World } from "../../world.js";
 
 /**
  * The classic tile
@@ -17,7 +19,7 @@ import { Vector } from "../../utils/vector.js";
  */
 export class Tile{
     constructor(collliderShapes=[]){
-        this.position=null;
+        this.position=new Vector(0,0);
         this.collider=collliderShapes;
     }
 
@@ -28,7 +30,8 @@ export class Tile{
      * @returns this
      */
     setOriginePosition(pos){
-        this.position=pos;
+        this.position.set(pos);
+        console.log(this.position,pos);
         return this;
     }
 
@@ -97,6 +100,31 @@ export class Tile{
     static createTile(paramsList){
         return null;
     }
+
+    // editor function
+
+    /**
+     * Use to render a tile in the editor by using the wrapper data
+     * @param {TileEditorWrapper} tileWrapper
+     * @param {number} x position x on the screen of this tile
+     * @param {number} y position x on the screen of this tile
+     * @param {context2D extended} context js context 2d with additional utils function given by the Renderer
+     */
+    static editorRender(tileWrapper,x,y,context){
+
+    }
+
+
+    /**
+     * Callback use when this tile type is create or update on the editor
+     * @param {TileEditorWrapper} tileWrapper tile wrapper use
+     * @param {World} context world
+     */
+    static setWrapperState(tileWrapper,context,x,y){
+
+    }
+
+
 }
 
 
