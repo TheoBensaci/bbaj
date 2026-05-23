@@ -10,7 +10,7 @@ export class MovingPlatform extends MovingTile{
             Shape.createShape(
             ShapeType.SQUARE,
             Vector.zero(),
-            new Vector(TILE_SIZE*5,TILE_SIZE/2)
+            new Vector(TILE_SIZE*5,TILE_SIZE*2)
         )]);
 
         this.t = 0;
@@ -37,9 +37,9 @@ export class MovingPlatform extends MovingTile{
     update(t){
         this.t= (this.t + t)%(2*Math.PI);
 
-        this.velocity.y = Math.cos(this.t*4) * 400;
+        this.velocity.x = 100;
 
-        this.position.add(0,this.velocity.y* t);
+        this.position.add(this.velocity.x* t,0);
     }
 
 

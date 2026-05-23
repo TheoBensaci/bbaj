@@ -63,13 +63,13 @@
     }
 }
 
-.bnt:active{
+.bnt:active:hover{
     color: var(--color_1);
     transform: scale(1.1) !important;
     animation: none;
 }
 
-.bnt:active::after{
+.bnt:active:hover::after{
     transform: translate(-50%,-50%)  scale(0.95,1);
     background-color: var(--color_2);
     border: var(--color_1) solid;

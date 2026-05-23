@@ -132,6 +132,8 @@ export function initSmallEditor(canvas,editor,renderer){
 
     canvas.addEventListener("mousemove",(e)=>{
         if(!Director.inEditor())return;
+
+        // get tile position on screen from mouse pos
         const scaleX = (window.innerWidth) / (RENDER_RESOLUTION[0]);
         const scaleY = (window.innerHeight) / (RENDER_RESOLUTION[1]);
 

@@ -298,6 +298,17 @@ export class PlayerD extends Player{
             this.wallDir=(wallTile.length>0)?-1:0;
         }
 
+
+        if(this.wallDir!==0){
+            for (const tile of wallTile) {
+
+                if(this.setBufferRidingTile(tile)){
+                    console.log(tile);
+                    break;
+                }
+            }
+        }
+
         /*
         // check for ridding
         if(this.onGround){

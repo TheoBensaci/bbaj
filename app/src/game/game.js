@@ -91,11 +91,16 @@ export class Game extends World{
         }
     }
 
-    getSuroundTiles(x,y,boudingBox,radius=1){
+    getSuroundTiles(x,y,radius=1){
         const buffer=super.getSuroundTiles(x,y,radius);
 
         const gridPos_x=Math.floor(x/TILE_SIZE);
         const gridPos_y=Math.floor(y/TILE_SIZE);
+
+
+        const point = new Vector(x-radius * TILE_SIZE, y - radius*TILE_SIZE);
+        const boudingBox = [point.clone(),point.add(2*radius * TILE_SIZE,2*radius * TILE_SIZE)];
+
         // add active tile
         this.foreachSpecialTile((tile,x,y)=>{
             if(

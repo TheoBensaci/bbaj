@@ -194,39 +194,40 @@ export class Renderer{
      */
     renderLevel(t){
 
+
+        const gameRenderer=this.world.advanceCollisionTile!==undefined;
+
         // render camera
         const camPosition=Vector.scale(this.world.cameraPosition,1/TILE_SIZE).round();
-        const camWidth=Math.round(this.gameWidth/TILE_SIZE) + 2;
-        const camHeight=Math.round(this.gameHeight/TILE_SIZE) + 2;
+        const camWidth=Math.round(this.gameWidth/(2*TILE_SIZE)) + 2;
+        const camHeight=Math.round(this.gameHeight/(2*TILE_SIZE)) + 2;
+
         for (let y = -camHeight; y < camHeight; y++) {
             for (let x = -camWidth; x < camWidth; x++) {
                 const pos = new Vector(x+camPosition.x,y+camPosition.y);
                 pos.round();
                 const tile = this.world.getTile(pos.x,pos.y);
                 if(tile===null)continue;
+                if(gameRenderer&&this.world.advanceCollisionTile[this.world.getTileId(pos.x,pos.y)]!==undefined)continue;
                 const rPos = this.wordToScreenPosition(pos.scale(TILE_SIZE));
                 tile.render(rPos.x,rPos.y,this.context);
             }
         }
 
 
-        /*
-        const point = new Vector(-camWidth,-camHeight);
-        const boudingBox = [this.screenToWordPosition(point),this.screenToWordPosition(point.scale(-1))];
+        // if advance collision is on in this world, we need to use aabb to know if a tile is render or not
+        if(gameRenderer){
+            const point = this.world.cameraPosition.clone().sub(this.gameWidth/2,this.gameHeight/2);
+            const boudingBox = [point.clone(),point.add(this.gameWidth,this.gameHeight)];
 
-        // add active tile
-        this.game.foreachSpecialTile((tile,x,y)=>{
-            if(
-                gridPos_x-radius<x && gridPos_x+radius>x
-                && gridPos_y-radius<y && gridPos_y+radius>y
-            )return;
-
-            if(Shape.AABB(tile.getBoundingBox(),boudingBox)){
-                buffer.push(tile);
-            }
-        },this.game.advanceCollisionTile);
-
-        */
+            // add active tile
+            this.world.foreachSpecialTile((tile,x,y)=>{
+                if(Shape.AABB(tile.getBoundingBox(),boudingBox)){
+                    const rPos = this.wordToScreenPosition(new Vector(x,y));
+                    tile.render(rPos.x,rPos.y,this.context);
+                }
+            },this.world.advanceCollisionTile);
+        }
 
     }
 

@@ -152,8 +152,8 @@ export class Player extends Actor{
         // trigger use to check if grounded
         this.groundTriggerBox = Shape.createShape(
             ShapeType.SQUARE,
-            new Vector(PLAYER_COLLISION_BOX_OFFSET[0], PLAYER_COLLISION_BOX_OFFSET[1] + PLAYER_COLLISION_BOX_SIZE[1]/2 + 0.25),
-            new Vector(TILE_SIZE*0.8-1,0.5)
+            new Vector(PLAYER_COLLISION_BOX_OFFSET[0], PLAYER_COLLISION_BOX_OFFSET[1] + PLAYER_COLLISION_BOX_SIZE[1]/2 + 0.5),
+            new Vector(TILE_SIZE*0.8-1,1)
         );
 
         // trigger use to check for corner correction
@@ -280,7 +280,7 @@ export class Player extends Actor{
      */
     computeCollision(position){
         let colVec=new Vector(0,0);
-        const tiles = this.game.getSuroundTiles(position.x,position.y,this.getCollider().getBoundingBox(),2);
+        const tiles = this.game.getSuroundTiles(position.x,position.y,2);
 
         // sort tiles by distance
         tiles.sort((a,b)=>{
@@ -360,7 +360,7 @@ export class Player extends Actor{
      */
     projectTrigger(shape,preComputeTile=[]){
         const result=[];
-        const tiles = (preComputeTile.length===0)?this.game.getSuroundTiles(this.position.x,this.position.y,this.getCollider().getBoundingBox(),2):preComputeTile;
+        const tiles = (preComputeTile.length===0)?this.game.getSuroundTiles(this.position.x,this.position.y,2):preComputeTile;
 
 
         for (const tile of tiles) {
@@ -718,7 +718,7 @@ export class Player extends Actor{
      */
     checkVerticalCornerCorrection(t){
 
-        const tiles = this.game.getSuroundTiles(this.position.x,this.position.y,this.getCollider().getBoundingBox(),2);
+        const tiles = this.game.getSuroundTiles(this.position.x,this.position.y,2);
 
         tiles.sort((a,b)=>{
             if(a===null && b!==null){
@@ -975,7 +975,7 @@ export class Player extends Actor{
         this.updateRideTile();
 
         // ground detetction
-        this.environmentDetection(this.game.getSuroundTiles(this.position.x,this.position.y,this.getCollider().getBoundingBox(),2));
+        this.environmentDetection(this.game.getSuroundTiles(this.position.x,this.position.y,2));
 
         if(this.bufferRidingTile===null){
             this.endRide();

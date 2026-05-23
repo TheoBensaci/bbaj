@@ -51,9 +51,10 @@ export class Tile{
      * @returns {Vector[]} [min point, max point] of the bounding box
      */
     getBoundingBox(){
-        const min = [this.collider[0].x,this.collider[0].y];
+        const col = this.getCollider();
+        const min = [col[0].points[0].x,col[0].points[0].y];
         const max = [min[0],min[1]];
-        for (const iterator of this.collider) {
+        for (const iterator of col) {
             const bounding = iterator.getBoundingBox();
             min[0] = Math.min(min[0],bounding[0].x);
             min[1] = Math.min(min[1],bounding[0].y);
