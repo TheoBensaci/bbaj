@@ -8,7 +8,9 @@ import { GroundTile } from "./game/tile/groundTile.js";
 import { JumpPadTile } from "./game/tile/jumpPadTile.js";
 import { Slope } from "./game/tile/slope.js";
 import { TileIndex } from "./game/tileSystem/tileIndexer.js";
+import { TEST_LEVEL_DATA } from "./testLevel.js";
 import { Vector } from "./utils/vector.js";
+
 
 export function initSmallEditor(canvas,editor,renderer){
 
@@ -86,7 +88,13 @@ export function initSmallEditor(canvas,editor,renderer){
             if(e.key==='-'){
                 tilePreview.hidden=true;
                 const data = editor.export();
-                console.log(data);
+
+                // copy the level into clip board
+                navigator.clipboard.writeText("export const TEST_LEVEL_DATA ="+JSON.stringify(data, null, "\t")
+                .replaceAll(
+                    "],\n\t\"",
+                    "],\n\n\t\""
+                ));
                 Director.loadLevel(data);
             }
 
@@ -96,13 +104,13 @@ export function initSmallEditor(canvas,editor,renderer){
             }
 
             if(e.key===','){
-                Director.importLevel([ [], [], [], [], [], [], [], [], [], [], [], [], [], [], [ [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [ "main", 2, { "rotation": 1 } ], [ "main", 0, { "rotation": 2 } ], [ "main", 2, { "rotation": 2 } ] ], [ [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 2 } ], [ "main", 0, { "rotation": 2 } ], [ "main", 0, { "rotation": 2 } ], [ "main", 0, { "rotation": 2 } ] ] ]);
+                Director.importLevel(TEST_LEVEL_DATA);
             }
-            else{
-                if(e.key==='.'){
-                    tilePreview.hidden=false;
-                    Director.switchSceen("editor");
-                }
+        }
+        else{
+            if(e.key==='.'){
+                tilePreview.hidden=false;
+                Director.switchSceen("editor");
             }
         }
     })
