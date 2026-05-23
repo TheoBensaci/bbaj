@@ -64,5 +64,16 @@ export class TileIndex{
         }
         return tileGroup[id];
     }
+
+    static getName(groupID,id){
+        if(!TileIndex.#data.has(groupID)){
+            return "none";
+        }
+        const tileGroup = TileIndex.#data.get(groupID);
+        if(id<0 || tileGroup.length <= id ){
+            return "none";
+        }
+        return tileGroup[id].name
+    }
 }
 

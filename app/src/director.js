@@ -103,9 +103,13 @@ export class Director {
     static switchSceen(sceenName,...params){
         if(this.#inst.sceens[sceenName]===undefined)return;
         this.#inst.game.pause=true;
-        this.#inst.render.uiManager.transition(()=>{
+        Director.transition(()=>{
             this.#inst.switchSceen(sceenName,...params);
         });
+    }
+
+    static transition(callback){
+        this.#inst.render.uiManager.transition(callback);
     }
 
     static setSceen(sceenName,...params){

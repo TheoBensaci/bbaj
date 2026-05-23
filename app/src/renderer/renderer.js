@@ -210,7 +210,7 @@ export class Renderer{
                 if(tile===null)continue;
                 if(gameRenderer&&this.world.advanceCollisionTile[this.world.getTileId(pos.x,pos.y)]!==undefined)continue;
                 const rPos = this.wordToScreenPosition(pos.scale(TILE_SIZE));
-                tile.render(rPos.x,rPos.y,this.context);
+                tile.render(rPos.x,rPos.y,this.context,t);
             }
         }
 

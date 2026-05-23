@@ -20,7 +20,7 @@ export class JumpPadTile extends Tile{
     }
 
 
-    render(x, y, context){
+    render(x, y, context,t){
         context.debugRenderShape(this.getCollider()[0],"#ffff99",false);
     }
 

@@ -57,14 +57,14 @@ ____
     - [ _ ] target trigger
     - [ _ ] Camera offset base on player direction
 
-- [ _ ] Tile system
+- **[ x ]** Tile system
   - **[ x ]** Tile collision
   - **[ x ]** Tile manager
   - **[ x ]** Tile generation
   - **[ x ]** Tile update
   - **[ x ]** Tile active collision
   - **[ x ]** Tile post-process function
-  - [ _ ] Tile reset
+  - **[ x ]** Tile reset
 
 - [ _ ] Player
   - **[ x ]** Basic movment
@@ -102,8 +102,8 @@ ____
 - [ _ ] Level Object
   - [ _ ] check point
   - [ _ ] spawn point
-  - [ _ ] spike
-  - [ _ ] trigger spike
+  - **[ x ]** spike
+  - **[ x ]** trigger spike
   - [ _ ] jump pad
   - [ _ ] one way platform
 

@@ -20,7 +20,7 @@ export class TileEditorWrapper{
     }
 
 
-    render(x,y,context){
+    render(x,y,context,t){
         this.tileClass.editorRender(this,x,y,context);
     }
 

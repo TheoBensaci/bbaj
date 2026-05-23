@@ -24,6 +24,12 @@ const ROLL_COULDOWN = 0.2;
 const ROLL_JUMP_ADD_SPEED=50;
 const SUPER_ROLL_JUMP_ADD_SPEED=150;
 
+const ROLL_VERTICAL_STRENGTH = 300;
+const ROLL_VERTICAL_END_COUNTER = 50;
+const ROLL_VERTICAL_CANCEL_BOOST = 50;
+const ROLL_VERTICAL_HORIZONTAL_MOVEMENT = 150;
+
+
 
 const WALL_JUMP_HORIZONTAL_SPEED=200;
 const WALL_JUMP_VERTICAL_SPEED=300;
@@ -65,8 +71,12 @@ export class PlayerD extends Player{
         this.rollCouldownTimer=0;
         this.rollDir=1;
 
+        this.onVerticalRoll=false;
+
         this.onRoll=false;
         this.onRollAttack=false;
+
+        this.canRollJump=false;
 
         this.onDemoRoll = false;
 
@@ -74,6 +84,12 @@ export class PlayerD extends Player{
         this.wallJump_timer=0;
         this.onWallJump=false;
         this.wallDir=0;
+
+        this.rollJumpTriggerBox=Shape.createShape(
+            ShapeType.SQUARE,
+            new Vector(0,TILE_SIZE),
+            new Vector(TILE_SIZE * 0.8,TILE_SIZE)
+        );
 
 
         // collider and trigger
@@ -95,7 +111,6 @@ export class PlayerD extends Player{
 
         if(Input.action.pressed && this.input.releaseAction){
             this.bufferSystem.init("initRoll");
-            console.log("start roll");
         }
 
         if( !Input.jump.pressed && !this.input.releaseJump && this.onWallJump){
@@ -117,19 +132,38 @@ export class PlayerD extends Player{
 
     // roll
     initRoll(vel_x,t){
-        this.rollTimer=ROLL_LENGTH;
-        this.velocity.y=0;
-        this.rollDir=this.getTargetFacingDir(true);
-        this.onRoll=true;
-        this.onRollAttack=true;
-
         this.canRoll=false;
+        this.rollTimer=ROLL_LENGTH;
 
         this.onDemoRoll=Input.down.pressed;
 
         this.onCroutch=false;
         this.onJump=false;
         this.bufferSystem.clear("endJump");
+
+        this.onRoll=true;
+        this.onRollAttack=true;
+
+        this.canRollJump=false;
+
+        if(Input.up.pressed){
+            this.onVerticalRoll=true;
+            this.velocity.y=-ROLL_VERTICAL_STRENGTH;
+            const dir = this.getTargetFacingDir(false);
+            if(dir===0){
+                return vel_x;
+            }
+            if(Math.abs(vel_x)<ROLL_VERTICAL_HORIZONTAL_MOVEMENT || Math.sign(vel_x)!==dir){
+                console.log("change ");
+                vel_x = ROLL_VERTICAL_HORIZONTAL_MOVEMENT*dir;
+            }
+            return vel_x;
+        }
+        else{
+            this.rollDir=this.getTargetFacingDir(true);
+            this.onDemoRoll=Input.down.pressed;
+            this.velocity.y=0;
+        }
 
         return ROLL_ATTACK_SPEED * this.rollDir;
     }
@@ -139,15 +173,19 @@ export class PlayerD extends Player{
         this.onRoll=false;
         this.onRollAttack=false;
         this.onDemoRoll=false;
+        this.onVerticalRoll=false;
         this.rollCouldownTimer=ROLL_COULDOWN;
     }
 
     initRollJump(vel_y){
+        if(this.onVerticalRoll){
+            this.endRoll();
+            return vel_y - ROLL_VERTICAL_CANCEL_BOOST;
+        }
         this.velocity.x = this.getTargetFacingDir(true)*(Math.max(Math.abs(this.velocity.x),ROLL_ATTACK_SPEED) + ((this.onDemoRoll)?SUPER_ROLL_JUMP_ADD_SPEED:ROLL_JUMP_ADD_SPEED));
         if(this.rollTimer<=ROLL_LENGTH / 3){
             this.canRoll=true;
         }
-        console.log("roll jump : super = "+this.onDemoRoll);
         const v_y = vel_y * (this.onDemoRoll?0.75:1);;
         this.endRoll();
 
@@ -183,6 +221,10 @@ export class PlayerD extends Player{
 
             if(this.onRollAttack && this.rollTimer<=ROLL_ATTACK_END_TIME){
                 this.onRollAttack=false;
+                if(this.onVerticalRoll){
+                    this.velocity.y+=ROLL_VERTICAL_END_COUNTER;
+                    return vel_x;
+                }
                 if(!this.onGround)this.velocity.y=-ROLL_ATTACK_VERTICAL_END_SPEED;
                 return this.rollDir*ROLL_ATTACK_END_SPEED;
             }
@@ -204,7 +246,7 @@ export class PlayerD extends Player{
         this.canRoll=true;
         this.wallJump_timer=WALL_JUMP_TIME;
         this.velocity.x=-1*this.wallDir*WALL_JUMP_HORIZONTAL_SPEED;
-        return -WALL_JUMP_VERTICAL_SPEED;
+        return Math.min(-WALL_JUMP_VERTICAL_SPEED,vel_y);
     }
 
     endWallJump(vel_y){
@@ -243,7 +285,7 @@ export class PlayerD extends Player{
 
 
     canJump(){
-        return !this.onWallJump && super.canJump();
+        return (this.onRoll && this.canRollJump) || (!this.onWallJump && super.canJump());
     }
 
 
@@ -278,7 +320,7 @@ export class PlayerD extends Player{
         return super.getMovmentFactor();
     }
 
-        /**
+    /**
      * Check environment
      */
     environmentDetection(tiles){
@@ -301,12 +343,23 @@ export class PlayerD extends Player{
 
         if(this.wallDir!==0){
             for (const tile of wallTile) {
-
                 if(this.setBufferRidingTile(tile)){
                     console.log(tile);
                     break;
                 }
             }
+        }
+
+        // get extention box to made the (super) rolldash simpler from air
+        if(this.onRoll && (!this.onGround && this.coyotie_timer<=0)){
+            const rollJump = this.projectTrigger(
+                this.rollJumpTriggerBox.setOrigine(this.position),
+                this.game.getSuroundTiles(this.position.x,this.position.y,3)
+            );
+            this.canRollJump=rollJump.length>0;
+        }
+        else{
+            this.canRollJump=false;
         }
 
         /*
@@ -321,14 +374,11 @@ export class PlayerD extends Player{
 
     moveX(vel_x,t){
         vel_x = this.rollUpdate(vel_x,t);
-        if(this.onRollAttack || this.onWallJump){
+        if((!this.onVerticalRoll && this.onRollAttack) || this.onWallJump){
             return vel_x;
         }
 
         vel_x = super.moveX(vel_x,t);
-        if(this.onRoll && vel_x===this.getBaseVelocity().x){
-            this.endRoll();
-        }
         return vel_x;
     }
 
@@ -365,8 +415,7 @@ export class PlayerD extends Player{
             "on roll : " + this.onRoll + " | "+this.onRollAttack,
             "roll timer : "+ this.rollTimer,
             "croutch : "+this.onCroutch,
-            " can walljump : "+ this.canWallJump(),
-            "Wall dir : " + this.wallDir
+            "Can roll dash jump : " + (this.onRoll && this.canRollJump)
         ]
     }
 

@@ -71,8 +71,16 @@ export class Shape{
         return buffer;
     }
 
-    setTrigger(callback){
-        this.trigger=callback;
+    /**
+     * transfrom this shape into a trigger shape, this mean this shape will no longer be use to resolve collision
+     * instead, collision with the player will trigger callback
+     * @param {function(player)} onTriggerCallback trigger call when ever the player is in this shape
+     * @param {function(player)} onTriggerEndCallback trigger call when the player leave is this shape
+     * @returns {Shape} this shap
+     */
+    setTrigger(onTriggerCallback,onTriggerEndCallback=()=>{}){
+        this.trigger=onTriggerCallback;
+        this.triggerEnd=onTriggerEndCallback;
         return this;
     }
 

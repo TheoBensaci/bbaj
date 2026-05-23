@@ -5,6 +5,7 @@
  */
 
 import { RENDER_RESOLUTION, TILE_SIZE, WORLD_LIMIT } from "../../constant.js";
+import { Director } from "../../director.js";
 import { Input } from "../../utils/input.js";
 import { RessourceLoader } from "../../utils/ressouceLoader.js";
 import { Shape, ShapeType } from "../../utils/shape.js";
@@ -62,7 +63,7 @@ export const CROUTCH_MUL=1.5;                                      // croutch fr
 export const CROUTCH_MOVE_PENALITY=0.5;                            // croutch movement penality multiplyer
 
 
-
+const RESPAWN_TIME=0.25;
 
 
 // camera
@@ -88,6 +89,8 @@ export class Player extends Actor{
         super();
 
         this.dead=false;    // if the player dead {skull emoji}
+        this.deathTimer=0;
+        this.waitForRespawn=false;
 
 
         this.game=null; // game instance
@@ -298,6 +301,9 @@ export class Player extends Actor{
 
         for (const tile of tiles) {
             if(tile===null)continue;
+
+            if(!tile.canCollide(this))continue;
+
             const collider = tile.getCollider();
             for (let index = 0; index < collider.length; index++) {
                 const shape = collider[index];
@@ -310,7 +316,16 @@ export class Player extends Actor{
                 if(shape.trigger){
                     // map the trigger into the tileTriggerd, if the shape is all ready in, skip
                     const tileName = tile.position.x+":"+tile.position.y+":"+index;
-                    if(this.tileTriggerd[tileName]===undefined)this.tileTriggerd[tileName]=shape;
+                    if(this.tileTriggerd[tileName]===undefined){
+                        this.tileTriggerd[tileName]={
+                            shape : shape,
+                            ended : false
+                        };
+                        continue;
+                    }
+                    if(this.tileTriggerd[tileName].ended){
+                        this.tileTriggerd[tileName].ended=false;
+                    }
                 }
                 else{
                     colVec.add(collide);
@@ -365,6 +380,9 @@ export class Player extends Actor{
 
         for (const tile of tiles) {
             if(tile===null)continue;
+
+            if(!tile.canCollide(this))continue;
+
             const collider = tile.getCollider();
 
             for (const s of collider) {
@@ -705,7 +723,6 @@ export class Player extends Actor{
         // check for ridding
         if(this.onGround){
             for (const tile of groundTile) {
-
                 if(this.setBufferRidingTile(tile))break;
             }
         }
@@ -931,6 +948,29 @@ export class Player extends Actor{
         this.onJump=false;
         this.facing=1;
         this.rideTile=null;
+
+        this.tileTriggerd={};
+    }
+
+    death(){
+        if(this.dead)return;
+        this.dead=true;
+        this.waitForRespawn=true;
+        this.deathTimer=RESPAWN_TIME;
+    }
+
+    deathUpdate(t){
+        if(this.dead && this.waitForRespawn){
+            if(this.deathTimer>=0){
+                this.deathTimer-=t;
+            }
+            else{
+                this.waitForRespawn=false;
+                Director.transition(()=>{
+                    this.game.spawnPlayer();
+                })
+            }
+        }
     }
 
 
@@ -964,7 +1004,11 @@ export class Player extends Actor{
             return;
         }
 
-        if(this.dead)return;
+
+        if(this.dead){
+            this.deathUpdate(t);
+            return;
+        }
 
 
         // update camera
@@ -998,11 +1042,19 @@ export class Player extends Actor{
         // resolve trigger
         for (const key in this.tileTriggerd) {
             if (Object.hasOwnProperty.call(this.tileTriggerd, key)) {
-                this.tileTriggerd[key].trigger(this);
+                if(this.tileTriggerd[key].ended){
+                    this.tileTriggerd[key].shape.triggerEnd(this);
+                    delete this.tileTriggerd[key];
+                }
+                else{
+                    this.tileTriggerd[key].shape.trigger(this);
+                    this.tileTriggerd[key].ended=true;
+                }
+
             }
         }
 
-        this.tileTriggerd={};
+        //this.tileTriggerd={};
 
         // input update
         this.inputUpdate();

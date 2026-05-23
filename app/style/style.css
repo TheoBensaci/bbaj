@@ -173,6 +173,8 @@ body{
 
 #pauseMenu>h1{
     font-size: 40px;
+    color: gray;
+
 }
 
 #pauseMenu.uiHide{

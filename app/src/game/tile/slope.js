@@ -18,7 +18,7 @@ export class Slope extends Tile{
     }
 
 
-    render(x,y,context){
+    render(x,y,context,t){
         const col = this.getCollider();
         for (const c of col) {
             context.debugRenderShape(c,"#ff0055",false);

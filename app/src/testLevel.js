@@ -3,8 +3,136 @@ export const TEST_LEVEL_DATA =[
 	[],
 	[],
 	[],
-	[],
-	[],
+	[
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[
+			"main",
+			6,
+			{
+				"rotation": 1
+			}
+		],
+		[],
+		[],
+		[],
+		[],
+		[
+			"main",
+			6,
+			{
+				"rotation": 3
+			}
+		]
+	],
+	[
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[
+			"main",
+			6,
+			{
+				"rotation": 1
+			}
+		],
+		[],
+		[],
+		[],
+		[],
+		[
+			"main",
+			6,
+			{
+				"rotation": 3
+			}
+		]
+	],
+	[
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 3
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 3
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 3
+			}
+		]
+	],
 	[
 		[],
 		[],
@@ -57,13 +185,7 @@ export const TEST_LEVEL_DATA =[
 		[],
 		[],
 		[],
-		[
-			"main",
-			0,
-			{
-				"rotation": 0
-			}
-		],
+		[],
 		[],
 		[],
 		[],
@@ -110,69 +232,16 @@ export const TEST_LEVEL_DATA =[
 		[],
 		[],
 		[],
+		[],
+		[],
+		[],
 		[
 			"main",
 			0,
 			{
-				"rotation": 0
+				"rotation": 2
 			}
 		],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[
-			"main",
-			0,
-			{
-				"rotation": 0
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 0
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 0
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 0
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 0
-			}
-		]
-	],
-	[
-		[],
-		[],
-		[],
-		[],
-		[
-			"main",
-			0,
-			{
-				"rotation": 0
-			}
-		],
-		[],
-		[],
-		[],
 		[],
 		[],
 		[
@@ -265,16 +334,16 @@ export const TEST_LEVEL_DATA =[
 		[],
 		[],
 		[],
+		[],
+		[],
+		[],
 		[
 			"main",
 			0,
 			{
-				"rotation": 0
+				"rotation": 2
 			}
 		],
-		[],
-		[],
-		[],
 		[],
 		[],
 		[
@@ -395,6 +464,25 @@ export const TEST_LEVEL_DATA =[
 		[],
 		[],
 		[],
+		[],
+		[],
+		[],
+		[
+			"main",
+			0,
+			{
+				"rotation": 2
+			}
+		],
+		[],
+		[],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
 		[
 			"main",
 			0,
@@ -404,17 +492,34 @@ export const TEST_LEVEL_DATA =[
 		],
 		[],
 		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			4,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			4,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			4,
+			{
+				"rotation": 0
+			}
+		],
 		[],
 		[],
 		[],
@@ -489,6 +594,37 @@ export const TEST_LEVEL_DATA =[
 		[],
 		[],
 		[],
+		[],
+		[
+			"main",
+			6,
+			{
+				"rotation": 2
+			}
+		],
+		[
+			"main",
+			6,
+			{
+				"rotation": 2
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 2
+			}
+		],
+		[],
+		[],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
 		[
 			"main",
 			0,
@@ -498,19 +634,48 @@ export const TEST_LEVEL_DATA =[
 		],
 		[],
 		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			6,
+			{
+				"rotation": 2
+			}
+		],
+		[
+			"main",
+			6,
+			{
+				"rotation": 2
+			}
+		],
 		[],
 		[],
 		[],
@@ -617,109 +782,20 @@ export const TEST_LEVEL_DATA =[
 		[],
 		[],
 		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
 		[
 			"main",
-			2,
+			6,
 			{
-				"rotation": 1
+				"rotation": 0
 			}
 		],
 		[
 			"main",
-			0,
+			6,
 			{
-				"rotation": 2
+				"rotation": 0
 			}
 		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 2
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 2
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 2
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 2
-			}
-		],
-		[
-			"main",
-			2,
-			{
-				"rotation": 2
-			}
-		],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[
-			"main",
-			0,
-			{
-				"rotation": 2
-			}
-		],
-		[],
-		[],
-		[],
-		[
-			"main",
-			0,
-			{
-				"rotation": 2
-			}
-		],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
 		[
 			"main",
 			0,
@@ -727,29 +803,13 @@ export const TEST_LEVEL_DATA =[
 				"rotation": 0
 			}
 		],
-		[],
-		[],
-		[],
 		[
 			"main",
 			0,
 			{
 				"rotation": 0
 			}
-		]
-	],
-	[
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
+		],
 		[],
 		[],
 		[],
@@ -804,6 +864,171 @@ export const TEST_LEVEL_DATA =[
 		],
 		[
 			"main",
+			2,
+			{
+				"rotation": 2
+			}
+		],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[
+			"main",
+			0,
+			{
+				"rotation": 2
+			}
+		],
+		[],
+		[],
+		[],
+		[
+			"main",
+			0,
+			{
+				"rotation": 2
+			}
+		],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[],
+		[],
+		[],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		]
+	],
+	[
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[],
+		[],
+		[
+			"main",
+			5,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			5,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			5,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			5,
+			{
+				"rotation": 0
+			}
+		],
+		[],
+		[],
+		[],
+		[
+			"main",
+			2,
+			{
+				"rotation": 1
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 2
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 2
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 2
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 2
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 2
+			}
+		],
+		[
+			"main",
 			0,
 			{
 				"rotation": 2
@@ -916,304 +1141,310 @@ export const TEST_LEVEL_DATA =[
 				"rotation": 0
 			}
 		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 2
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 2
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 2
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 2
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 2
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 2
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 2
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 2
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 2
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 2
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 2
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 2
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 2
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 2
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 2
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 2
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 2
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 2
+			}
+		],
 		[],
 		[],
 		[],
-		[],
-		[
-			"main",
-			0,
-			{
-				"rotation": 0
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 0
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 0
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 0
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 0
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 0
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 0
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 0
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 0
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 0
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 0
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 0
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 0
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 0
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 0
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 2
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 2
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 2
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 2
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 0
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 0
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 0
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 0
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 0
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 0
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 2
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 2
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 2
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 2
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 2
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 2
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 2
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 2
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 2
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 2
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 2
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 2
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 2
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 2
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 0
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 0
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 0
-			}
-		],
 		[
 			"main",
 			0,
@@ -1631,13 +1862,7 @@ export const TEST_LEVEL_DATA =[
 		[],
 		[],
 		[],
-		[
-			"main",
-			0,
-			{
-				"rotation": 0
-			}
-		],
+		[],
 		[],
 		[],
 		[],
@@ -1743,13 +1968,7 @@ export const TEST_LEVEL_DATA =[
 		[],
 		[],
 		[],
-		[
-			"main",
-			0,
-			{
-				"rotation": 0
-			}
-		],
+		[],
 		[],
 		[],
 		[],
@@ -1855,13 +2074,7 @@ export const TEST_LEVEL_DATA =[
 		[],
 		[],
 		[],
-		[
-			"main",
-			0,
-			{
-				"rotation": 0
-			}
-		],
+		[],
 		[],
 		[],
 		[],
@@ -2070,13 +2283,55 @@ export const TEST_LEVEL_DATA =[
 				"rotation": 0
 			}
 		],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
-		[],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
 		[
 			"main",
 			0,

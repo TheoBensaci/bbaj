@@ -48,6 +48,11 @@ export class Game extends World{
         */
         this.advanceCollisionTile={};
 
+        this.tileState={};
+
+        // list of tile position use to know which tile need to be reset on respawn
+        this.toResetTile={};
+
         this.player=null;
         this.playerSpawnPoint=new Vector(0,0);
 
@@ -227,6 +232,29 @@ export class Game extends World{
         }
     }
 
+
+    /**
+     * Notify we need to reste the x, y on the next reste
+     */
+    notifyTileChange(x,y){
+        this.toResetTile[this.getTileId(x,y)]={x:x,y:y};
+    }
+
+    /**
+     * Reste all tile change
+     */
+    resetTilesChange(){
+        for (const key in this.toResetTile) {
+            if (Object.hasOwnProperty.call(this.toResetTile, key)) {
+                const el = this.toResetTile[key];
+                const tile = this.getTile(el.x,el.y);
+                if(tile===null)continue;
+                tile.onReset();
+            }
+        }
+        this.toResetTile={};
+    }
+
     //#endregion
 
 
@@ -258,11 +286,13 @@ export class Game extends World{
     }
 
     spawnPlayer(){
+        this.resetTilesChange();
         this.player.position.set(this.playerSpawnPoint);
         this.player.onSpawn();
     }
 
     setPlayerSpawnPoint(position){
+        this.tileState={};
         this.playerSpawnPoint.set(position);
     }
 

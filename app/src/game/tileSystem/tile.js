@@ -66,6 +66,14 @@ export class Tile{
 
 
     /**
+     * use to determine if this tile can collide with the player or not
+     */
+    canCollide(player){
+        return true;
+    }
+
+
+    /**
      * callback use right after the level as fully generated, usefule for auto tiling for example
      * @param {*} game
      */
@@ -81,7 +89,7 @@ export class Tile{
      * @param {number} y position x on the screen of this tile
      * @param {context2D extended} context js context 2d with additional utils function given by the Renderer
      */
-    render(x,y,context){
+    render(x,y,context,t){
         context.fillStyle="#ff0055";
         context.fillRect(
             x,y,
@@ -162,21 +170,19 @@ export class DynamicTile extends Tile{
 
 
     /**
-     * Use to save state from this tile
-     * @returns
+     * Notify the world this tile as change and can be reste when needed
      */
-    saveState(){
-        return [];
+    notifyChange(){
+        this.game.notifyTileChange(this.gridOriginePos[0],this.gridOriginePos[1]);
     }
-
 
     /**
-     * Load a state of this tile
-     * @param {object[]} state
+     * call by he world when we need to reset this tile
      */
-    loadState(state){
+    onReset(){
 
     }
+
 }
 
 

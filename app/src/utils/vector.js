@@ -111,7 +111,6 @@ export class Vector{
         return this;
     }
 
-
     static normalize(vec){
         return vec.clone().normalize();
     }

@@ -19,7 +19,7 @@ export class GroundTile extends Tile{
     }
 
 
-    render(x,y,context){
+    render(x,y,context,t){
         this.autoTiling.render(x,y,context);
     }
 

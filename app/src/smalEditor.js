@@ -31,6 +31,8 @@ export function initSmallEditor(canvas,editor,renderer){
         tilePreview.hidden=false;
         placedTile=id;
 
+        console.log(TileIndex.getName("main",id));
+
 
         // set the image with the tile
         renderer.exportTileSprite(120,120,(url)=>{
@@ -75,6 +77,15 @@ export function initSmallEditor(canvas,editor,renderer){
             }
             if(e.key==='4'){
                 setTile(3);
+            }
+            if(e.key==='5'){
+                setTile(4);
+            }
+            if(e.key==='6'){
+                setTile(5);
+            }
+            if(e.key==='7'){
+                setTile(6);
             }
 
             if(e.key==='c'){
