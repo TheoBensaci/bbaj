@@ -33,6 +33,12 @@ export class World{
     }
 
 
+    /**
+     * Get the tile at the x and y world position
+     * @param {number} x
+     * @param {number} y
+     * @returns tile
+     */
     getTile(x,y){
         return null;
     }

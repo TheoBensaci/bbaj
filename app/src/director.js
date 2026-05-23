@@ -129,6 +129,12 @@ export class Director {
     }
 
 
+    static importLevel(levelData){
+        // load level
+        this.#inst.editor.import(levelData);
+    }
+
+
     switchSceen(nextSceenName,...params){
         if(this.lastSceen!=="")this.sceens[this.lastSceen].out();
         this.sceens[nextSceenName].in(...params);

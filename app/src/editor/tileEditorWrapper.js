@@ -24,6 +24,10 @@ export class TileEditorWrapper{
         this.tileClass.editorRender(this,x,y,context);
     }
 
+    /**
+     * Set tile wrapper state
+     * @param {World} context world context
+     */
     setState(context){
         this.tileClass.setWrapperState(this,context,this.x*TILE_SIZE+TILE_SIZE/2,this.y*TILE_SIZE+TILE_SIZE/2);
     }

@@ -36,9 +36,8 @@ export class Slope extends Tile{
     }
 
     static setWrapperState(tileWrapper,context,x,y){
-        console.log(tileWrapper.tileParams);
         const b = new Slope(1,tileWrapper.tileParams.rotation);
-        b.position.set(x,y);
+        b.setOriginePosition(new Vector(x,y));
         tileWrapper.shape = b.getCollider()[0];
     }
 }

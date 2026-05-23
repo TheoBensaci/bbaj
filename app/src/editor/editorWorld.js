@@ -14,6 +14,12 @@ export class EditorWorld extends World{
     }
 
 
+    /**
+     * Set the tile x and y (grid level pos) to a set tile
+     * @param {number} x x grid level position
+     * @param {number} y x grid level position
+     * @param {object} params tile parameter => [group-id,tile-id,{params}];
+     */
     setTile(x,y,params){
         if(x<0 || y<0)return;
         if(this.level.length<=y){
@@ -58,6 +64,11 @@ export class EditorWorld extends World{
         return (tile!==null && (tile.tileClass === tileClass));
     }
 
+    /**
+     * Move the camera by a set amount
+     * @param {*} x amount x
+     * @param {*} y amount y
+     */
     moveCamera(x,y){
         const buffer = this.cameraPosition.clone();
         buffer.x+=x;
@@ -85,5 +96,34 @@ export class EditorWorld extends World{
             result.push(buffer);
         }
         return result;
+    }
+
+    /**
+     * Import a level into the editor
+     * @param {*} levelData Map of tile params (same format as the export function)
+     */
+    import(levelData){
+        const result=[];
+        for (let y = 0; y < levelData.length; y++) {
+            const buffer = [];
+            for (let x = 0; x < levelData[y].length; x++) {
+                if(levelData[y][x].length===0){
+                    buffer.push(null);
+                }
+                else{
+                    const t = new TileEditorWrapper(x,y,levelData[y][x]);
+                    buffer.push(t);
+                }
+            }
+            result.push(buffer);
+        }
+        this.level=result;
+
+        for (const col of this.level) {
+            for (const tile of col) {
+                if(tile===null)continue;
+                tile.setState(this);
+            }
+        }
     }
 }

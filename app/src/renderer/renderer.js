@@ -363,7 +363,7 @@ export class Renderer{
      * @returns {Vector}
      */
     screenToWordPosition(pos){
-        return new Vector(pos.x + this.world.cameraPosition.x - this.gameWidth/2,pos.y + this.world.cameraPosition.y - this.gameHeight/2).round();
+        return new Vector(pos.x + this.world.cameraPosition.x - this.gameWidth/2,pos.y + this.world.cameraPosition.y - this.gameHeight/2);
     }
 
     /**
@@ -403,7 +403,6 @@ export class Renderer{
         const axis=shape.getNormal();
         const axisRender=[];
         let point = this.wordToScreenPosition(points[0]);
-        console.log(point);
         context.moveTo(point.x, point.y);
         for (let index = 1; index < points.length; index++) {
             const i = points[index];
@@ -476,19 +475,24 @@ export class Renderer{
 
     // context buffering
 
-    setTilePreview(tilePreviewImg,data){
 
-
-        const w = tilePreviewImg.width;
-        const h = tilePreviewImg.height;
+    /**
+     * Use to export a render of tile (specify by data) into a url image
+     * @param {number} width width of target image
+     * @param {number} height height of target image
+     * @param {function} callback callback call with the url at the end
+     * @param {object} data data of the tile
+     */
+    exportTileSprite(width,height,callback,data){
+        const w = width;
+        const h = height;
 
         let buffer = new OffscreenCanvas(w, h);
         let bufferContext = buffer.getContext("2d");
-
         this.#setContextFunction(bufferContext,bufferContext,bufferContext);
-        const pos = this.world.cameraPosition.clone();
-        console.log(" (=",pos);
-        console.log(" (=",this.wordToScreenPosition(this.world.cameraPosition));
+
+        // set virtual tile position (to make the tile render in the middle of the image) in can of debug shape
+        const pos =this.screenToWordPosition(new Vector(w/2 - TILE_SIZE/2,h/2 - TILE_SIZE/2)).scale(1/TILE_SIZE);
 
         const tileWrapper = new TileEditorWrapper(pos.x,pos.y,data);
 
@@ -498,7 +502,7 @@ export class Renderer{
 
         buffer.convertToBlob().then((blob) => {
             const url = URL.createObjectURL(blob);
-            tilePreviewImg.src = url;
+            callback(url);
         });
     }
 }

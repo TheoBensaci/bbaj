@@ -28,7 +28,12 @@ export function initSmallEditor(canvas,editor,renderer){
         }
         tilePreview.hidden=false;
         placedTile=id;
-        renderer.setTilePreview(tilePreview,["main",id,tileParams]);
+
+
+        // set the image with the tile
+        renderer.exportTileSprite(120,120,(url)=>{
+            tilePreview.src=url;
+        },["main",id,tileParams]);
     }
 
 
@@ -80,18 +85,24 @@ export function initSmallEditor(canvas,editor,renderer){
 
             if(e.key==='-'){
                 tilePreview.hidden=true;
-                Director.loadLevel(editor.export());
+                const data = editor.export();
+                console.log(data);
+                Director.loadLevel(data);
             }
 
             if(e.key==='r'){
                 tileParams.rotation = (tileParams.rotation+1)%4;
                 setTile(placedTile);
             }
-        }
-        else{
-            if(e.key==='.'){
-                tilePreview.hidden=false;
-                Director.switchSceen("editor");
+
+            if(e.key===','){
+                Director.importLevel([ [], [], [], [], [], [], [], [], [], [], [], [], [], [], [ [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [ "main", 2, { "rotation": 1 } ], [ "main", 0, { "rotation": 2 } ], [ "main", 2, { "rotation": 2 } ] ], [ [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 0 } ], [ "main", 0, { "rotation": 2 } ], [ "main", 0, { "rotation": 2 } ], [ "main", 0, { "rotation": 2 } ], [ "main", 0, { "rotation": 2 } ] ] ]);
+            }
+            else{
+                if(e.key==='.'){
+                    tilePreview.hidden=false;
+                    Director.switchSceen("editor");
+                }
             }
         }
     })

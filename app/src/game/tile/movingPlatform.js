@@ -49,7 +49,7 @@ export class MovingPlatform extends MovingTile{
 
     static setWrapperState(tileWrapper,context,x,y){
         const b = new MovingPlatform();
-        b.position.set(x,y);
+        b.setOriginePosition(new Vector(x,y));
         tileWrapper.shape = b.getCollider()[0];
         console.log(tileWrapper);
     }

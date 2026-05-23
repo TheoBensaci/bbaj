@@ -31,7 +31,6 @@ export class Tile{
      */
     setOriginePosition(pos){
         this.position.set(pos);
-        console.log(this.position,pos);
         return this;
     }
 
