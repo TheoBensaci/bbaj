@@ -4,11 +4,11 @@
  * @ Description: The tile system need tile, here the implementation
  */
 
-import { TILE_SIZE } from "../../constant.js";
-import { TileEditorWrapper } from "../../editor/tileEditorWrapper.js";
-import { Shape } from "../../utils/shape.js";
-import { Vector } from "../../utils/vector.js";
-import { World } from "../../world.js";
+import { TILE_SIZE } from '../../constant.js';
+import { TileEditorWrapper } from '../../editor/tileEditorWrapper.js';
+import { Shape } from '../../utils/shape.js';
+import { Vector } from '../../utils/vector.js';
+import { World } from '../../world.js';
 
 /**
  * The classic tile
@@ -17,10 +17,10 @@ import { World } from "../../world.js";
  * for collision, avoid making a collider bigger dans 2 TILE_SIZE. If you dont, collider might
  * not be compute correctly
  */
-export class Tile{
-    constructor(collliderShapes=[]){
-        this.position=new Vector(0,0);
-        this.collider=collliderShapes;
+export class Tile {
+    constructor(collliderShapes = []) {
+        this.position = new Vector(0, 0);
+        this.collider = collliderShapes;
     }
 
     /**
@@ -29,7 +29,7 @@ export class Tile{
      * @param {number} y
      * @returns this
      */
-    setOriginePosition(pos){
+    setOriginePosition(pos) {
         this.position.set(pos);
         return this;
     }
@@ -38,10 +38,10 @@ export class Tile{
      * Get this tile collider shape
      * @returns {Shape[]} list of shape
      */
-    getCollider(){
-        if(this.position===null){return this.collider;}
+    getCollider() {
+        if (this.position === null) return this.collider;
         for (const iterator of this.collider) {
-            iterator.setOrigine(this.position)
+            iterator.setOrigine(this.position);
         }
         return this.collider;
     }
@@ -50,34 +50,32 @@ export class Tile{
      * Get the tile bounding box
      * @returns {Vector[]} [min point, max point] of the bounding box
      */
-    getBoundingBox(){
+    getBoundingBox() {
         const col = this.getCollider();
-        const min = [col[0].points[0].x,col[0].points[0].y];
-        const max = [min[0],min[1]];
+        const min = [col[0].points[0].x, col[0].points[0].y];
+        const max = [min[0], min[1]];
         for (const iterator of col) {
             const bounding = iterator.getBoundingBox();
-            min[0] = Math.min(min[0],bounding[0].x);
-            min[1] = Math.min(min[1],bounding[0].y);
-            max[0] = Math.max(max[0],bounding[1].x);
-            max[1] = Math.max(max[1],bounding[1].y);
+            min[0] = Math.min(min[0], bounding[0].x);
+            min[1] = Math.min(min[1], bounding[0].y);
+            max[0] = Math.max(max[0], bounding[1].x);
+            max[1] = Math.max(max[1], bounding[1].y);
         }
-        return [new Vector(min[0],min[1]), new Vector(max[0],max[1])];
+        return [new Vector(min[0], min[1]), new Vector(max[0], max[1])];
     }
-
 
     /**
      * use to determine if this tile can collide with the player or not
      */
-    canCollide(player){
+    canCollide(player) {
         return true;
     }
-
 
     /**
      * callback use right after the level as fully generated, usefule for auto tiling for example
      * @param {*} game
      */
-    postCreate(game){
+    postCreate(game) {
 
     }
 
@@ -89,23 +87,18 @@ export class Tile{
      * @param {number} y position x on the screen of this tile
      * @param {context2D extended} context js context 2d with additional utils function given by the Renderer
      */
-    render(x,y,context,t){
-        context.fillStyle="#ff0055";
-        context.fillRect(
-            x,y,
-            TILE_SIZE,
-            TILE_SIZE
-        );
-        context.fillStyle="#000000ff";
+    render(x, y, context, t) {
+        context.fillStyle = '#ff0055';
+        context.fillRect(x, y, TILE_SIZE, TILE_SIZE);
+        context.fillStyle = '#000000ff';
     }
-
 
     /**
      * Create a tile with the given parameter list
      * @param {array} paramsList
      * @returns Tile object
      */
-    static createTile(paramsList){
+    static createTile(paramsList) {
         return null;
     }
 
@@ -118,24 +111,19 @@ export class Tile{
      * @param {number} y position x on the screen of this tile
      * @param {context2D extended} context js context 2d with additional utils function given by the Renderer
      */
-    static editorRender(tileWrapper,x,y,context){
+    static editorRender(tileWrapper, x, y, context) {
 
     }
-
 
     /**
      * Callback use when this tile type is create or update on the editor
      * @param {TileEditorWrapper} tileWrapper tile wrapper use
      * @param {World} context world
      */
-    static setWrapperState(tileWrapper,context,x,y){
+    static setWrapperState(tileWrapper, context, x, y) {
 
     }
-
-
 }
-
-
 
 /**
  * Tile which can be transfrom and update during gameplay
@@ -144,121 +132,114 @@ export class Tile{
  * into the game and whene ever the game need to be reset, it will call the set state
  * function.
  */
-export class DynamicTile extends Tile{
-    constructor(shapes){
+export class DynamicTile extends Tile {
+    constructor(shapes) {
         super(shapes);
         this.game = null;
 
         // id of the tile
-        this.id="";
-        this.gridOriginePos=[0,0];
+        this.id = '';
+        this.gridOriginePos = [0, 0];
     }
 
-    setOriginePosition(pos){
+    setOriginePosition(pos) {
         super.setOriginePosition(pos);
-        const x = Math.floor(pos.x/TILE_SIZE);
-        const y = Math.floor(pos.y/TILE_SIZE);
-        this.gridOriginePos[0]=x;
-        this.gridOriginePos[1]=y;
+        const x = Math.floor(pos.x / TILE_SIZE);
+        const y = Math.floor(pos.y / TILE_SIZE);
+        this.gridOriginePos[0] = x;
+        this.gridOriginePos[1] = y;
         return this;
     }
 
-    postCreate(game){
-        this.game=game;
-        this.id=game.getTileId(this.gridOriginePos[0],this.gridOriginePos[1]);
+    postCreate(game) {
+        this.game = game;
+        this.id = game.getTileId(this.gridOriginePos[0], this.gridOriginePos[1]);
     }
-
 
     /**
      * Notify the world this tile as change and can be reste when needed
      */
-    notifyChange(){
-        this.game.notifyTileChange(this.gridOriginePos[0],this.gridOriginePos[1]);
+    notifyChange() {
+        this.game.notifyTileChange(this.gridOriginePos[0], this.gridOriginePos[1]);
     }
 
     /**
      * call by he world when we need to reset this tile
      */
-    onReset(){
+    onReset() {
 
     }
-
 }
-
 
 /**
  * Tile which can be updated over time
  */
-export class ActiveTile extends DynamicTile{
-    constructor(shapes){
+export class ActiveTile extends DynamicTile {
+    constructor(shapes) {
         super(shapes);
     }
-
 
     /**
      * Callback use when this tile is update
      * @param {*} t
      */
-    update(t){
+    update(t) {
 
     }
 
     /**
      * Register it self to the active tile
      */
-    setActive(){
-        this.game.registerActiveTile(this.gridOriginePos[0],this.gridOriginePos[1]);
+    setActive() {
+        this.game.registerActiveTile(this.gridOriginePos[0], this.gridOriginePos[1]);
     }
 
     /**
      * unregister it self to the active tile
      */
-    unsetActive(){
-        this.game.unregisterActiveTile(this.gridOriginePos[0],this.gridOriginePos[1]);
+    unsetActive() {
+        this.game.unregisterActiveTile(this.gridOriginePos[0], this.gridOriginePos[1]);
     }
 }
 
-
-
 /**
- * Tile which can use "Advance Collision". In nutshell
+ * Tile which can use 'Advance Collision'. In nutshell
  * it's only mean we can use more than 2 tile for colldier size
  * and we can, move the tile to any position.
  */
-export class AdvanceCollisionTile extends ActiveTile{
-    constructor(shapes){
+export class AdvanceCollisionTile extends ActiveTile {
+    constructor(shapes) {
         super(shapes);
     }
 
     /**
      * Register it self as a advance collision
      */
-    activeAdvanceCollision(){
-        this.game.registerAdvanceCollisionTile(this.gridOriginePos[0],this.gridOriginePos[1]);
+    activeAdvanceCollision() {
+        this.game.registerAdvanceCollisionTile(this.gridOriginePos[0], this.gridOriginePos[1]);
     }
 
     /**
      * unregister it self as a advance collision (should be only use if this tile will destroy)
      */
-    desactiveAdvanceCollision(){
-        this.game.unregisterAdvanceCollisionTile(this.gridOriginePos[0],this.gridOriginePos[1]);
+    desactiveAdvanceCollision() {
+        this.game.unregisterAdvanceCollisionTile(this.gridOriginePos[0], this.gridOriginePos[1]);
     }
 }
-
 
 /**
  * Tile which can move, can be use a riding tile by the player
  */
-export class MovingTile extends AdvanceCollisionTile{
-    constructor(shapes){
+export class MovingTile extends AdvanceCollisionTile {
+    constructor(shapes) {
         super(shapes);
-        this.velocity=new Vector(0,0);
+        this.velocity = new Vector(0, 0);
     }
 
     /**
      * active moving
      */
-    activeMoving(){
+    activeMoving() {
         this.setActive();
         this.activeAdvanceCollision();
     }
@@ -266,9 +247,8 @@ export class MovingTile extends AdvanceCollisionTile{
     /**
      * disabel moving (should be only use if this tile will destroy)
      */
-    desactiveMoving(){
+    desactiveMoving() {
         this.desactiveMoving();
         this.desactiveAdvanceCollision();
     }
 }
-

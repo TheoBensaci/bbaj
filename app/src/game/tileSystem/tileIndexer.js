@@ -4,20 +4,19 @@
  * @ Description: The tile index is use to map tile to a specique id, this is to for parsing a level into actual game object
  */
 
-
-export class TileIndex{
+export class TileIndex {
     static #data = new Map();
 
     /**
      * Create a new group of tile
      * @param {*} groupID
      */
-    static createGroup(groupID){
-        if(TileIndex.#data.has(groupID)){
-            throw new Error("Group ID '"+groupID+"' all ready exist");
+    static createGroup(groupID) {
+        if (TileIndex.#data.has(groupID)) {
+            throw new Error('Group ID "' + groupID + '" all ready exist');
         }
 
-        TileIndex.#data.set(groupID,[]);
+        TileIndex.#data.set(groupID, []);
     }
 
     /**
@@ -26,9 +25,9 @@ export class TileIndex{
      * @param {Class} TileClass Tile class
      * @returns
      */
-    static registerTile(groupID,TileClass){
-        if(!TileIndex.#data.has(groupID)){
-            throw new Error("Group ID '"+groupID+"' dosn't exist");
+    static registerTile(groupID, TileClass) {
+        if (!TileIndex.#data.has(groupID)) {
+            throw new Error('Group ID "' + groupID + '" dosn\'t exist');
         }
 
         const id = TileIndex.#data.get(groupID).length;
@@ -43,37 +42,36 @@ export class TileIndex{
      * @param {*} params
      * @returns
      */
-    static createTile(groupID,id,params={}){
-        if(!TileIndex.#data.has(groupID)){
-            throw new Error("Group ID '"+groupID+"' dosn't exist");
+    static createTile(groupID, id, params = {}) {
+        if (!TileIndex.#data.has(groupID)) {
+            throw new Error('Group ID "' + groupID + '" dosn\'t exist');
         }
         const tileGroup = TileIndex.#data.get(groupID);
-        if(id<0 || tileGroup.length <= id ){
-            throw new Error("ID '"+id+"' dosn't exist in the group '"+groupID+"'");
+        if (id < 0 || tileGroup.length <= id) {
+            throw new Error('ID "' + id + '" dosn\'t exist in the group "' + groupID + '"');
         }
         return tileGroup[id].createTile(params);
     }
 
-    static getTileClass(groupID,id){
-        if(!TileIndex.#data.has(groupID)){
-            throw new Error("Group ID '"+groupID+"' dosn't exist");
+    static getTileClass(groupID, id) {
+        if (!TileIndex.#data.has(groupID)) {
+            throw new Error('Group ID "' + groupID + '" dosn\'t exist');
         }
         const tileGroup = TileIndex.#data.get(groupID);
-        if(id<0 || tileGroup.length <= id ){
-            throw new Error("ID '"+id+"' dosn't exist in the group '"+groupID+"'");
+        if (id < 0 || tileGroup.length <= id) {
+            throw new Error('ID "' + id + '" dosn\'t exist in the group "' + groupID + '"');
         }
         return tileGroup[id];
     }
 
-    static getName(groupID,id){
-        if(!TileIndex.#data.has(groupID)){
-            return "none";
+    static getName(groupID, id) {
+        if (!TileIndex.#data.has(groupID)) {
+            return 'none';
         }
         const tileGroup = TileIndex.#data.get(groupID);
-        if(id<0 || tileGroup.length <= id ){
-            return "none";
+        if (id < 0 || tileGroup.length <= id) {
+            return 'none';
         }
-        return tileGroup[id].name
+        return tileGroup[id].name;
     }
 }
-

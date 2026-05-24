@@ -1,4 +1,3 @@
-
 /**
  * Export a object to json and download it
  * @param {string} filename
@@ -12,4 +11,4 @@ export function downloadJsonFile(filename, data) {
     document.body.appendChild(element);
     element.click();
     document.body.removeChild(element);
-  }
+}
