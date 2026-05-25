@@ -9,6 +9,7 @@ export class EditorTilePreview{
     constructor(previewDiv,render){
         this.render=render;
         this.div = previewDiv;
+        this.hidden=false;
 
 
         const children = previewDiv.childNodes;
@@ -40,6 +41,7 @@ export class EditorTilePreview{
      * @param {*} state "" = none, "remove" = remove icon
      */
     setState(state){
+        if(this.hidden)return;
         if(state===""){
             this.canvas.hidden=false;
             this.div.className ="";
@@ -56,6 +58,14 @@ export class EditorTilePreview{
      * @param {*} state
      */
     hide(state){
+        this.hidden=state;
+        console.log(this.div.classList);
+        if(state){
+            this.div.classList.add("hide");
+        }
+        else{
+            this.div.classList.remove("hide");
+        }
         this.div.hidden=state;
     }
 

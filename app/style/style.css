@@ -43,6 +43,10 @@ body{
     background-repeat: no-repeat;
 }
 
+#tilePreview.hide{
+    display: none;
+}
+
 #tilePreview.removeIcon{
     border-style: solid;
     border-color: #ff0055;
