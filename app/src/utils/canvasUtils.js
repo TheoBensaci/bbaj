@@ -11,7 +11,7 @@ export function initCanvas(canvasContainer, width, height) {
     if (canvasContainer.hasChildNodes()) {
         const children = canvasContainer.childNodes;
         for (const node of children) {
-            if (node instanceof HTMLCanvasElement) {
+            if (node.className === "gameCanvas" && node instanceof HTMLCanvasElement) {
                 node.width = width;
                 node.height = height;
                 buffer.push(node);

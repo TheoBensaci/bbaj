@@ -67,7 +67,7 @@ const CAMEAR_LOOK_AHEAD_TIMER = 0.5;                        // how long the play
 const DEFAULT_RIDE_VELOCITY = new Vector(0,0);
 
 const debug = {
-    debugInfo: true,
+    debugInfo: false,
     debugCollision: false,
 };
 

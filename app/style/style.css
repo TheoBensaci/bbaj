@@ -25,16 +25,42 @@ body{
 
 #tilePreview{
     position: absolute;
+    top:0px;
+    left: 0px;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     z-index: 3;
     pointer-events:none;
     opacity: 0.5;
     image-rendering:optimizeSpeed;
     transform: translate(calc(-50%),calc(-50%));
+    transition: all 0.05s;
+    background-position: center;
+    background-size: contain;
+    background-repeat: no-repeat;
+}
+
+#tilePreview.removeIcon{
+    border-style: solid;
+    border-color: #ff0055;
+    border-width: 3px;
+    opacity: 0.8;
+    border-radius: 4px;
+}
+
+#tilePreview.removeIcon:after{
+    display: inline-block;
+    content: "\00d7";
+    color: #ff0055;
+    transform: scale(2) translate(0,-10%);
 }
 
 
 #gameCanavas{
-    overflow-x: hidden;
+    overflow: hidden;
     --size: 1;
 
 
@@ -64,7 +90,7 @@ body{
     left: 0;
 }
 
-#gameCanavas>canvas{
+#gameCanavas>.gameCanvas{
     position: absolute;
     top: 0;
     left: 0;

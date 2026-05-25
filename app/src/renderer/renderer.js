@@ -465,13 +465,13 @@ export class Renderer {
      * @param {function} callback callback call with the url at the end
      * @param {object} data data of the tile
      */
-    exportTileSprite(width, height, callback, data) {
+    exportTileSprite(targetContext,width, height, data) {
         const w = width;
         const h = height;
+        targetContext.imageSmoothingEnabled = false;
+        this.#setContextFunction(targetContext, targetContext, targetContext);
 
-        let buffer = new OffscreenCanvas(w, h);
-        let bufferContext = buffer.getContext('2d');
-        this.#setContextFunction(bufferContext, bufferContext, bufferContext);
+        this.clearScreen(targetContext,width,height);
 
         // set virtual tile position (to make the tile render in the middle of the image) in can of debug shape
         const pos = this.screenToWordPosition(new Vector(w/2 - TILE_SIZE/2, h/2 - TILE_SIZE/2)).scale(1/TILE_SIZE);
@@ -480,11 +480,6 @@ export class Renderer {
 
         tileWrapper.setState(new World());
 
-        tileWrapper.render(w/2 - TILE_SIZE/2, h/2 - TILE_SIZE/2, bufferContext);
-
-        buffer.convertToBlob().then((blob) => {
-            const url = URL.createObjectURL(blob);
-            callback(url);
-        });
+        tileWrapper.render(w/2 - TILE_SIZE/2, h/2 - TILE_SIZE/2, targetContext);
     }
 }

@@ -5,6 +5,7 @@
 import { RENDER_RESOLUTION, TILE_SIZE } from "./constant.js";
 import { Director } from "./director.js";
 import { TileIndex } from "./game/tileSystem/tileIndexer.js";
+import { EditorTilePreview } from "./renderer/editorTilePreview.js";
 import { TEST_LEVEL_DATA } from "./testLevel.js";
 import { Vector } from "./utils/vector.js";
 
@@ -16,23 +17,22 @@ export function initSmallEditor(canvas, editor, renderer) {
 
     let pos = new Vector(0, 0);
 
-    const tilePreview = document.getElementById('tilePreview');
+
+    const tilePreview = new EditorTilePreview(document.getElementById('tilePreview'),renderer);
 
     function setTile(id) {
         if (id < 0) {
             tilePreview.hidden = true;
             placedTile = -1;
+            tilePreview.setState("remove");
             return;
         }
         tilePreview.hidden = false;
         placedTile = id;
 
-        console.log(TileIndex.getName('main', id));
 
         // set the image with the tile
-        renderer.exportTileSprite(120, 120, (url) => {
-            tilePreview.src = url;
-        }, ['main',id,tileParams]);
+        tilePreview.setTile(["main",id,tileParams]);
     }
 
     window.addEventListener('keypress', (e) => {
@@ -94,7 +94,7 @@ export function initSmallEditor(canvas, editor, renderer) {
             }
 
             if (e.key === '-') {
-                tilePreview.hidden = true;
+                tilePreview.hide(true);
                 const data = editor.export();
 
                 // copy the level into clip board
@@ -116,7 +116,7 @@ export function initSmallEditor(canvas, editor, renderer) {
             }
         } else {
             if (e.key === '.') {
-                tilePreview.hidden = false;
+                tilePreview.hide(false);
                 Director.switchSceen('editor');
             }
         }
@@ -156,7 +156,7 @@ export function initSmallEditor(canvas, editor, renderer) {
 
         const posOnScreen = renderer.wordToScreenPosition(newPos.add(0.5, 0.5).scale(TILE_SIZE));
 
-        tilePreview.style.top = posOnScreen.y + 'px';
-        tilePreview.style.left = posOnScreen.x + 'px';
+        tilePreview.div.style.top = posOnScreen.y + 'px';
+        tilePreview.div.style.left = posOnScreen.x + 'px';
     });
 }
