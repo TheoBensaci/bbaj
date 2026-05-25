@@ -56,7 +56,7 @@ export class PlayerCheckPointTile extends Tile{
     }
 
     render(x,y,context,t){
-        const r = RessourceLoader.getRessourceLoader();
+        const r = RessourceLoader.getInstance();
         const image=r.get("./ressource/checkPoint.png");
         context.renderTexture(image, (this.active)?15:0, 0, 15, 30, x-5, y-TILE_SIZE*2, TILE_SIZE*1.5, TILE_SIZE*3);
     }
@@ -66,7 +66,7 @@ export class PlayerCheckPointTile extends Tile{
     }
 
     static editorRender(tileWrapper,x,y,context){
-        const r = RessourceLoader.getRessourceLoader();
+        const r = RessourceLoader.getInstance();
         const image=r.get("./ressource/checkPoint.png");
         context.renderTexture(image, (this.active)?15:0, 0, 15, 30, x-5, y-TILE_SIZE*2, TILE_SIZE*1.5, TILE_SIZE*3);
     }

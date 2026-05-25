@@ -844,7 +844,7 @@ export class Player extends Actor {
      */
     movementStopResolutionY(velY, t) {
         // check for corner correction
-        if(vel_y>=0 || (!this.checkVerticalCornerCorrection(t))){
+        if(velY>=0 || (!this.checkVerticalCornerCorrection(t))){
             return this.getBaseVelocity().y;
         }
         return velY;

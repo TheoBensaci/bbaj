@@ -35,7 +35,7 @@ export class RessourceLoader{
      * @param {path} paths list image path
      * @param {*} callback
      */
-    preload_Image(paths, callback){
+    preloadImage(paths, callback){
         let count = paths.length;
         for (const path of paths) {
             const img = new Image();
@@ -48,17 +48,5 @@ export class RessourceLoader{
             img.src=path;
             this.set(path,img);
         }
-    }
-
-    loadNextImage(paths, index, callback) {
-        const img = new Image();
-        img.onload =
-            index === paths.length - 1
-                ? callback
-                : () => {
-                      return this.loadNextImage(paths, index + 1, callback);
-                  };
-        img.src = paths[index];
-        this.set(paths[index], img);
     }
 }
