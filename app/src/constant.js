@@ -7,22 +7,20 @@ import { SpikeTile, TriggerSpike } from "./game/tile/level/spikeTile.js";
 import { PlayerCheckPointTile, PlayerSpawnTile } from "./game/tile/other/playerSpawnTile.js";
 import { TileIndex } from "./game/tileSystem/tileIndexer.js";
 
-export const GAME_UPDATE_INTERVAL=10;
+export const GAME_UPDATE_INTERVAL = 10;
 
 //const lvlSquareSize=1;
 
-
 // tile size in pixel
-export const TILE_SIZE=20;
-
+export const TILE_SIZE = 20;
 
 // world limit in tile pos
-export const WORLD_LIMIT=[1000,255];
+export const WORLD_LIMIT = [1000, 255];
 
-export const CAMERA_SPEED=[10,10];
-export const CAMERA_DEAD_ZONE=[100,300];
+export const CAMERA_SPEED = [10, 10];
+export const CAMERA_DEAD_ZONE = [100, 300];
 
-export const RENDER_RESOLUTION=[600,400];
+export const RENDER_RESOLUTION = [600, 400];
 
 export const PERLOADED_TEXTURE=[
     "./ressource/basicTileSet.png",
@@ -34,8 +32,6 @@ export const PERLOADED_TEXTURE=[
     "./ressource/testSpike.png",
     "./ressource/checkPoint.png"
 ];
-
-
 
 // register all tile
 TileIndex.createGroup("main");

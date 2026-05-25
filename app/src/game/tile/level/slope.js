@@ -4,24 +4,23 @@ import { MathUtils } from "../../../utils/utils.js";
 import { Vector } from "../../../utils/vector.js";
 import { Tile } from "../../tileSystem/tile.js";
 
-export class Slope extends Tile{
-    constructor(mult=1,rotation = 0){
+export class Slope extends Tile {
+    constructor(mult = 1, rotation = 0) {
         super([
             Shape.createShape(
                 ShapeType.TRIANGLE_SQR,
                 Vector.zero(),
-                new Vector(TILE_SIZE,TILE_SIZE*mult),
+                new Vector(TILE_SIZE, TILE_SIZE * mult),
                 MathUtils.degToRad(rotation * 90)
             )
         ]);
-        this.mult=mult;
+        this.mult = mult;
     }
 
-
-    render(x,y,context,t){
+    render(x, y, context, t) {
         const col = this.getCollider();
         for (const c of col) {
-            context.debugRenderShape(c,"#ff0055",false);
+            context.debugRenderShape(c, '#ff0055', false);
         }
     }
 
@@ -29,13 +28,13 @@ export class Slope extends Tile{
         return new Slope(1,param.rotation);
     }
 
-    static editorRender(tileWrapper,x,y,context){
-        context.debugRenderShape(tileWrapper.shape,"#ff0055",false);
+    static editorRender(tileWrapper, x, y, context) {
+        context.debugRenderShape(tileWrapper.shape, '#ff0055', false);
     }
 
-    static setWrapperState(tileWrapper,context,x,y){
-        const b = new Slope(1,tileWrapper.tileParams.rotation);
-        b.setOriginePosition(new Vector(x,y));
+    static setWrapperState(tileWrapper, context, x, y) {
+        const b = new Slope(1, tileWrapper.tileParams.rotation);
+        b.setOriginePosition(new Vector(x, y));
         tileWrapper.shape = b.getCollider()[0];
     }
 }

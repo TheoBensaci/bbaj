@@ -1,25 +1,23 @@
 export class RessourceLoader{
+    static #instance = null;
 
-    static #instance=null;
-
-    constructor(){
-        this.map=new Map();
+    constructor() {
+        this.map = new Map();
     }
 
-    static getRessourceLoader(){
-        if(RessourceLoader.#instance===null){
-            RessourceLoader.#instance=new RessourceLoader();
+    static getInstance() {
+        if (RessourceLoader.#instance === null) {
+            RessourceLoader.#instance = new RessourceLoader();
         }
         return RessourceLoader.#instance;
     }
-
 
     /**
      * get the ressource from the path
      * @param {string} path
      */
-    get(path){
-        if(!this.map.has(path))return null;
+    get(path) {
+        if (!this.map.has(path)) return null;
         return this.map.get(path);
     }
 
@@ -28,8 +26,8 @@ export class RessourceLoader{
      * @param {*} path
      * @param {*} value
      */
-    set(path,value){
-        this.map.set(path,value);
+    set(path, value) {
+        this.map.set(path, value);
     }
 
     /**
@@ -52,13 +50,15 @@ export class RessourceLoader{
         }
     }
 
-    loadNext_Image(paths,index,callback){
+    loadNextImage(paths, index, callback) {
         const img = new Image();
-        img.onload=(index===paths.length-1)?callback:()=>{
-            return this.loadNext_Image(paths,index+1,callback);
-        };
-        img.src=paths[index];
-        this.set(paths[index],img);
+        img.onload =
+            index === paths.length - 1
+                ? callback
+                : () => {
+                      return this.loadNextImage(paths, index + 1, callback);
+                  };
+        img.src = paths[index];
+        this.set(paths[index], img);
     }
-
 }
