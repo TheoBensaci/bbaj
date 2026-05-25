@@ -344,14 +344,13 @@ export class PlayerD extends Player{
         if(this.wallDir!==0){
             for (const tile of wallTile) {
                 if(this.setBufferRidingTile(tile)){
-                    console.log(tile);
                     break;
                 }
             }
         }
 
         // get extention box to made the (super) rolldash simpler from air
-        if(this.onRoll && (!this.onGround && this.coyotie_timer<=0)){
+        if(this.onRoll && !this.onGround && this.coyotieTimer<=0){
             const rollJump = this.projectTrigger(
                 this.rollJumpTriggerBox.setOrigine(this.position),
                 this.game.getSuroundTiles(this.position.x,this.position.y,3)
@@ -430,6 +429,7 @@ export class PlayerD extends Player{
             const orgine=this.getCollider().getCenter().add(0,-this.getCollider().scale.y/2 - 1);
             context.debugContextRenderShape(this.walkDetection[0].setOrigine(Vector.add(this.position,new Vector(PLAYER_COLLISION_BOX_SIZE[0]/2,0))),"#ff005555",false);
             context.debugContextRenderShape(this.walkDetection[0].setOrigine(this.position.clone().sub(PLAYER_COLLISION_BOX_SIZE[0]/2,0)),"#ff005555",false);
+            context.debugContextRenderShape(this.rollJumpTriggerBox.setOrigine(this.position),"#ff005555",false);
         }
         super.renderDebug(x,y,context,t);
     }
