@@ -121,4 +121,12 @@ export class BufferSystem{
         }
         return false;
     }
+
+    clearAll(){
+        for (const key in this.buffer) {
+            if (Object.hasOwnProperty.call(this.buffer, key)) {
+                this.buffer[key].clear();
+            }
+        }
+    }
 }

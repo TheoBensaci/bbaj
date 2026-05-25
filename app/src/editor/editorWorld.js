@@ -1,8 +1,4 @@
 import { RENDER_RESOLUTION, TILE_SIZE } from "../constant.js";
-import { GroundTile } from "../game/tile/groundTile.js";
-import { TileIndex } from "../game/tileSystem/tileIndexer.js";
-import { MathUtils } from "../utils/utils.js";
-import { Vector } from "../utils/vector.js";
 import { World } from "../world.js";
 import { TileEditorWrapper } from "./tileEditorWrapper.js";
 

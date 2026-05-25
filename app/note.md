@@ -71,7 +71,7 @@ ____
   - **[ x ]** gravity
   - **[ x ]** buffer system
   - **[ x ]** croutch
-  - [ _ ] respawn
+  - **[ x ]** respawn
   - [ _ ] friction
   - [ _ ] find a new movement mecanic
     *( The actual movement mecanic is not realy good in my opion, i thinks we need to change it )*
@@ -105,7 +105,8 @@ ____
   - **[ x ]** spike
   - **[ x ]** trigger spike
   - [ _ ] jump pad
-  - [ _ ] one way platform
+  - **[ ^ ]** one way platform
+  *( there is bug with it, but it's minor, so for now we gonna roll with it)*
 
 - [ _ ] Other
   - [ _ ] Comment more lmao

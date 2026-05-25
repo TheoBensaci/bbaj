@@ -1,8 +1,8 @@
-import { TILE_SIZE } from "../../constant.js";
-import { Shape, ShapeType } from "../../utils/shape.js";
-import { MathUtils } from "../../utils/utils.js";
-import { Vector } from "../../utils/vector.js";
-import { Tile } from "../tileSystem/tile.js";
+import { TILE_SIZE } from "../../../constant.js";
+import { Shape, ShapeType } from "../../../utils/shape.js";
+import { MathUtils } from "../../../utils/utils.js";
+import { Vector } from "../../../utils/vector.js";
+import { Tile } from "../../tileSystem/tile.js";
 
 export class Slope extends Tile{
     constructor(mult=1,rotation = 0){
@@ -26,8 +26,6 @@ export class Slope extends Tile{
     }
 
     static createTile(param){
-
-        console.log(param);
         return new Slope(1,param.rotation);
     }
 

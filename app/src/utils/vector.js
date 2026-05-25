@@ -1,6 +1,10 @@
 import { MathUtils } from "./utils.js";
 
+
 export class Vector{
+
+    static #bufferVec=new Vector(0,0);
+
     constructor(x,y){
         this.x=x;
         this.y=y;
@@ -197,7 +201,13 @@ export class Vector{
         return vec.clone().abs();
     }
 
+    static temp(...args){
+        return bufferVector.set(...args);;
+    }
+
 }
+
+const bufferVector = new Vector(0,0);
 
 
 export function lerp(a,b,t){

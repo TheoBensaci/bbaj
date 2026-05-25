@@ -4,9 +4,6 @@
 
 import { RENDER_RESOLUTION, TILE_SIZE } from "./constant.js";
 import { Director } from "./director.js";
-import { GroundTile } from "./game/tile/groundTile.js";
-import { JumpPadTile } from "./game/tile/jumpPadTile.js";
-import { Slope } from "./game/tile/slope.js";
 import { TileIndex } from "./game/tileSystem/tileIndexer.js";
 import { TEST_LEVEL_DATA } from "./testLevel.js";
 import { Vector } from "./utils/vector.js";
@@ -86,6 +83,12 @@ export function initSmallEditor(canvas,editor,renderer){
             }
             if(e.key==='7'){
                 setTile(6);
+            }
+            if(e.key==='8'){
+                setTile(7);
+            }
+            if(e.key==='9'){
+                setTile(8);
             }
 
             if(e.key==='c'){

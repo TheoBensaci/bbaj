@@ -896,7 +896,6 @@ export class Player extends Actor{
     movementStopResolutionY(vel_y,t){
         // check for corner correction
         if(vel_y>=0 || (!this.checkVerticalCornerCorrection(t))){
-            console.log("-----2",vel_y);
             return this.getBaseVelocity().y;
         }
         return vel_y;
@@ -950,6 +949,8 @@ export class Player extends Actor{
         this.rideTile=null;
 
         this.tileTriggerd={};
+
+        this.bufferSystem.clearAll();
     }
 
     death(){

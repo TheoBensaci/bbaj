@@ -1,17 +1,9 @@
 import { CAMERA_DEAD_ZONE, CAMERA_SPEED, RENDER_RESOLUTION, TILE_SIZE, WORLD_LIMIT } from "../constant.js";
-import { Director } from "../director.js";
-import { downloadJsonFile } from "../utils/fileUtils.js";
-import { Input } from "../utils/input.js";
 import { Shape, ShapeType } from "../utils/shape.js";
 import { MathUtils } from "../utils/utils.js";
 import { Vector } from "../utils/vector.js";
 import { World } from "../world.js";
-import { Player } from "./player/player.js";
 import { PlayerD } from "./player/playerD.js";
-import { PlayerRollDash } from "./player/playerRollDash.js";
-import { GroundTile } from "./tile/groundTile.js";
-import { MovingPlatform } from "./tile/movingPlatform.js";
-import { Tile } from "./tileSystem/tile.js";
 import { TileIndex } from "./tileSystem/tileIndexer.js";
 import { CONTACT_TILE_MASK_MAP } from "./tileSystem/tileUtils.js";
 
@@ -56,6 +48,12 @@ export class Game extends World{
         this.player=null;
         this.playerSpawnPoint=new Vector(0,0);
 
+        // ending and checkPoint
+        this.checkpoints = [];
+        this.nValidatedCheck=0;
+        this.originalSpawnPoint=null;
+
+
         this.cameraTarget=new Vector(0,0);
         this.cameraOffset=new Vector(0,0);
         this.cameraForceTarget=null;
@@ -73,29 +71,6 @@ export class Game extends World{
     }
 
 
-
-    setTile(x,y,value){
-        if(y<0 || (!this.level[y]) || x<0 || x>=this.level[y].length)return;
-        let newRow = y>=this.level.length;
-        let col = (newRow)?[]:this.level[y];
-        col[x]=value;
-        this.level[y]=col;
-        if(value===null)return;
-        value.setOriginePosition(this.getTilePos(x,y));
-
-        // post process
-
-        // TODO : only updat suround tile
-        if(value instanceof MovingPlatform){
-            value.postCreate(this);
-        }
-        else{
-            this.foreachTile((tile)=>{
-                tile.postCreate(this);
-            });
-        }
-    }
-
     getSuroundTiles(x,y,radius=1){
         const buffer=super.getSuroundTiles(x,y,radius);
 
@@ -103,7 +78,7 @@ export class Game extends World{
         const gridPos_y=Math.floor(y/TILE_SIZE);
 
 
-        const point = new Vector(x-radius * TILE_SIZE, y - radius*TILE_SIZE);
+        const point = Vector.temp(x-radius * TILE_SIZE, y - radius*TILE_SIZE);
         const boudingBox = [point.clone(),point.add(2*radius * TILE_SIZE,2*radius * TILE_SIZE)];
 
         // add active tile
@@ -170,6 +145,9 @@ export class Game extends World{
         this.activeTile={};
         this.advanceCollisionTile={};
 
+        this.checkpoints=[];
+        this.originalSpawnPoint=null;
+
 
         // post process
         this.foreachTile((tile)=>{
@@ -181,7 +159,7 @@ export class Game extends World{
         callback();
 
         this.createPlayer();
-        this.spawnPlayer();
+        this.cleanSpawnPlayer();
     }
 
     getTilePos(x,y){
@@ -272,13 +250,11 @@ export class Game extends World{
     //#region ============== PLAYER GESTION ==============
 
     createPlayer(){
-
         this.player=new PlayerD(0,0);
         this.player.onCreate(this);
         this.player.dead=true;
         return this.player;
     }
-
 
     destroyPlayer(){
         this.player.onDestroy(this);
@@ -288,12 +264,32 @@ export class Game extends World{
     spawnPlayer(){
         this.resetTilesChange();
         this.player.position.set(this.playerSpawnPoint);
+        this.setCameraPosition(this.player.position);
         this.player.onSpawn();
     }
 
+    cleanSpawnPlayer(){
+        this.nValidatedCheck=0;
+        this.setPlayerSpawnPoint((this.originalSpawnPoint===null)?new Vector(0,0):this.originalSpawnPoint.position);
+        this.spawnPlayer();
+    }
+
     setPlayerSpawnPoint(position){
-        this.tileState={};
         this.playerSpawnPoint.set(position);
+    }
+
+    addCheckPoint(checkPoint){
+        this.checkpoints.push(checkPoint);
+    }
+
+    valideCheckPoint(position){
+        this.nValidatedCheck++;
+        this.setPlayerSpawnPoint(position);
+        console.log(this.nValidatedCheck + "/" + this.checkpoints.length);
+    }
+
+    canFinish(){
+        return this.nValidatedCheck===this.checkpoints.length;
     }
 
     //#endregion

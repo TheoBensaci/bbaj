@@ -193,8 +193,6 @@ export class Renderer{
      * @param {number} t delta t
      */
     renderLevel(t){
-
-
         const gameRenderer=this.world.advanceCollisionTile!==undefined;
 
         // render camera
@@ -202,15 +200,19 @@ export class Renderer{
         const camWidth=Math.round(this.gameWidth/(2*TILE_SIZE)) + 2;
         const camHeight=Math.round(this.gameHeight/(2*TILE_SIZE)) + 2;
 
+        const bufferVector = Vector.temp(0,0);
+
         for (let y = -camHeight; y < camHeight; y++) {
             for (let x = -camWidth; x < camWidth; x++) {
-                const pos = new Vector(x+camPosition.x,y+camPosition.y);
-                pos.round();
-                const tile = this.world.getTile(pos.x,pos.y);
+                bufferVector.set(x+camPosition.x,y+camPosition.y);
+                bufferVector.round();
+                const tile = this.world.getTile(bufferVector.x,bufferVector.y);
+
                 if(tile===null)continue;
-                if(gameRenderer&&this.world.advanceCollisionTile[this.world.getTileId(pos.x,pos.y)]!==undefined)continue;
-                const rPos = this.wordToScreenPosition(pos.scale(TILE_SIZE));
-                tile.render(rPos.x,rPos.y,this.context,t);
+                if(gameRenderer&&this.world.advanceCollisionTile[this.world.getTileId(bufferVector.x,bufferVector.y)]!==undefined)continue;
+
+                this.wordToScreenPosition(bufferVector.scale(TILE_SIZE),bufferVector);
+                tile.render(bufferVector.x,bufferVector.y,this.context,t);
             }
         }
 
@@ -223,8 +225,8 @@ export class Renderer{
             // add active tile
             this.world.foreachSpecialTile((tile,x,y)=>{
                 if(Shape.AABB(tile.getBoundingBox(),boudingBox)){
-                    const rPos = this.wordToScreenPosition(new Vector(x,y));
-                    tile.render(rPos.x,rPos.y,this.context);
+                    this.wordToScreenPosition(Vector.temp(x,y),bufferVector);
+                    tile.render(bufferVector.x,bufferVector.y,this.context);
                 }
             },this.world.advanceCollisionTile);
         }
@@ -251,23 +253,30 @@ export class Renderer{
         context.lineWidth = 1;
         context.strokeStyle="#ffffff11";
 
+        const bufferVector = new Vector(0,0);
+
         for (let y = -camHeight; y < camHeight; y++) {
-            const pos = new Vector(camPosition.x-camWidth,y+camPosition.y).scale(TILE_SIZE);
+            const pos = Vector.temp(camPosition.x-camWidth,y+camPosition.y).scale(TILE_SIZE);
             context.beginPath();
-            const jr=this.wordToScreenPosition(pos);
-            context.moveTo(jr.x,jr.y);
-            const rPos = this.wordToScreenPosition(pos.add(2*camWidth*TILE_SIZE,0));
-            context.lineTo(rPos.x,rPos.y);
+
+            this.wordToScreenPosition(pos,bufferVector);
+            context.moveTo(bufferVector.x,bufferVector.y);
+
+            this.wordToScreenPosition(pos.add(2*camWidth*TILE_SIZE,0),bufferVector);
+            context.lineTo(bufferVector.x,bufferVector.y);
+
             context.closePath();
             context.stroke();
         }
         for (let x = -camWidth; x < camWidth; x++) {
-            const pos = new Vector(x+camPosition.x,camPosition.y-camHeight).scale(TILE_SIZE);
+            const pos = Vector.temp(x+camPosition.x,camPosition.y-camHeight).scale(TILE_SIZE);
             context.beginPath();
-            const jr=this.wordToScreenPosition(pos);
-            context.moveTo(jr.x,jr.y);
-            const rPos = this.wordToScreenPosition(pos.add(0,2*camHeight*TILE_SIZE));
-            context.lineTo(rPos.x,rPos.y);
+            this.wordToScreenPosition(pos,bufferVector);
+            context.moveTo(bufferVector.x,bufferVector.y);
+
+            this.wordToScreenPosition(pos.add(0,2*camHeight*TILE_SIZE),bufferVector);
+            context.lineTo(bufferVector.x,bufferVector.y);
+
             context.closePath();
             context.stroke();
         }
@@ -354,8 +363,8 @@ export class Renderer{
      * @param {Vector} pos world position
      * @returns {Vector}
      */
-    wordToScreenPosition(pos){
-        return new Vector(pos.x - this.world.cameraPosition.x + this.gameWidth/2,pos.y - this.world.cameraPosition.y + this.gameHeight/2).round();
+    wordToScreenPosition(pos,targetVector = new Vector(0,0)){
+        return targetVector.set(pos.x - this.world.cameraPosition.x + this.gameWidth/2,pos.y - this.world.cameraPosition.y + this.gameHeight/2).round();
     }
 
     /**
@@ -363,8 +372,8 @@ export class Renderer{
      * @param {Vector} pos screen position
      * @returns {Vector}
      */
-    screenToWordPosition(pos){
-        return new Vector(pos.x + this.world.cameraPosition.x - this.gameWidth/2,pos.y + this.world.cameraPosition.y - this.gameHeight/2);
+    screenToWordPosition(pos,targetVector = new Vector(0,0)){
+        return targetVector.set(pos.x + this.world.cameraPosition.x - this.gameWidth/2,pos.y + this.world.cameraPosition.y - this.gameHeight/2);
     }
 
     /**
@@ -403,7 +412,8 @@ export class Renderer{
         const points=shape.getEdge();
         const axis=shape.getNormal();
         const axisRender=[];
-        let point = this.wordToScreenPosition(points[0]);
+        let point = new Vector(0,0);
+        this.wordToScreenPosition(points[0],point);
         context.moveTo(point.x, point.y);
         for (let index = 1; index < points.length; index++) {
             const i = points[index];
@@ -411,7 +421,7 @@ export class Renderer{
                 Vector.sub(i,points[index-1]).scale(0.5).add(points[index-1]),
                 Vector.scale(axis[index-1],30)
             ]);
-            point = this.wordToScreenPosition(i);
+            this.wordToScreenPosition(i,point);
             context.lineTo(point.x, point.y);
         }
         axisRender.push([
@@ -445,10 +455,10 @@ export class Renderer{
             context.lineWidth = 1;
             context.strokeStyle=col[index%col.length];
             context.beginPath();
-            const jr=this.wordToScreenPosition(j[0]);
-            context.moveTo(jr.x,jr.y);
-            const i = this.wordToScreenPosition(Vector.add(j[0],j[1]));
-            context.lineTo(i.x,i.y);
+            this.wordToScreenPosition(j[0],point);
+            context.moveTo(point.x,point.y);
+            this.wordToScreenPosition(Vector.temp(j[0]).add(j[1]),point);
+            context.lineTo(point.x,point.y);
             context.closePath();
             context.stroke();
         }

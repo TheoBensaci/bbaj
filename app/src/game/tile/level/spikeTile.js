@@ -1,9 +1,9 @@
-import { TILE_SIZE } from "../../constant.js";
-import { RessourceLoader } from "../../utils/ressouceLoader.js";
-import { Shape, ShapeType } from "../../utils/shape.js";
-import { MathUtils } from "../../utils/utils.js";
-import { Vector } from "../../utils/vector.js";
-import { ActiveTile, DynamicTile, Tile } from "../tileSystem/tile.js";
+import { TILE_SIZE } from "../../../constant.js";
+import { RessourceLoader } from "../../../utils/ressouceLoader.js";
+import { Shape, ShapeType } from "../../../utils/shape.js";
+import { MathUtils } from "../../../utils/utils.js";
+import { Vector } from "../../../utils/vector.js";
+import { ActiveTile, DynamicTile, Tile } from "../../tileSystem/tile.js";
 
 const SPIKE_DEATH_DOT = 0.2;
 

@@ -90,13 +90,6 @@ export class Tile{
      * @param {context2D extended} context js context 2d with additional utils function given by the Renderer
      */
     render(x,y,context,t){
-        context.fillStyle="#ff0055";
-        context.fillRect(
-            x,y,
-            TILE_SIZE,
-            TILE_SIZE
-        );
-        context.fillStyle="#000000ff";
     }
 
 

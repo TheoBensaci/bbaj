@@ -1,9 +1,9 @@
-import { TILE_SIZE } from "../../constant.js";
-import { RessourceLoader } from "../../utils/ressouceLoader.js";
-import { Shape, ShapeType } from "../../utils/shape.js";
-import { Vector } from "../../utils/vector.js";
-import { Tile } from "../tileSystem/tile.js";
-import { AutoTilingIndex } from "../tileSystem/tileUtils.js";
+import { TILE_SIZE } from "../../../constant.js";
+import { RessourceLoader } from "../../../utils/ressouceLoader.js";
+import { Shape, ShapeType } from "../../../utils/shape.js";
+import { Vector } from "../../../utils/vector.js";
+import { Tile } from "../../tileSystem/tile.js";
+import { AutoTilingIndex } from "../../tileSystem/tileUtils.js";
 
 export class GroundTile extends Tile{
     constructor(friction = 1){

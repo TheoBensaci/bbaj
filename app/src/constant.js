@@ -1,9 +1,10 @@
-import { GroundTile } from "./game/tile/groundTile.js";
-import { JumpPadTile } from "./game/tile/jumpPadTile.js";
-import { MovingPlatform } from "./game/tile/movingPlatform.js";
-import { OneWayPlatformTile } from "./game/tile/oneWayPlatformTile.js";
-import { Slope } from "./game/tile/slope.js";
-import { SpikeTile, TriggerSpike } from "./game/tile/spikeTile.js";
+import { GroundTile } from "./game/tile/level/groundTile.js";
+import { JumpPadTile } from "./game/tile/level/jumpPadTile.js";
+import { MovingPlatform } from "./game/tile/level/movingPlatform.js";
+import { OneWayPlatformTile } from "./game/tile/level/oneWayPlatformTile.js";
+import { Slope } from "./game/tile/level/slope.js";
+import { SpikeTile, TriggerSpike } from "./game/tile/level/spikeTile.js";
+import { PlayerCheckPointTile, PlayerSpawnTile } from "./game/tile/other/playerSpawnTile.js";
 import { TileIndex } from "./game/tileSystem/tileIndexer.js";
 
 export const GAME_UPDATE_INTERVAL=10;
@@ -30,7 +31,8 @@ export const PERLOADED_TEXTURE=[
     "./ressource/testPlayer2.png",
     "./ressource/testPlayer3.png",
     "./ressource/customFruit.png",
-    "./ressource/testSpike.png"
+    "./ressource/testSpike.png",
+    "./ressource/checkPoint.png"
 ];
 
 
@@ -44,3 +46,5 @@ TileIndex.registerTile("main",MovingPlatform);
 TileIndex.registerTile("main",SpikeTile);
 TileIndex.registerTile("main",TriggerSpike);
 TileIndex.registerTile("main",OneWayPlatformTile);
+TileIndex.registerTile("main",PlayerCheckPointTile);
+TileIndex.registerTile("main",PlayerSpawnTile);

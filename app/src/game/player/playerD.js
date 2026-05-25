@@ -52,7 +52,7 @@ export class PlayerD extends Player{
         // over write the buffer
         this.bufferSystem.register("initJump",new Buffer(
             ()=>{
-                return this.canJump() || this.canWallJump();
+                return !this.bufferSystem.has("initRoll")&&(this.canJump() || this.canWallJump());
             },
             BUFFER_LENGTH
         ));
@@ -87,8 +87,8 @@ export class PlayerD extends Player{
 
         this.rollJumpTriggerBox=Shape.createShape(
             ShapeType.SQUARE,
-            new Vector(0,TILE_SIZE),
-            new Vector(TILE_SIZE * 0.8,TILE_SIZE)
+            new Vector(0,TILE_SIZE*0.75),
+            new Vector(TILE_SIZE * 0.8,TILE_SIZE*0.5)
         );
 
 
@@ -101,8 +101,8 @@ export class PlayerD extends Player{
         this.walkDetection = [
             Shape.createShape(
                 ShapeType.SQUARE,
-                new Vector(0,PLAYER_COLLISION_BOX_OFFSET[1]-PLAYER_COLLISION_BOX_SIZE[1] * 0.05),
-                new Vector(TILE_SIZE/2 * 0.1,PLAYER_COLLISION_BOX_SIZE[1] * 0.5)
+                new Vector(0,PLAYER_COLLISION_BOX_OFFSET[1]+PLAYER_COLLISION_BOX_SIZE[1] * 0.1),
+                new Vector(TILE_SIZE*0.5,PLAYER_COLLISION_BOX_SIZE[1] * 0.3)
             )
         ];
     }
@@ -388,6 +388,11 @@ export class PlayerD extends Player{
         vel_y = super.moveY(vel_y,t);
 
         return vel_y;
+    }
+
+    onSpawn(){
+        this.onRoll=false;
+        super.onSpawn();
     }
 
     render(x,y,context,t){

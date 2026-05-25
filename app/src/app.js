@@ -11,6 +11,7 @@ import { MathUtils } from "./utils/utils.js";
 
 import "./ui/menu.js";
 import { EditorWorld } from "./editor/editorWorld.js";
+import { Vector } from "./utils/vector.js";
 
 
 
@@ -56,8 +57,6 @@ window.addEventListener("resize", (event) => {
     setCanvasScale();
 });
 setCanvasScale();
-
-
 
 
 function setCanvasScale(){

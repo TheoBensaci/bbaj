@@ -1,7 +1,7 @@
-import { TILE_SIZE } from "../../constant.js";
-import { Shape, ShapeType } from "../../utils/shape.js";
-import { Vector } from "../../utils/vector.js";
-import { MovingTile } from "../tileSystem/tile.js";
+import { TILE_SIZE } from "../../../constant.js";
+import { Shape, ShapeType } from "../../../utils/shape.js";
+import { Vector } from "../../../utils/vector.js";
+import { MovingTile } from "../../tileSystem/tile.js";
 
 export class MovingPlatform extends MovingTile{
 
