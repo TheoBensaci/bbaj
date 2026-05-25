@@ -1,5 +1,4 @@
 export const TEST_LEVEL_DATA =[
-	[],
 	[
 		[],
 		[],
@@ -14,7 +13,35 @@ export const TEST_LEVEL_DATA =[
 		[],
 		[],
 		[],
+		[
+			"main",
+			0,
+			{
+				"rotation": 2
+			}
+		]
+	],
+	[
 		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[
+			"main",
+			0,
+			{
+				"rotation": 2
+			}
+		],
 		[],
 		[],
 		[],
@@ -52,7 +79,13 @@ export const TEST_LEVEL_DATA =[
 		[],
 		[],
 		[],
-		[],
+		[
+			"main",
+			0,
+			{
+				"rotation": 2
+			}
+		],
 		[],
 		[],
 		[],
@@ -175,7 +208,13 @@ export const TEST_LEVEL_DATA =[
 		[],
 		[],
 		[],
-		[],
+		[
+			"main",
+			0,
+			{
+				"rotation": 2
+			}
+		],
 		[],
 		[],
 		[],
@@ -220,7 +259,13 @@ export const TEST_LEVEL_DATA =[
 		[],
 		[],
 		[],
-		[],
+		[
+			"main",
+			4,
+			{
+				"rotation": 0
+			}
+		],
 		[],
 		[],
 		[],
@@ -265,7 +310,13 @@ export const TEST_LEVEL_DATA =[
 		[],
 		[],
 		[],
-		[],
+		[
+			"main",
+			0,
+			{
+				"rotation": 2
+			}
+		],
 		[],
 		[],
 		[],
@@ -290,9 +341,9 @@ export const TEST_LEVEL_DATA =[
 		[],
 		[
 			"main",
-			0,
+			4,
 			{
-				"rotation": 0
+				"rotation": 2
 			}
 		]
 	],
@@ -678,6 +729,43 @@ export const TEST_LEVEL_DATA =[
 			0,
 			{
 				"rotation": 2
+			}
+		],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
+			}
+		],
+		[
+			"main",
+			0,
+			{
+				"rotation": 0
 			}
 		]
 	],
@@ -2507,20 +2595,8 @@ export const TEST_LEVEL_DATA =[
 			}
 		],
 		[],
-		[
-			"main",
-			5,
-			{
-				"rotation": 3
-			}
-		],
-		[
-			"main",
-			0,
-			{
-				"rotation": 0
-			}
-		],
+		[],
+		[],
 		[],
 		[],
 		[],

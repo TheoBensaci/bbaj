@@ -391,6 +391,7 @@ export class PlayerD extends Player{
 
     onSpawn(){
         this.onRoll=false;
+        this.onRollAttack=false;
         super.onSpawn();
     }
 

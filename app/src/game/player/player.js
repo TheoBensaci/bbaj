@@ -32,7 +32,7 @@ export const PLAYER_COLLISION_BOX_OFFSET = [0, TILE_SIZE * (1 - PLAYER_COLLISION
 export const COLLISION_STEP_MAGNETUDE = 1;                  // magnetude min use for the displacement vector for collision checking/resolution
 
 export const SLOP_DOT_PRODUCT = 0.6;
-export const GROUND_DOT_PRODUCT = 0.98;
+export const GROUND_DOT_PRODUCT = 0.99;
 
 // physic settings
 export const MAX_DOWN_SPEED = 700;                          // max downward speed the player can achive
@@ -860,7 +860,6 @@ export class Player extends Actor {
         velY = this.moveY(velY, t);
 
         if(!this.moveWithVelCollision(new Vector(0, velY * t), (velY < 0 ? GROUND_DOT_PRODUCT : SLOP_DOT_PRODUCT))){
-            console.log('-----', velY);
             return this.movementStopResolutionY(velY, t);
         }
         return velY;
