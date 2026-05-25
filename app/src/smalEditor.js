@@ -22,7 +22,6 @@ export function initSmallEditor(canvas, editor, renderer) {
 
     function setTile(id) {
         if (id < 0) {
-            tilePreview.hidden = true;
             placedTile = -1;
             tilePreview.setState("remove");
             return;

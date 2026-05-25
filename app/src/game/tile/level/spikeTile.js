@@ -13,8 +13,8 @@ export class SpikeTile extends Tile {
         super([
             Shape.createShape(
                 ShapeType.SQUARE,
-                new Vector(0, TILE_SIZE * 0.475),
-                new Vector(TILE_SIZE * 0.8, TILE_SIZE * 0.15)
+                new Vector(0, TILE_SIZE * 0.4),
+                new Vector(TILE_SIZE * 0.8, TILE_SIZE * 0.25)
             )
             .setRotation(rad)
             .setTrigger((player) => {
@@ -64,8 +64,8 @@ export class TriggerSpike extends DynamicTile {
         super([
             Shape.createShape(
                 ShapeType.SQUARE,
-                new Vector(0, TILE_SIZE * 0.475),
-                new Vector(TILE_SIZE * 0.8, TILE_SIZE * 0.15)
+                new Vector(0, TILE_SIZE * 0.4),
+                new Vector(TILE_SIZE * 0.8, TILE_SIZE * 0.25)
             )
             .setRotation(rad)
             .setTrigger((player) => {

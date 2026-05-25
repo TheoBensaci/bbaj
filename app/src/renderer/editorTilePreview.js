@@ -32,6 +32,7 @@ export class EditorTilePreview{
      * @param {*} data
      */
     setTile(data){
+        if(this.hidden)return;
         this.setState("");
         this.render.exportTileSprite(this.context,120, 120, data);
     }
@@ -44,7 +45,7 @@ export class EditorTilePreview{
         if(this.hidden)return;
         if(state===""){
             this.canvas.hidden=false;
-            this.div.className ="";
+            this.div.className = "";
             return;
         }
         this.canvas.hidden=true;
@@ -59,7 +60,6 @@ export class EditorTilePreview{
      */
     hide(state){
         this.hidden=state;
-        console.log(this.div.classList);
         if(state){
             this.div.classList.add("hide");
         }
