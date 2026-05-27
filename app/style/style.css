@@ -37,7 +37,7 @@ body{
     opacity: 0.5;
     image-rendering:optimizeSpeed;
     transform: translate(calc(-50%),calc(-50%));
-    transition: all 0.05s;
+    transition: all 0.04s;
     background-position: center;
     background-size: contain;
     background-repeat: no-repeat;
