@@ -1,4 +1,4 @@
-import { Input } from "../../utils/input.js";
+import { InputManager } from "../../utils/inputManager.js";
 import { Vector } from "../../utils/vector.js";
 import { Buffer } from "./bufferSystem.js";
 import { BUFFER_LENGTH, GRAVITY_STRENGHT, JUMP_STRENGTH, Player } from "./player.js";
@@ -57,19 +57,15 @@ export class PlayerRollDash extends Player{
     }
 
     inputUpdate(){
-
         super.inputUpdate();
 
-        if(Input.action.pressed && this.input.releaseAction){
+        if (InputManager.getAction('action').justPressed) {
             this.bufferSystem.init("initRollDashCharge");
         }
-
-        if(!Input.action.pressed && (this.bufferSystem.has("initRollDashCharge") || this.isRollDashCharging)){
+        if (InputManager.getAction('action').justReleased
+            && (this.bufferSystem.has("initRollDashCharge") || this.isRollDashCharging)) {
             this.bufferSystem.init("initRollDash");
         }
-
-        if(Input.action.pressed && this.input.releaseAction)this.input.releaseAction=false;
-        this.input.releaseAction=(!Input.action.pressed)?true:this.input.releaseAction;
     }
 
     //#region ============== ROLL DASH ==============
@@ -93,16 +89,16 @@ export class PlayerRollDash extends Player{
         const speed = (heavy)?ROLLDASH_SPEED_HEAVY:ROLLDASH_SPEED;
 
         this.rollDashDir.set(0,0);
-        if(Input.right.pressed){
+        if (InputManager.getAction('right').pressed) {
             this.rollDashDir.x+=1;
         }
-        if(Input.left.pressed){
+        if (InputManager.getAction('left').pressed) {
             this.rollDashDir.x-=1;
         }
-        if(Input.up.pressed){
+        if (InputManager.getAction('up').pressed) {
             this.rollDashDir.y-=1;
         }
-        if(Input.down.pressed){
+        if (InputManager.getAction('down').pressed) {
             this.rollDashDir.y+=1;
         }
         if(this.rollDashDir.x===0 && this.rollDashDir.y===0){

@@ -63,15 +63,28 @@ function setCanvasScale() {
 function init() {
     InputManager.init(window, canvasContainer);
 
+    // --- input definitions per context ---
+    // NOTE(sss): might be useful to have an init method for the "scenes" for
+    //            this kind of stuff...
+
     // game context
     const gameCtx = InputManager.createContext('game');
-    gameCtx.addAction('test0', ['q']);
-    gameCtx.addAction('test1', ['w'], [0]);
-    gameCtx.addAction('test2', ['e', 'r']);
-    gameCtx.addAction('test3', [], [0, 1]);
-    gameCtx.addAction('test4', ['t', 'y'], [1, 3]);
+    gameCtx.addAction('left', ['a']);
+    gameCtx.addAction('right', ['d']);
+    gameCtx.addAction('up', ['w']);
+    gameCtx.addAction('down', ['s']);
+    gameCtx.addAction('jump', [' ', 'k']);
+    gameCtx.addAction('action', ['j', 'shift']);
 
-    Director.switchSceen('main');
+    // editor context (empty for now as the "real" final editor is being worked
+    // on on the side.
+    InputManager.createContext('editor');
+
+    // other contexts (empty for now), we may not need them at all
+    InputManager.createContext('loading');
+    InputManager.createContext('main');
+
+    Director.switchSceen('editor');
 
     // add debug click
     initSmallEditor(canvasContainer, editor, renderer);
