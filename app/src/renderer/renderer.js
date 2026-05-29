@@ -317,6 +317,10 @@ export class Renderer {
 
         if (this.renderJob.player) this.renderPlayer(t);
 
+
+        this.context.font = "15px serif";
+        this.context.fillText(t+"", 10, 30);
+
         this.lastTime = newDate;
     }
 

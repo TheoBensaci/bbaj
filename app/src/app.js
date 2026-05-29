@@ -40,7 +40,6 @@ Director.init(game, editor, renderer);
 Director.setSceen('loading');
 
 // set up ressource loader
-console.log(RessourceLoader.getInstance());
 RessourceLoader.getInstance().preloadImage(PERLOADED_TEXTURE, () => {
     init();
 });

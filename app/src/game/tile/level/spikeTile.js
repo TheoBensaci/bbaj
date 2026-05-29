@@ -22,7 +22,7 @@ export class SpikeTile extends Tile {
             })
         ]);
         this.rotation = rotation;
-        this.dotTrigger = this.rotation === 2 ? 0 : SPIKE_DEATH_DOT;
+        this.dotTrigger = SPIKE_DEATH_DOT;
         this.direction = new Vector(0, -1).rotate(rad).normalize();
     }
 
@@ -79,7 +79,7 @@ export class TriggerSpike extends DynamicTile {
         this.animationT = 0;
 
         this.rotation = rotation % 4;
-        this.dotTrigger = this.rotation === 2 ? 0 : SPIKE_DEATH_DOT;
+        this.dotTrigger = SPIKE_DEATH_DOT;
         this.direction = new Vector(0, -1).rotate(rad).normalize();
     }
 

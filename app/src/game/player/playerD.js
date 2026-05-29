@@ -426,7 +426,7 @@ export class PlayerD extends Player{
 
     renderDebug(x,y,context,t){
 
-        if(false){
+        if(true){
             const orgine=this.getCollider().getCenter().add(0,-this.getCollider().scale.y/2 - 1);
             context.debugContextRenderShape(this.walkDetection[0].setOrigine(Vector.add(this.position,new Vector(PLAYER_COLLISION_BOX_SIZE[0]/2,0))),"#ff005555",false);
             context.debugContextRenderShape(this.walkDetection[0].setOrigine(this.position.clone().sub(PLAYER_COLLISION_BOX_SIZE[0]/2,0)),"#ff005555",false);
