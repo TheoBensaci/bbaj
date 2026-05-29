@@ -5,9 +5,8 @@ import { Renderer } from './renderer/renderer.js';
 import { UiManager } from './renderer/uiManager.js';
 import { initSmallEditor } from './smalEditor.js';
 import { initCanvas } from './utils/canvasUtils.js';
-import { Input } from './utils/input.js';
+import { InputManager } from './utils/inputManager.js';
 import { RessourceLoader } from './utils/ressouceLoader.js';
-import { MathUtils } from './utils/utils.js';
 import './ui/menu.js';
 import { EditorWorld } from './editor/editorWorld.js';
 
@@ -25,6 +24,7 @@ const renderer = new Renderer(
 );
 
 setInterval(() => {
+    InputManager.update();
     game.step();
 }, GAME_UPDATE_INTERVAL);
 
@@ -61,9 +61,17 @@ function setCanvasScale() {
 }
 
 function init() {
-    Director.switchSceen('editor');
+    InputManager.init(window, canvasContainer);
 
-    Input.init(window);
+    // game context
+    const gameCtx = InputManager.createContext('game');
+    gameCtx.addAction('test0', ['q']);
+    gameCtx.addAction('test1', ['w'], [0]);
+    gameCtx.addAction('test2', ['e', 'r']);
+    gameCtx.addAction('test3', [], [0, 1]);
+    gameCtx.addAction('test4', ['t', 'y'], [1, 3]);
+
+    Director.switchSceen('main');
 
     // add debug click
     initSmallEditor(canvasContainer, editor, renderer);

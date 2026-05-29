@@ -4,9 +4,9 @@
  * @ Description: Player class
  */
 
-import { RENDER_RESOLUTION, TILE_SIZE, WORLD_LIMIT } from '../../constant.js';
+import { TILE_SIZE } from '../../constant.js';
 import { Director } from '../../director.js';
-import { Input } from '../../utils/input.js';
+import { InputManager } from '../../utils/inputManager.js';
 import { RessourceLoader } from '../../utils/ressouceLoader.js';
 import { Shape, ShapeType } from '../../utils/shape.js';
 import { MathUtils } from '../../utils/utils.js';
@@ -223,6 +223,22 @@ export class Player extends Actor {
      * Update input reconition
      */
     inputUpdate() {
+        if (InputManager.getAction('test0').justPressed) {
+            console.log(['q']);
+        }
+        if (InputManager.getAction('test1').justPressed) {
+            console.log(['w'], [0]);
+        }
+        if (InputManager.getAction('test2').justPressed) {
+            console.log(['e', 'r']);
+        }
+        if (InputManager.getAction('test3').justPressed) {
+            console.log([], [0, 1]);
+        }
+        if (InputManager.getAction('test4').justPressed) {
+            console.log(['t', 'y'], [1, 3]);
+        }
+
         if (Input.jump.pressed && this.input.releaseJump) {
             this.bufferSystem.init('initJump');
         }
