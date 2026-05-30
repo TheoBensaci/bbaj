@@ -4,9 +4,9 @@
  * @ Description: Player class
  */
 
-import { RENDER_RESOLUTION, TILE_SIZE, WORLD_LIMIT } from '../../constant.js';
+import { TILE_SIZE } from '../../constant.js';
 import { Director } from '../../director.js';
-import { Input } from '../../utils/input.js';
+import { InputManager } from '../../utils/inputManager.js';
 import { RessourceLoader } from '../../utils/ressouceLoader.js';
 import { Shape, ShapeType } from '../../utils/shape.js';
 import { MathUtils } from '../../utils/utils.js';
@@ -223,16 +223,13 @@ export class Player extends Actor {
      * Update input reconition
      */
     inputUpdate() {
-        if (Input.jump.pressed && this.input.releaseJump) {
+        if (InputManager.getAction('jump').justPressed) {
             this.bufferSystem.init('initJump');
         }
-        if (!Input.jump.pressed && (this.bufferSystem.has('initJump') || this.onJump)) {
+        if (InputManager.getAction('jump').justReleased
+                && (this.bufferSystem.has('initJump') || this.onJump)) {
             this.bufferSystem.init('endJump');
         }
-
-        if (Input.jump.pressed && this.input.releaseJump)
-            this.input.releaseJump = false;
-        this.input.releaseJump = !Input.jump.pressed ? true : this.input.releaseJump;
     }
 
     //#endregion
@@ -524,10 +521,10 @@ export class Player extends Actor {
      */
     getTargetFacingDir(zeroFree = false) {
         let dir = 0;
-        if (Input.right.pressed) {
+        if (InputManager.getAction('right').pressed) {
             dir += 1;
         }
-        if (Input.left.pressed) {
+        if (InputManager.getAction('left').pressed) {
             dir -= 1;
         }
         if (zeroFree && dir === 0) {
@@ -602,7 +599,8 @@ export class Player extends Actor {
             return velY;
         }
 
-        if (Input.down.pressed && !this.onGround && !this.onCroutch) {
+        if (InputManager.getAction('down').pressed
+            && !this.onGround && !this.onCroutch) {
             return MathUtils.approche(
                 velY,
                 MAX_FAST_FALL_DOWN_SPEED,
@@ -771,11 +769,11 @@ export class Player extends Actor {
      */
     croutchUpdate() {
         if (this.onCroutch) {
-            if (!Input.down.pressed || this.velocity.y > 0) {
+            if (!InputManager.getAction('down').pressed || this.velocity.y > 0) {
                 this.onCroutch = false;
                 return;
             }
-        } else if (this.canCroutch() && Input.down.pressed) {
+        } else if (this.canCroutch() && InputManager.getAction('down').pressed) {
             this.onCroutch = true;
         }
     }
@@ -928,16 +926,16 @@ export class Player extends Actor {
         if (this.onFreeCam) {
             let dir = new Vector(0, 0);
             const speed = 2;
-            if (Input.right.pressed) {
+            if (InputManager.getAction('right').pressed) {
                 dir.x += 1;
             }
-            if (Input.left.pressed) {
+            if (InputManager.getAction('left').pressed) {
                 dir.x -= 1;
             }
-            if (Input.up.pressed) {
+            if (InputManager.getAction('up').pressed) {
                 dir.y -= 1;
             }
-            if (Input.down.pressed) {
+            if (InputManager.getAction('down').pressed) {
                 dir.y += 1;
             }
 

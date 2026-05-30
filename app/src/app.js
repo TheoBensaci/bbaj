@@ -5,9 +5,8 @@ import { Renderer } from './renderer/renderer.js';
 import { UiManager } from './renderer/uiManager.js';
 import { initSmallEditor } from './smalEditor.js';
 import { initCanvas } from './utils/canvasUtils.js';
-import { Input } from './utils/input.js';
+import { InputManager } from './utils/inputManager.js';
 import { RessourceLoader } from './utils/ressouceLoader.js';
-import { MathUtils } from './utils/utils.js';
 import './ui/menu.js';
 import { EditorWorld } from './editor/editorWorld.js';
 
@@ -25,6 +24,7 @@ const renderer = new Renderer(
 );
 
 setInterval(() => {
+    InputManager.update();
     game.step();
 }, GAME_UPDATE_INTERVAL);
 
@@ -61,9 +61,30 @@ function setCanvasScale() {
 }
 
 function init() {
-    Director.switchSceen('editor');
+    InputManager.init(window, canvasContainer);
 
-    Input.init(window);
+    // --- input definitions per context ---
+    // NOTE(sss): might be useful to have an init method for the "scenes" for
+    //            this kind of stuff...
+
+    // game context
+    const gameCtx = InputManager.createContext('game');
+    gameCtx.addAction('left', ['a']);
+    gameCtx.addAction('right', ['d']);
+    gameCtx.addAction('up', ['w']);
+    gameCtx.addAction('down', ['s']);
+    gameCtx.addAction('jump', [' ', 'k']);
+    gameCtx.addAction('action', ['j', 'shift']);
+
+    // editor context (empty for now as the "real" final editor is being worked
+    // on on the side.
+    InputManager.createContext('editor');
+
+    // other contexts (empty for now), we may not need them at all
+    InputManager.createContext('loading');
+    InputManager.createContext('main');
+
+    Director.switchSceen('editor');
 
     // add debug click
     initSmallEditor(canvasContainer, editor, renderer);
