@@ -5,8 +5,7 @@
  * In nutshell, it's use to switch from editor mode, main menu and the actual game
  */
 
-import { EditorWorld } from './editor/editorWorld.js';
-import { Game } from './game/game.js';
+import { InputManager } from './utils/inputManager.js';
 
 export class Director {
     // instance of the director
@@ -143,6 +142,7 @@ export class Director {
 
     switchSceen(nextSceenName, ...params) {
         if (this.lastSceen !== '') this.sceens[this.lastSceen].out();
+        InputManager.setActiveContext(nextSceenName);
         this.sceens[nextSceenName].in(...params);
         this.lastSceen = nextSceenName;
     }

@@ -5,7 +5,7 @@
  */
 
 import { TILE_SIZE } from "../../constant.js";
-import { Input } from "../../utils/input.js";
+import { InputManager } from "../../utils/inputManager.js";
 import { Shape, ShapeType } from "../../utils/shape.js";
 import { MathUtils } from "../../utils/utils.js";
 import { Vector } from "../../utils/vector.js";
@@ -108,17 +108,12 @@ export class PlayerD extends Player{
     }
 
     inputUpdate(){
-
-        if(Input.action.pressed && this.input.releaseAction){
+        if (InputManager.getAction('action').justPressed) {
             this.bufferSystem.init("initRoll");
         }
-
-        if( !Input.jump.pressed && !this.input.releaseJump && this.onWallJump){
+        if (InputManager.getAction('jump').justReleased && this.onWallJump) {
             this.bufferSystem.init("endJump");
         }
-
-        if(Input.action.pressed && this.input.releaseAction)this.input.releaseAction=false;
-        this.input.releaseAction=(!Input.action.pressed)?true:this.input.releaseAction;
 
         super.inputUpdate();
     }
@@ -135,7 +130,7 @@ export class PlayerD extends Player{
         this.canRoll=false;
         this.rollTimer=ROLL_LENGTH;
 
-        this.onDemoRoll=Input.down.pressed;
+        this.onDemoRoll=InputManager.getAction('down').pressed;
 
         this.onCroutch=false;
         this.onJump=false;
@@ -146,7 +141,7 @@ export class PlayerD extends Player{
 
         this.canRollJump=false;
 
-        if(Input.up.pressed){
+        if(InputManager.getAction('up').pressed){
             this.onVerticalRoll=true;
             this.velocity.y=-ROLL_VERTICAL_STRENGTH;
             const dir = this.getTargetFacingDir(false);
@@ -161,7 +156,7 @@ export class PlayerD extends Player{
         }
         else{
             this.rollDir=this.getTargetFacingDir(true);
-            this.onDemoRoll=Input.down.pressed;
+            this.onDemoRoll=InputManager.getAction('down').pressed;
             this.velocity.y=0;
         }
 
