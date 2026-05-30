@@ -1,5 +1,9 @@
 :root{
     --backgroundColor : #19191a;
+    --play_color:hsla(197, 100%, 64%, 1);
+    --option_color:#ffbb00;
+    --credit_color:#d55ff6;
+    --online_color:#00ff99;
 
     --pixelFilter : url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPjxmaWx0ZXIgaWQ9ImZpbHRlciIgeD0iMCIgeT0iMCIgd2lkdGg9IjEwMCUiIGhlaWdodD0iMTAwJSIgY29sb3ItaW50ZXJwb2xhdGlvbi1maWx0ZXJzPSJzUkdCIj48ZmVDb21wb25lbnRUcmFuc2Zlcj48ZmVGdW5jUiB0eXBlPSJpZGVudGl0eSIvPjxmZUZ1bmNHIHR5cGU9ImlkZW50aXR5Ii8+PGZlRnVuY0IgdHlwZT0iaWRlbnRpdHkiLz48ZmVGdW5jQSB0eXBlPSJkaXNjcmV0ZSIgdGFibGVWYWx1ZXM9IjAgMSIvPjwvZmVDb21wb25lbnRUcmFuc2Zlcj48L2ZpbHRlcj48L3N2Zz4=#filter");
 }
@@ -206,10 +210,11 @@ body{
     transition: all 0.2s cubic-bezier(0.23,0.81,0,1.23),
 }
 
-#pauseMenu>h1{
+h1{
     font-size: 40px;
     color: gray;
-
+    -webkit-text-stroke: #19191a 1px;
+    filter: drop-shadow(0 4px 0 #4a434e);
 }
 
 #pauseMenu.uiHide{
@@ -272,14 +277,28 @@ body{
 
 #mainMenu>.logo{
     align-self: center;
-    min-width: 150px;
+    min-width: 400px;
     min-height: 150px;
-    background-color: antiquewhite;
-    background-image: url("../ressource/l.jpg");
+    background-image: url("../ressource/logo2.svg");/*url("../ressource/l.jpg");*/
     background-position: center;
-    background-size: cover;
+    background-size: contain;
+    background-repeat: no-repeat;
     margin: 20px;
+    animation: logo 5s infinite cubic-bezier(0.23,2,0,1.23);
 }
+
+@keyframes logo {
+    0%{
+        transform: rotate(-2deg);
+    }
+    50%{
+        transform: rotate(2deg);
+    }
+    100%{
+        transform: rotate(-2deg);
+    }
+}
+
 
 #mainMenu.uiShow>.logo{
     transform: scale(1,1) translate(0,0);
@@ -291,4 +310,63 @@ body{
     transition: none;
 }
 
+#local h1{
+    color: var(--play_color);
+    -webkit-text-stroke-color: #00657e;
+    filter: drop-shadow(0 4px 0 #1c77a8);
+}
 
+#online h1{
+    color: var(--online_color);
+    -webkit-text-stroke-color: #007e5a;
+    filter: drop-shadow(0 4px 0 #1ca881);
+}
+
+#option h1{
+    color: var(--option_color);
+    -webkit-text-stroke-color: #7e3000;
+    filter: drop-shadow(0 4px 0 #dd7f26);
+}
+
+
+#credit h1{
+    color: var(--credit_color);
+    -webkit-text-stroke-color: #4f046a;
+    filter: drop-shadow(0 4px 0 #6b2e9a);
+}
+
+#credit .creditHolder{
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 20px;
+}
+
+#credit .creditItem{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 150px;
+    text-align: center;
+    font-size: 15x;
+    margin: 10px;
+    font-weight: bold;
+    color: var(--credit_color);
+}
+
+#credit .creditItem>.drawing{
+    width: 75px;
+    height: 75px;
+    background-image: url("../ressource/credit/unkow.png");
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: contain;
+    border-radius: 15px;
+    margin-bottom: 5px;
+    border: var(--credit_color) 3px solid;
+}
+
+#credit #creditTB>.drawing{
+    background-image: url("../ressource/credit/test.png");
+}

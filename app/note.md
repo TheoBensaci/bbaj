@@ -110,6 +110,8 @@ ____
   *( there is bug with it, but it's minor, so for now we gonna roll with it)*
   - [ _ ] moving platform (trafic light style)
   - [ _ ] baloon
+  - [ _ ] text block
+  - [ _ ] destructible platform
 
 - [ _ ] Other
   - [ _ ] Comment more lmao
