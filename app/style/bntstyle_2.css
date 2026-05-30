@@ -75,3 +75,16 @@
     border: var(--color_1) solid;
     animation: border-color 0s !important;
 }
+
+
+.bntOption{
+    --color_2:#ffbb00;
+}
+
+.bntOnline{
+    --color_2:#00ff95;
+}
+
+.bntBack{
+    --color_2:#ff0055;
+}

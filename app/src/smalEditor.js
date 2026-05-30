@@ -35,7 +35,7 @@ export function initSmallEditor(canvas, editor, renderer) {
     }
 
     window.addEventListener('keypress', (e) => {
-        if (!Director.inEditor() && e.key === 'p') {
+        if (e.key === 'p') {
             Director.togglePauseGame(!Director.onPause());
         }
 

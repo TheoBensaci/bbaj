@@ -22,6 +22,7 @@ export class UiManager{
             this.transitionNode.hidden = true;
             this.transitionNode.classList.remove('showTransi');
         });
+        this.menuStateStack=[];
         this.clear();
     }
 
@@ -32,18 +33,39 @@ export class UiManager{
     toggle(id, state = true) {
         for (const iterator of this.sceen) {
             if (iterator.id === id) {
-                if (state) {
-                    iterator.classList.add('uiShow');
-                    iterator.classList.remove('uiHide');
-                    iterator.hidden = false;
-                } else {
-                    iterator.classList.remove('uiShow');
-                    iterator.classList.add('uiHide');
-                    iterator.hidden = true;
-                }
-                void iterator.offsetWidth;
+                this.#toggleScreen(iterator,state);
             }
         }
+    }
+
+    #toggleScreen(node,state){
+        if (state) {
+            node.classList.add('uiShow');
+            node.classList.remove('uiHide');
+            node.hidden = false;
+        } else {
+            node.classList.remove('uiShow');
+            node.classList.add('uiHide');
+            node.hidden = true;
+        }
+        void node.offsetWidth;
+    }
+
+    pushState(){
+        const buffer = [];
+        for (const iterator of this.sceen) {
+            buffer[iterator.id]=iterator.classList.contains('uiShow');
+        }
+        this.menuStateStack.push(buffer);
+    }
+
+    popState(){
+        if(this.menuStateStack.length<=1)return;
+        const buffer = this.menuStateStack[this.menuStateStack.length-2];
+        for (const iterator of this.sceen) {
+            this.#toggleScreen(iterator,buffer[iterator.id]);
+        }
+        this.menuStateStack.pop();
     }
 
     /**

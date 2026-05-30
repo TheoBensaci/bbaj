@@ -12,24 +12,35 @@
             <canvas class="gameCanvas" id="canvas" tabindex='1' width="400" height="300"></canvas>
             <canvas class="gameCanvas" id="canvasDebug" width="400" height="300"></canvas>
             <div id = "ui">
+                <div class="uiSceen" id="inGame">
+                </div>
                 <div class="uiSceen" id="blackBackground"></div>
                 <div class="uiSceen" id="pauseMenu">
                     <h1>PAUSE</h1>
-                    <button id = "goToMain" class="bnt">Main Menu</button>
-                    <button class="bnt" style="--color_2:#ff0055;--color_3:#00ff99">really long text damn :]</button>
-                    <button class="bnt" id="test_transi">testTransi</button>
-                    <button class="bnt">Main Menu</button>
+                    <button id = "pauseMainMenu" class="bnt">Main Menu</button>
+                    <button id = "pauseOption" class="bnt bntOption">option</button>
+                    <button id = "pauseBack" class="bnt bntBack">back</button>
                 </div>
                 <div class="uiSceen" id="loadingScreen">
-
                     <div class="loading">
                         <h3>Loading</h3><div class="loadingIcon"></div>
                     </div>
-
                 </div>
                 <div class="uiSceen" id="mainMenu">
                     <div class="logo"></div>
-                    <button id = "startGame" class="bnt">Start game</button>
+                    <button id = "mainLocal" class="bnt bntLocal">Local</button>
+                    <button id = "mainEditor" class="bnt">Editor</button>
+                    <button id = "mainOnline" class="bnt bntOnline">Online</button>
+                    <button id = "mainOption" class="bnt bntOption">Option</button>
+                </div>
+                <div class="uiSceen" id="option">
+                    <button id = "optionBack" class="bnt bntBack">back</button>
+                </div>
+                <div class="uiSceen" id="online">
+                </div>
+                <div class="uiSceen" id="createRoom">
+                </div>
+                <div class="uiSceen" id="joinRoom">
                 </div>
                 <div id = "debugLabel">
                 </div>

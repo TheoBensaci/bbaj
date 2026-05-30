@@ -24,6 +24,7 @@ export class Director {
                     this.render.world = this.game;
 
                     this.render.uiManager.clear();
+                    this.render.uiManager.pushState();
                     this.render.setRenderJob({
                         background: true,
                         level: true,
@@ -79,6 +80,7 @@ export class Director {
                 in: () => {
                     this.render.uiManager.clear();
                     this.render.uiManager.toggle('mainMenu');
+                    this.render.uiManager.pushState();
                     this.render.setRenderJob({
                         background: true,
                     });
@@ -114,9 +116,15 @@ export class Director {
     }
 
     static togglePauseGame(state) {
+        if(state){
+            this.#inst.render.uiManager.toggle('pauseMenu', state);
+            this.#inst.render.uiManager.toggle('blackBackground', state);
+            this.#inst.render.uiManager.pushState();
+        }
+        else{
+            this.#inst.render.uiManager.clear();
+        }
         this.#inst.game.pause = state;
-        this.#inst.render.uiManager.toggle('pauseMenu', state);
-        this.#inst.render.uiManager.toggle('blackBackground', state);
         this.#inst.render.pause = state;
     }
 
@@ -149,5 +157,9 @@ export class Director {
 
     static onPause() {
         return this.#inst.game.pause;
+    }
+
+    static getUIManager(){
+        return this.#inst.render.uiManager;
     }
 }
