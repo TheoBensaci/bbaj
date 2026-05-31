@@ -5,6 +5,9 @@
  */
 
 import { Director } from '../director.js';
+import "./joinRoomMenu.js";
+import "./optionMenu.js";
+import { genControls } from './optionMenu.js';
 
 // back button
 const uiConatiner = document.getElementById("ui");
@@ -18,11 +21,13 @@ for (const screen of uiScrens) {
     }
 }
 
+// =============== MAIN ===============
 document.getElementById('mainLocal').onclick = () => {
     Director.switchSceen('game', {backgroundColor: '#ff0055'});
 };
 document.getElementById('mainOption').onclick = () => {
     Director.getUIManager().toggle('option', true);
+    genControls();
     Director.getUIManager().toggle('mainMenu', false);
     Director.getUIManager().pushState();
 };
@@ -49,12 +54,13 @@ document.getElementById('mainOnline').onclick = () => {
     Director.getUIManager().pushState();
 };
 
+// =============== OPTION ===============
 
 document.getElementById('pauseOption').onclick = () => {
     Director.getUIManager().toggle('option', true);
+    genControls();
     Director.getUIManager().toggle('pauseMenu', false);
     Director.getUIManager().pushState();
-    console.log(Director.getUIManager());
 };
 
 document.getElementById('pauseBack').onclick = () => {
@@ -63,4 +69,18 @@ document.getElementById('pauseBack').onclick = () => {
 
 document.getElementById('pauseMainMenu').onclick = () => {
     Director.switchSceen('main', null);
+};
+
+
+// =============== ONLINE ===============
+document.getElementById('onlineCreate').onclick = () => {
+    Director.getUIManager().toggle('createRoom', true);
+    Director.getUIManager().toggle('online', false);
+    Director.getUIManager().pushState();
+};
+
+document.getElementById('onlineJoin').onclick = () => {
+    Director.getUIManager().toggle('joinRoom', true);
+    Director.getUIManager().toggle('online', false);
+    Director.getUIManager().pushState();
 };

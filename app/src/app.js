@@ -69,12 +69,12 @@ function init() {
 
     // game context
     const gameCtx = InputManager.createContext('game');
-    gameCtx.addAction('left', ['a']);
-    gameCtx.addAction('right', ['d']);
-    gameCtx.addAction('up', ['w']);
-    gameCtx.addAction('down', ['s']);
-    gameCtx.addAction('jump', [' ', 'k']);
-    gameCtx.addAction('action', ['j', 'shift']);
+    gameCtx.addAction('left', ['KeyA']);
+    gameCtx.addAction('right', ['KeyD']);
+    gameCtx.addAction('up', ['KeyW']);
+    gameCtx.addAction('down', ['KeyS']);
+    gameCtx.addAction('jump', ['Space', 'KeyK']);
+    gameCtx.addAction('action', ['KeyJ', 'ShiftLeft']);
 
     // editor context (empty for now as the "real" final editor is being worked
     // on on the side.

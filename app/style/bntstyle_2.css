@@ -1,6 +1,6 @@
 .bnt{
     --color_1 : #ffffff;
-    --color_2 : hsla(197, 100%, 64%, 1);
+    --color_2 : var(--play_color);
     --color_3 : hsla(339, 100%, 55%, 1);
     --color_background : #19191a;
 
@@ -21,7 +21,7 @@
     font-size: 10px;
 }
 
-.bnt .bntIcon{
+.bntIcon{
     mask-size: contain;
     mask-repeat: no-repeat;
     mask-position: center;
@@ -52,20 +52,20 @@
 
 
 
-.bnt:hover{
+.bnt:enabled:hover{
     transform: scale(1.15) !important;
     color:var(--color_2);
     z-index: 1;
 }
 
-.bnt:hover .bntIcon{
+.bnt:enabled:hover .bntIcon{
     width: 15px;
     height: 15px;
     margin-right: 5px;
 }
 
 
-.bnt:hover::after{
+.bnt:enabled:hover::after{
     transform: translate(-50%,-50%) scale(1,1);
     background-color: var(--color_background);
     transition:
@@ -81,77 +81,26 @@
     }
 }
 
-.bnt:active:hover{
+.bnt:enabled:active:hover{
     color: var(--color_1);
     transform: scale(1.1) !important;
     animation: none;
 }
 
-.bnt:active:hover .bntIcon{
+.bnt:enabled:active:hover .bntIcon{
     background-color: var(--color_1);
 }
 
-.bnt:active:hover::after{
+.bnt:enabled:active:hover::after{
     transform: translate(-50%,-50%)  scale(0.95,1);
     background-color: var(--color_2);
     border: var(--color_1) solid;
     animation: border-color 0s !important;
 }
 
-
-
-.bntOption{
-    --color_2:var(--option_color);
+.bnt:disabled{
+    --color_2:gray;
+    color: gray;
+    cursor: default;
 }
 
-.bntOnline{
-    --color_2:var(--online_color);
-}
-
-.bntBack{
-    --color_2:#ff0055;
-}
-
-.bntCredit{
-    --color_2:var(--credit_color);
-}
-
-.iconOption{
-    mask-image: url("../ressource/settings.svg");
-}
-.iconBack{
-    mask-size:140% !important;
-    mask-image: url("../ressource/back.svg");
-}
-
-.iconMain{
-    mask-image: url("../ressource/home.svg");
-}
-
-.iconCredit{
-    mask-image: url("../ressource/credit.svg");
-}
-
-.iconOnline{
-    mask-image: url("../ressource/online.svg");
-}
-
-.iconEditor{
-    mask-image: url("../ressource/editor.svg");
-}
-
-.iconLocal{
-    mask-image: url("../ressource/play.svg");
-}
-
-.iconFile{
-    mask-image: url("../ressource/folder.svg");
-}
-
-.iconPlus{
-    mask-image: url("../ressource/plus.svg");
-}
-
-.iconJoin{
-    mask-image: url("../ressource/join.svg");
-}
