@@ -34,7 +34,7 @@ export const GAMES_KEYS = [
     ['up', ['KeyW']],
     ['down', ['KeyS']],
     ['jump', ['Space', 'KeyK']],
-    ['action', ['KeyJ', 'ShiftLeft']]
+    ['action', ['KeyJ']]
 ]
 
 export const PERLOADED_TEXTURE=[

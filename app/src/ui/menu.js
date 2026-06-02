@@ -5,6 +5,8 @@
  */
 
 import { Director } from '../director.js';
+import { TEST_LEVEL_DATA } from '../testLevel.js';
+import { importFile, loadLevelFromFile } from '../utils/fileUtils.js';
 import "./joinRoomMenu.js";
 import "./optionMenu.js";
 import { genControls } from './optionMenu.js';
@@ -45,6 +47,7 @@ document.getElementById('mainLocal').onclick = () => {
 };
 
 document.getElementById('mainEditor').onclick = () => {
+    Director.setEditorQuickSwitch(true);
     Director.switchSceen("editor",null);
 };
 
@@ -64,7 +67,7 @@ document.getElementById('pauseOption').onclick = () => {
 };
 
 document.getElementById('pauseBack').onclick = () => {
-    Director.togglePauseGame(false);
+    Director.togglePause(false);
 };
 
 document.getElementById('pauseMainMenu').onclick = () => {
@@ -83,4 +86,19 @@ document.getElementById('onlineJoin').onclick = () => {
     Director.getUIManager().toggle('joinRoom', true);
     Director.getUIManager().toggle('online', false);
     Director.getUIManager().pushState();
+};
+
+
+// =============== LOCAL ===============
+document.getElementById('localCampaign').onclick = () => {
+    Director.loadLevel(TEST_LEVEL_DATA);
+    Director.setEditorQuickSwitch(false);
+};
+
+document.getElementById('localImport').onclick = () => {
+    loadLevelFromFile((data)=>{
+        if(data===null)return;
+        Director.loadLevel(data);
+        Director.setEditorQuickSwitch(false);
+    });
 };

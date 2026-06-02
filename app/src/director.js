@@ -19,6 +19,7 @@ export class Director {
         this.lastSceen = '';
 
         this.pause = false;
+        this.pauseMenuBackState=0;
 
         // when on, we can switch between editor and game with a short cut
         this.editorQuickSwitch=false;
@@ -128,12 +129,17 @@ export class Director {
     static togglePause(state) {
         this.#inst.pause=state;
         if(state){
+            // use to track the target state we need to go back when the pause menu will go off
+            this.#inst.pauseMenuBackState=this.#inst.render.uiManager.menuStateStack.length-1;
+
+
             this.#inst.render.uiManager.toggle('pauseMenu', state);
             this.#inst.render.uiManager.toggle('blackBackground', state);
             this.#inst.render.uiManager.pushState();
         }
         else{
-            this.#inst.render.uiManager.clear();
+            // pop to the menu just befor the pause menu
+            this.#inst.render.uiManager.popState(this.#inst.pauseMenuBackState);
             endKeyChange();
         }
         if(this.#inst.lastSceen==='game'){
@@ -144,9 +150,14 @@ export class Director {
 
     static loadLevel(levelData) {
         Director.switchSceen('loading');
+        console.log(levelData);
+
+        const lvlData=levelData.data?levelData.data:[];
+        const backgroundColor = levelData.backgroundColor?levelData.backgroundColor:'#555555';
+
         // load level
-        this.#inst.game.generateLevel(levelData, () => {
-            Director.switchSceen('game', {backgroundColor: '#555555'});
+        this.#inst.game.generateLevel(lvlData, () => {
+            Director.switchSceen('game', {backgroundColor: backgroundColor});
         });
     }
 
@@ -174,6 +185,11 @@ export class Director {
         this.#inst.editorQuickSwitch=state;
     }
 
+
+    static getEditorQuickSwitch(){
+        return this.#inst.editorQuickSwitch;
+    }
+
     static onPause() {
         return this.#inst.pause;
     }
@@ -187,17 +203,14 @@ export class Director {
         if(this.#inst===null)return;
 
         if(!this.#inst.sceens[this.#inst.lastSceen].globalInput)return;
-
         // check if we are not in the input settings screen
-        if(this.#inst.render.uiManager.getState("keyChange"))return;
-
+        if(this.#inst.render.uiManager.getScreenState("keyChange"))return;
         // check for special input
         if(InputManager.getContext("other").getAction("pause").justPressed){
             Director.togglePause(!Director.onPause());
         }
 
         if(this.#inst.editorQuickSwitch && !Director.onPause()){
-
         }
     }
 }
