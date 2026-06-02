@@ -19,6 +19,8 @@
     animation: none;
     transition: all 0.25s cubic-bezier(0.23,2,0,1.23), color 0s;
     font-size: 10px;
+
+    user-select: none;
 }
 
 .bntIcon{

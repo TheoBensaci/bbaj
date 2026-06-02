@@ -219,6 +219,7 @@ h1{
 
 .menuTitle{
     --menuTitle_color:#000;
+    user-select: none;
     font-weight: bold;
     font-size: 30px;
     display: flex;
@@ -348,6 +349,7 @@ h1{
 }
 
 #option h3{
+    user-select: none;
     margin: 5px;
     align-self: flex-start;
     color:var(--option_color);
@@ -366,6 +368,9 @@ h1{
 }
 #option #optionContainer #controllesContainer{
     width: 90%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .inpuShower{
@@ -390,12 +395,21 @@ h1{
     margin-left: 10px;
 }
 
-.inpuShower .keyList{
-    display: flex;
-    margin: 5px 0px;
+#option #optionContainer h4{
+    font-size: 20px;
+    margin: 2px;
+    color: gray;
+    user-select: none;
 }
 
-.inpuShower .keyElement{
+.keyList{
+    display: flex;
+    margin: 5px 0px;
+    overflow: hidden;
+    max-width: 60%;
+}
+
+.keyElement{
     background-color: #ffffff;
     padding: 2px 8px;
     border-radius: 4px;
@@ -451,4 +465,32 @@ h1{
 
 #credit #creditTB>.drawing{
     background-image: url("../ressource/credit/test.png");
+}
+
+
+#keyChange{
+    user-select: none;
+}
+
+#keyChange h2{
+    color: white;
+    user-select: none;
+}
+
+
+#keyChange .keyList{
+    display: flex;
+    justify-content: center;
+    height: 50px;
+    background-color: #00000058;
+    min-width: 40%;
+    padding: 5px;
+    align-items: center;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    user-select: none;
+}
+
+#keyChange .keyList .keyElement{
+    margin: 5px;
 }

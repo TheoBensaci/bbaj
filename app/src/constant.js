@@ -22,6 +22,21 @@ export const CAMERA_DEAD_ZONE = [100, 300];
 
 export const RENDER_RESOLUTION = [600, 400];
 
+export const MAX_NUMBER_OF_KEY_INPUT=5;
+
+export const OTHER_KEYS = [
+    ['pause', ['Escape']]
+]
+
+export const GAMES_KEYS = [
+    ['left', ['KeyA']],
+    ['right', ['KeyD']],
+    ['up', ['KeyW']],
+    ['down', ['KeyS']],
+    ['jump', ['Space', 'KeyK']],
+    ['action', ['KeyJ', 'ShiftLeft']]
+]
+
 export const PERLOADED_TEXTURE=[
     "./ressource/basicTileSet.png",
     "./ressource/completBasicTileSet.png",

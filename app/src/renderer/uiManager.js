@@ -51,6 +51,15 @@ export class UiManager{
         void node.offsetWidth;
     }
 
+    getState(id){
+        for (const iterator of this.sceen) {
+            if (iterator.id === id) {
+                return !iterator.hidden;
+            }
+        }
+        return false;
+    }
+
     pushState(){
         const buffer = [];
         for (const iterator of this.sceen) {

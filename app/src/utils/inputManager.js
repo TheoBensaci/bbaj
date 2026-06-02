@@ -1,4 +1,5 @@
 import { RENDER_RESOLUTION } from '../constant.js';
+import { getSaveInputKey } from './saveManager.js';
 import { Vector } from './vector.js';
 
 /**
@@ -31,6 +32,12 @@ export class InputContext {
 
     getAction(name) {
         return this.actions.get(name);
+    }
+
+    loadInputFromSave(defaultActions){
+        for (const iterator of defaultActions) {
+            this.addAction(iterator[0],getSaveInputKey(this.name,iterator[0])?getSaveInputKey(this.name,iterator[0]):iterator[1]);
+        }
     }
 }
 

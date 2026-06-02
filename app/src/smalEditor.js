@@ -35,10 +35,6 @@ export function initSmallEditor(canvas, editor, renderer) {
     }
 
     window.addEventListener('keypress', (e) => {
-        if (e.key === 'p') {
-            Director.togglePauseGame(!Director.onPause());
-        }
-
         if (Director.inEditor()) {
             if (e.key === 'd') {
                 editor.moveCamera(10, 0);

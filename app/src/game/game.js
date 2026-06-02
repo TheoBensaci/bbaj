@@ -1,4 +1,6 @@
 import { CAMERA_DEAD_ZONE, CAMERA_SPEED, RENDER_RESOLUTION, TILE_SIZE, WORLD_LIMIT } from "../constant.js";
+import { Director } from "../director.js";
+import { InputManager } from "../utils/inputManager.js";
 import { Shape, ShapeType } from "../utils/shape.js";
 import { MathUtils } from "../utils/utils.js";
 import { Vector } from "../utils/vector.js";
@@ -313,7 +315,6 @@ export class Game extends World {
         this.t = (newDate.getTime() - this.lastTime.getTime()) / 1000;
 
         // tile update
-
         this.updateActiveTile(this.t);
 
         // player update
