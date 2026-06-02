@@ -75,6 +75,9 @@ export class Player extends Actor {
     constructor() {
         super();
 
+        // if true, no update are skiped and only the velocity will be apply
+        this.dummie = false;
+
         this.dead = false; // if the player dead {skull emoji}
         this.deathTimer = 0;
         this.waitForRespawn = false;
@@ -749,7 +752,6 @@ export class Player extends Actor {
                     collide.x *= -0.5;
                 }
                 this.position.sub(collide.set(collide.x, 0));
-                console.log('corner correction');
                 return true;
             }
         }
@@ -901,6 +903,8 @@ export class Player extends Actor {
         this.dead = true;
         this.waitForRespawn = true;
         this.deathTimer = RESPAWN_TIME;
+
+        this.game.levelDeath++;
     }
 
     deathUpdate(t) {
@@ -923,6 +927,14 @@ export class Player extends Actor {
     }
 
     update(t) {
+
+        if(this.dummie){
+
+            this.position.add(this.velocity.clone().scale(t,t));
+
+            return;
+        }
+
         if (this.onFreeCam) {
             let dir = new Vector(0, 0);
             const speed = 2;
@@ -948,9 +960,6 @@ export class Player extends Actor {
             this.deathUpdate(t);
             return;
         }
-
-        // update camera
-        //this.updateCamera(t);
 
         // riding update
         this.updateRideTile();
@@ -1010,6 +1019,20 @@ export class Player extends Actor {
         // ...
         console.log('destroy');
     }
+
+    //#region ============== ONLINE ==============
+
+    getData(){
+
+    }
+
+
+    setData(data){
+
+    }
+
+
+    //#endregion
 
     /**
      * Render the player

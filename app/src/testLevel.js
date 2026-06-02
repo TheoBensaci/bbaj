@@ -14758,6 +14758,6 @@ export const TEST_LEVEL_DATA ={
 			]
 		]
 	],
-	"backgroundColor": "#550000",
+	"backgroundColor": "#555555",
 	"name": "testLevel1"
 }

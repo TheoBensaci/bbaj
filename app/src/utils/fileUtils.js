@@ -48,3 +48,16 @@ export function loadLevelFromFile(callback){
         }
     },"application/JSON","text");
 }
+
+
+export function fetchLevelFile(callback,path){
+    fetch(path)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {callback(data)})
+    .catch(error => callback(null));
+}

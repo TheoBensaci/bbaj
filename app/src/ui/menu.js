@@ -6,7 +6,7 @@
 
 import { Director } from '../director.js';
 import { TEST_LEVEL_DATA } from '../testLevel.js';
-import { importFile, loadLevelFromFile } from '../utils/fileUtils.js';
+import { fetchLevelFile, importFile, loadLevelFromFile } from '../utils/fileUtils.js';
 import "./joinRoomMenu.js";
 import "./optionMenu.js";
 import { genControls } from './optionMenu.js';
@@ -91,8 +91,12 @@ document.getElementById('onlineJoin').onclick = () => {
 
 // =============== LOCAL ===============
 document.getElementById('localCampaign').onclick = () => {
-    Director.loadLevel(TEST_LEVEL_DATA);
-    Director.setEditorQuickSwitch(false);
+    Director.switchSceen("loading");
+    fetchLevelFile((data)=>{
+        if(data===null)return;
+        Director.loadLevel(data);
+        Director.setEditorQuickSwitch(false);
+    },"./ressource/levels/testLevel.json")
 };
 
 document.getElementById('localImport').onclick = () => {

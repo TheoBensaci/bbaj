@@ -73,7 +73,7 @@ export function genControls(){
     for (const contextName of contextUse) {
         const context = InputManager.getContext(contextName);
         let title = document.createElement("h4");
-        title.innerText=contextName;
+        title.innerText=contextName.charAt(0).toUpperCase() + contextName.slice(1);
         controllesContainer.appendChild(title);
         for (const iterator of context.actions) {
             const inp = document.createElement("div");

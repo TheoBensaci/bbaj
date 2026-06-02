@@ -25,8 +25,6 @@ export class Game extends World {
         this.lastTime = new Date();
         this.t = 0;
 
-        this.levelData = null;
-
         this.level = [];
 
         // list of tile which is concidarate
@@ -53,6 +51,10 @@ export class Game extends World {
         this.checkpoints = [];
         this.nValidatedCheck=0;
         this.originalSpawnPoint=null;
+
+        this.levelTimer=0;
+        this.levelDeath=0;
+        this.levelState = 0;    // 0 = none, 1 = start, 2 = end
 
 
         this.cameraTarget=new Vector(0,0);
@@ -150,10 +152,6 @@ export class Game extends World {
         this.foreachTile((tile) => {
             tile.postCreate(this);
         });
-
-        this.levelData = {
-            backgroundColor: '#555555',
-        };
 
         callback();
 
@@ -275,9 +273,13 @@ export class Game extends World {
     }
 
     cleanSpawnPlayer(){
+        this.resetTilesChange();
         this.nValidatedCheck=0;
         this.setPlayerSpawnPoint((this.originalSpawnPoint===null)?new Vector(0,0):this.originalSpawnPoint.position);
         this.spawnPlayer();
+        this.levelTimer = 0;
+        this.levelDeath = 0;
+        this.levelState = 0;
     }
 
     setPlayerSpawnPoint(position){
@@ -296,6 +298,32 @@ export class Game extends World {
 
     canFinish(){
         return this.nValidatedCheck===this.checkpoints.length;
+    }
+
+    startLevel(){
+        if(this.levelState!==0)return;
+        this.levelState=1;
+    }
+
+    endLevel(){
+        if(this.levelState!==1)return;
+        this.levelState=2;
+    }
+
+    updateLevelState(t){
+        if(this.player===null)return;
+        if(this.levelState===0){
+            if(Vector.sub(this.originalSpawnPoint.position,this.player.position).magnetude()>TILE_SIZE){
+                this.startLevel();
+                console.log("start");
+            }
+            return;
+        }
+        if(this.levelState===1){
+            this.levelTimer+=t;
+        }
+
+
     }
 
     //#endregion
@@ -322,6 +350,9 @@ export class Game extends World {
             // update player
             this.player.update(this.t);
         }
+
+        // level state update
+        this.updateLevelState(this.t);
 
         // update camera pos
         const targetPos = (this.cameraForceTarget !== null ? this.cameraForceTarget : this.cameraTarget).clone();

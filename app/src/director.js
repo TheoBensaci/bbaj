@@ -30,6 +30,9 @@ export class Director {
                     this.render.world = this.game;
 
                     this.render.uiManager.clear();
+
+                    this.render.uiManager.toggle("inGame");
+
                     this.render.uiManager.pushState();
                     this.render.setRenderJob({
                         background: true,
@@ -149,8 +152,7 @@ export class Director {
     }
 
     static loadLevel(levelData) {
-        Director.switchSceen('loading');
-        console.log(levelData);
+        if(this.#inst.lastSceen!=="loading")Director.switchSceen('loading');
 
         const lvlData=levelData.data?levelData.data:[];
         const backgroundColor = levelData.backgroundColor?levelData.backgroundColor:'#555555';

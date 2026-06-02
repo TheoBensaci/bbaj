@@ -494,3 +494,54 @@ h1{
 #keyChange .keyList .keyElement{
     margin: 5px;
 }
+
+
+
+#inGame{
+    justify-content: flex-start;
+
+}
+
+#inGame .timer{
+    position: relative;
+    align-self: flex-start;
+    margin-top: 10px;
+    padding: 2.5px 5px;
+    padding-left: 10px;
+}
+
+#inGame .timer::before{
+    content: ' ';
+    position: absolute;
+    top: 7px;
+    left: 0;
+    z-index: -1;
+    width: 100%;
+    height: 100%;
+    background-color: var(--backgroundColor);
+    transform: matrix3d(
+        1.803445332505626,	0.0716192142329152,	0,	0.007300278949147075,
+        0,	0.5098005742220844,	0,	0.012338015053930318,
+        0,	0,	1,	0,
+        0,	0,	0,	1
+        );
+}
+
+#inGame .timer label{
+    font-size: 15px;
+    font-weight:700;
+    color: white;
+    --outlineColor : var(--backgroundColor);
+    --outlineWidth:1px;
+    filter:
+        drop-shadow( var(--outlineWidth) 0 0 var(--outlineColor))
+        drop-shadow( calc(-1 *var(--outlineWidth)) 0 0 var(--outlineColor))
+        drop-shadow( 0px var(--outlineWidth) 0 var(--outlineColor))
+        drop-shadow( 0px calc(-1 *var(--outlineWidth))0 var(--outlineColor))
+    ;
+}
+
+#inGame .timer .timerMilis{
+    font-size: 10px;
+    color: rgb(155, 155, 155);
+}
