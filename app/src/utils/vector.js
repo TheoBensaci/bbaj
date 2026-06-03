@@ -181,6 +181,10 @@ export class Vector{
         return new Vector(this.x, this.y);
     }
 
+    equals(other) {
+        return this.x === other.x && this.y === other.y;
+    }
+
     abs() {
         this.x = Math.abs(this.x);
         this.y = Math.abs(this.y);
