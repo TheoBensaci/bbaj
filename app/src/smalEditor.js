@@ -35,10 +35,6 @@ export function initSmallEditor(canvas, editor, renderer) {
     }
 
     window.addEventListener('keypress', (e) => {
-        if (!Director.inEditor() && e.key === 'p') {
-            Director.togglePauseGame(!Director.onPause());
-        }
-
         if (Director.inEditor()) {
             if (e.key === 'd') {
                 editor.moveCamera(10, 0);
@@ -95,6 +91,7 @@ export function initSmallEditor(canvas, editor, renderer) {
             if (e.key === '-') {
                 tilePreview.hide(true);
                 const data = editor.export();
+                console.log(data);
 
                 // copy the level into clip board
                 navigator.clipboard.writeText('export const TEST_LEVEL_DATA ='+JSON.stringify(data, null, '\t')
@@ -102,6 +99,7 @@ export function initSmallEditor(canvas, editor, renderer) {
                     '],\n\t\'',
                     '],\n\n\t\''
                 ));
+
                 Director.loadLevel(data);
             }
 
@@ -111,9 +109,10 @@ export function initSmallEditor(canvas, editor, renderer) {
             }
 
             if (e.key === ',') {
+                console.log(TEST_LEVEL_DATA);
                 Director.importLevel(TEST_LEVEL_DATA);
             }
-        } else {
+        } else if(Director.getEditorQuickSwitch()){
             if (e.key === '.') {
                 tilePreview.hide(false);
                 Director.switchSceen('editor');

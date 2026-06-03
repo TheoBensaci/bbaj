@@ -3,8 +3,10 @@
     <head>
         <title>Page Title</title>
         <link href="./style/style.css" rel="stylesheet" type="text/css">
+        <link href="./style/inputs.css" rel="stylesheet" type="text/css">
         <link href="./style/bntstyle_2.css" rel="stylesheet" type="text/css">
         <link href="./style/editor.css" rel="stylesheet" type="text/css">
+        <link href="./style/colorAndIcons.css" rel="stylesheet" type="text/css">
     </head>
     <body>
         <div id="gameCanavas">
@@ -12,27 +14,101 @@
             <canvas class="gameCanvas" id="canvas" tabindex='1' width="400" height="300"></canvas>
             <canvas class="gameCanvas" id="canvasDebug" width="400" height="300"></canvas>
             <div id = "ui">
-                <div class="uiSceen" id="blackBackground"></div>
-                <div class="uiSceen" id="pauseMenu">
-                    <h1>PAUSE</h1>
-                    <button id = "goToMain" class="bnt">Main Menu</button>
-                    <button class="bnt" style="--color_2:#ff0055;--color_3:#00ff99">really long text damn :]</button>
-                    <button class="bnt" id="test_transi">testTransi</button>
-                    <button class="bnt">Main Menu</button>
+                <div class="uiSceen" id="inGame">
+                    <div class="timer"><label id="actualTime">00:00</label><label class="timerMilis" id="actualTimeMilis">.00</label></div>
                 </div>
-                <div class="uiSceen" id="loadingScreen">
 
+                <div class="uiSceen" id="blackBackground"></div>
+
+                <div class="uiSceen" id="tab">
+                    tab
+                </div>
+
+                <div class="uiSceen" id="levelFinish">
+                    tab
+                </div>
+
+                <div class="uiSceen" id="pauseMenu">
+                    <div class="menuTitle">Pause</div>
+                    <button id = "pauseMainMenu" class="bnt"><div class="bntIcon iconMain"></div>Main Menu</button>
+                    <button id = "pauseOption" class="bnt optionColor"><div class="bntIcon iconOption"></div>option</button>
+                    <button id = "pauseBack"class="bnt bntBack"><div class="bntIcon iconBack"></div>Back</button>
+                </div>
+
+                <div class="uiSceen" id="loadingScreen">
                     <div class="loading">
                         <h3>Loading</h3><div class="loadingIcon"></div>
                     </div>
-
                 </div>
+
                 <div class="uiSceen" id="mainMenu">
                     <div class="logo"></div>
-                    <button id = "startGame" class="bnt">Start game</button>
+                    <button id = "mainLocal" class="bnt playColor"><div class="bntIcon iconLocal"></div>Local</button>
+                    <button id = "mainEditor" class="bnt"><div class="bntIcon iconEditor"></div>Build</button>
+                    <button id = "mainOnline" class="bnt onlineColor"><div class="bntIcon iconOnline"></div>Online</button>
+                    <button id = "mainOption" class="bnt optionColor"><div class="bntIcon iconOption"></div>Option</button>
+                    <button id = "mainCredit" class="bnt creditColor"><div class="bntIcon iconCredit"></div>Credit</button>
                 </div>
+
+                <div class="uiSceen" id="local">
+                    <div class="menuTitle"><div class="bntIcon iconLocal"></div> Local</div>
+                    <button id = "localCampaign" class="bnt playColor"><div class="bntIcon iconLocal"></div>Campaign</button>
+                    <button id = "localImport" class="bnt playColor"><div class="bntIcon iconFile"></div>Import file</button>
+                    <button class="bnt bntBack"><div class="bntIcon iconBack"></div>Back</button>
+                </div>
+
+                <div class="uiSceen" id="option">
+                    <div class="menuTitle"><div class="bntIcon iconOption"></div> Option</div>
+                    <div id="optionContainer">
+                        <h3>Player</h3>
+                        <input id="optionUsername" type="text" class="textInput optionColor" maxlength="10" placeholder="Username"/>
+                        <button id="optionSave" class="bnt optionColor"><div class="bntIcon iconSave"></div>Save</button>
+                        <h3>Controlles</h3>
+                        <div id="controllesContainer"></div>
+                    </div>
+                    <button class="bnt bntBack"><div class="bntIcon iconBack"></div>Back</button>
+                </div>
+
+                <div class="uiSceen" id="keyChange" tabindex="1" >
+                    <h2>Input name</h2>
+                    <div id="keyChangeList"class="keyList"></div>
+                    <button id="keyChangeSave" class="bnt optionColor"><div class="bntIcon iconSave"></div>Save</button>
+                    <button id="keyChangeBack" class="bnt bntBack"><div class="bntIcon iconBack"></div>Back</button>
+                </div>
+
+
+                <div class="uiSceen" id="credit">
+                    <div class="menuTitle"><div class="bntIcon iconCredit"></div> Credit</div>
+                    <div class="creditHolder">
+                        <div class="creditItem" id="creditTB"><div class="drawing"></div>Theo Bensaci</div>
+                        <div class="creditItem" id="creditSS"><div class="drawing"></div>Santiago Sugrañes</div>
+                        <div class="creditItem" id="creditMR"><div class="drawing"></div>Maxime Regenass</div>
+                    </div>
+                    <button class="bnt bntBack"><div class="bntIcon iconBack"></div>Back</button>
+                </div>
+
+                <div class="uiSceen" id="online">
+                    <div class="menuTitle"><div class="bntIcon iconOnline"></div> Online</div>
+                    <button id = "onlineCreate" class="bnt onlineColor"><div class="bntIcon iconPlus"></div>Create a room</button>
+                    <button id = "onlineJoin" class="bnt onlineColor"><div class="bntIcon iconJoin"></div>Join a room</button>
+                    <button class="bnt bntBack"><div class="bntIcon iconBack"></div>Back</button>
+                </div>
+
+                <div class="uiSceen" id="createRoom">
+                    <div class="menuTitle"><div class="bntIcon iconPlus"></div> Create Room</div>
+                    <button class="bnt bntBack"><div class="bntIcon iconBack"></div>Back</button>
+                </div>
+
+                <div class="uiSceen" id="joinRoom">
+                    <div class="menuTitle"><div class="bntIcon iconJoin"></div> Joine Room</div>
+                    <input id="joinCode" type="text" class="textInput onlineColor" maxlength="8" placeholder="Room Code"/>
+                    <button id = "joinJoin" class="bnt onlineColor" disabled><div class="bntIcon iconJoin"></div>Join</button>
+                    <button class="bnt bntBack"><div class="bntIcon iconBack"></div>Back</button>
+                </div>
+
                 <div id = "debugLabel">
                 </div>
+
                 <div id="transition" hidden>
                 </div>
             </div>
