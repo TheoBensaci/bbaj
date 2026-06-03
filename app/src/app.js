@@ -30,7 +30,9 @@ const renderer = new Renderer(
     initCanvas(canvasContainer, RENDER_RESOLUTION[0], RENDER_RESOLUTION[1]),
     uiManager
 );
+
 const editor = new Editor(canvasContainer, editorWorld, renderer);
+
 setInterval(() => {
     InputManager.update();
     if (Director.inEditor()) {
