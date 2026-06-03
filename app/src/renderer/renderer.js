@@ -319,7 +319,7 @@ export class Renderer {
 
 
         this.context.font = "15px serif";
-        this.context.fillText(t+"", 10, 30);
+        this.context.fillText(t+"", 550, 30);
 
         this.lastTime = newDate;
     }

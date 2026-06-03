@@ -105,9 +105,43 @@ ____
   - **[ x ]** spike
   - **[ x ]** trigger spike
   - [ _ ] jump pad
-  - **[ ^ ]** one way platform
+  - [ _ ] one way platform
+    - [ _ ] resolve one way platform bug lmao
   *( there is bug with it, but it's minor, so for now we gonna roll with it)*
+  - [ _ ] moving platform (trafic light style)
+  - [ _ ] baloon
+  - [ _ ] text block
+  - [ _ ] destructible platform
 
 - [ _ ] Other
   - [ _ ] Comment more lmao
   - [ _ ] Refactor director
+
+- [ _ ] animation / art
+  - [ _ ] logo
+  - [ _ ] player "final" animation
+  - [ _ ] text face
+  - [ _ ] checkpoint animation
+  - [ _ ] moving platform
+  - [ _ ] baloon
+  - [ _ ]
+
+- [ _ ] Online
+  - [ _ ] ghost
+  - [ _ ] load level
+  - [ _ ] upload time
+  - [ _ ] load times
+
+- [ _ ] UI
+  - [ _ ] score board
+  - [ _ ] tab
+  - [ _ ] map score board
+  - [ _ ] main menu
+    - [ _ ] solo
+    - [ _ ] option
+    - [ _ ] mutli
+  - [ _ ] option menu
+  - [ _ ] connection menu
+    - [ _ ] join
+    - [ _ ] create
+      - [ _ ] map searching

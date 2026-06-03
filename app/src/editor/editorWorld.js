@@ -6,6 +6,8 @@ export class EditorWorld extends World {
     constructor() {
         super();
         this.level = [];
+        this.backgroundColor="#555555";
+        this.levelName="none";
     }
 
     /**
@@ -84,7 +86,7 @@ export class EditorWorld extends World {
             }
             result.push(buffer);
         }
-        return result;
+        return {data:result,backgroundColor:this.backgroundColor,name:this.levelName};
     }
 
     /**
@@ -93,13 +95,13 @@ export class EditorWorld extends World {
      */
     import(levelData) {
         const result = [];
-        for (let y = 0; y < levelData.length; y++) {
+        for (let y = 0; y < levelData.data.length; y++) {
             const buffer = [];
-            for (let x = 0; x < levelData[y].length; x++) {
-                if (levelData[y][x].length === 0) {
+            for (let x = 0; x < levelData.data[y].length; x++) {
+                if (levelData.data[y][x].length === 0) {
                     buffer.push(null);
                 } else {
-                    const t = new TileEditorWrapper(x, y, levelData[y][x]);
+                    const t = new TileEditorWrapper(x, y, levelData.data[y][x]);
                     buffer.push(t);
                 }
             }
@@ -113,5 +115,8 @@ export class EditorWorld extends World {
                 tile.setState(this);
             }
         }
+        console.log(levelData);
+        this.backgroundColor=levelData.backgroundColor;
+        this.levelName=levelData.name;
     }
 }

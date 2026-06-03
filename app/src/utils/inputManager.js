@@ -1,4 +1,5 @@
 import { RENDER_RESOLUTION } from '../constant.js';
+import { getSaveInputKey } from './saveManager.js';
 import { Vector } from './vector.js';
 
 /**
@@ -32,6 +33,12 @@ export class InputContext {
     getAction(name) {
         return this.actions.get(name);
     }
+
+    loadInputFromSave(defaultActions){
+        for (const iterator of defaultActions) {
+            this.addAction(iterator[0],getSaveInputKey(this.name,iterator[0])?getSaveInputKey(this.name,iterator[0]):iterator[1]);
+        }
+    }
 }
 
 /**
@@ -52,11 +59,11 @@ export class InputManager {
         this.#initialized = true;
 
         window.addEventListener('keydown', (e) => {
-            this.#keysPressed.add(e.key);
+            this.#keysPressed.add(e.code);
         });
 
         window.addEventListener('keyup', (e) => {
-            this.#keysPressed.delete(e.key);
+            this.#keysPressed.delete(e.code);
         });
 
         if (canvas) {
@@ -93,6 +100,10 @@ export class InputManager {
         const ctx = new InputContext(name);
         this.#contexts.set(name, ctx);
         return ctx;
+    }
+
+    static getContext(name){
+        return this.#contexts.get(name);
     }
 
     static setActiveContext(name) {

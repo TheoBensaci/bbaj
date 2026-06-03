@@ -1,8 +1,11 @@
 .bnt{
     --color_1 : #ffffff;
-    --color_2 : hsla(197, 100%, 64%, 1);
+    --color_2 : var(--play_color);
     --color_3 : hsla(339, 100%, 55%, 1);
     --color_background : #19191a;
+
+    display: flex;
+    align-items: center;
 
     border: none;
     background:transparent;
@@ -15,8 +18,20 @@
     transform: scale(1);
     animation: none;
     transition: all 0.25s cubic-bezier(0.23,2,0,1.23), color 0s;
-
     font-size: 10px;
+
+    user-select: none;
+}
+
+.bntIcon{
+    mask-size: contain;
+    mask-repeat: no-repeat;
+    mask-position: center;
+    width: 0px;
+    height: 15px;
+    margin-right: 0px;
+    transition: all 0.25s cubic-bezier(0.23,2,0,1.23), color 0s;
+    background-color: var(--color_2);
 }
 
 .bnt::after{
@@ -39,15 +54,20 @@
 
 
 
-.bnt:hover{
+.bnt:enabled:hover{
     transform: scale(1.15) !important;
     color:var(--color_2);
     z-index: 1;
 }
 
+.bnt:enabled:hover .bntIcon{
+    width: 15px;
+    height: 15px;
+    margin-right: 5px;
+}
 
 
-.bnt:hover::after{
+.bnt:enabled:hover::after{
     transform: translate(-50%,-50%) scale(1,1);
     background-color: var(--color_background);
     transition:
@@ -63,15 +83,26 @@
     }
 }
 
-.bnt:active:hover{
+.bnt:enabled:active:hover{
     color: var(--color_1);
     transform: scale(1.1) !important;
     animation: none;
 }
 
-.bnt:active:hover::after{
+.bnt:enabled:active:hover .bntIcon{
+    background-color: var(--color_1);
+}
+
+.bnt:enabled:active:hover::after{
     transform: translate(-50%,-50%)  scale(0.95,1);
     background-color: var(--color_2);
     border: var(--color_1) solid;
     animation: border-color 0s !important;
 }
+
+.bnt:disabled{
+    --color_2:gray;
+    color: gray;
+    cursor: default;
+}
+

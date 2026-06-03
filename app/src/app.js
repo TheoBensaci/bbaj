@@ -1,4 +1,4 @@
-import { GAME_UPDATE_INTERVAL, PERLOADED_TEXTURE, RENDER_RESOLUTION } from './constant.js';
+import { GAMES_KEYS, GAME_UPDATE_INTERVAL, OTHER_KEYS, PERLOADED_TEXTURE, RENDER_RESOLUTION } from './constant.js';
 import { Director } from './director.js';
 import { Game } from './game/game.js';
 import { Renderer } from './renderer/renderer.js';
@@ -26,6 +26,7 @@ const renderer = new Renderer(
 setInterval(() => {
     InputManager.update();
     game.step();
+    Director.update();
 }, GAME_UPDATE_INTERVAL);
 
 function loop() {
@@ -63,18 +64,14 @@ function setCanvasScale() {
 function init() {
     InputManager.init(window, canvasContainer);
 
+    InputManager.createContext('other').loadInputFromSave(OTHER_KEYS);
+
     // --- input definitions per context ---
     // NOTE(sss): might be useful to have an init method for the "scenes" for
     //            this kind of stuff...
 
     // game context
-    const gameCtx = InputManager.createContext('game');
-    gameCtx.addAction('left', ['a']);
-    gameCtx.addAction('right', ['d']);
-    gameCtx.addAction('up', ['w']);
-    gameCtx.addAction('down', ['s']);
-    gameCtx.addAction('jump', [' ', 'k']);
-    gameCtx.addAction('action', ['j', 'shift']);
+    InputManager.createContext('game').loadInputFromSave(GAMES_KEYS);
 
     // editor context (empty for now as the "real" final editor is being worked
     // on on the side.
@@ -84,7 +81,7 @@ function init() {
     InputManager.createContext('loading');
     InputManager.createContext('main');
 
-    Director.switchSceen('editor');
+    Director.switchSceen('main');
 
     // add debug click
     initSmallEditor(canvasContainer, editor, renderer);

@@ -1,0 +1,59 @@
+.optionColor{
+    --color_2:var(--option_color);
+}
+
+.onlineColor{
+    --color_2:var(--online_color);
+}
+
+.bntBack{
+    --color_2:#ff0055;
+}
+
+.creditColor{
+    --color_2:var(--credit_color);
+}
+
+.iconOption{
+    mask-image: url("../ressource/settings.svg");
+}
+.iconBack{
+    mask-size:140% !important;
+    mask-image: url("../ressource/back.svg");
+}
+
+.iconMain{
+    mask-image: url("../ressource/home.svg");
+}
+
+.iconCredit{
+    mask-image: url("../ressource/credit.svg");
+}
+
+.iconOnline{
+    mask-image: url("../ressource/online.svg");
+}
+
+.iconEditor{
+    mask-image: url("../ressource/editor.svg");
+}
+
+.iconLocal{
+    mask-image: url("../ressource/play.svg");
+}
+
+.iconFile{
+    mask-image: url("../ressource/folder.svg");
+}
+
+.iconPlus{
+    mask-image: url("../ressource/plus.svg");
+}
+
+.iconSave{
+    mask-image: url("../ressource/save.svg");
+}
+
+.iconJoin{
+    mask-image: url("../ressource/join.svg");
+}

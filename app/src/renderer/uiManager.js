@@ -22,6 +22,7 @@ export class UiManager{
             this.transitionNode.hidden = true;
             this.transitionNode.classList.remove('showTransi');
         });
+        this.menuStateStack=[];
         this.clear();
     }
 
@@ -32,22 +33,69 @@ export class UiManager{
     toggle(id, state = true) {
         for (const iterator of this.sceen) {
             if (iterator.id === id) {
-                if (state) {
-                    iterator.classList.add('uiShow');
-                    iterator.classList.remove('uiHide');
-                    iterator.hidden = false;
-                } else {
-                    iterator.classList.remove('uiShow');
-                    iterator.classList.add('uiHide');
-                    iterator.hidden = true;
-                }
-                void iterator.offsetWidth;
+                this.#toggleScreen(iterator,state);
             }
         }
     }
 
+    #toggleScreen(node,state){
+        if (state) {
+            node.classList.add('uiShow');
+            node.classList.remove('uiHide');
+            node.hidden = false;
+        } else {
+            node.classList.remove('uiShow');
+            node.classList.add('uiHide');
+            node.hidden = true;
+        }
+        void node.offsetWidth;
+    }
+
     /**
-     * Hide all sceen
+     * Get a screen state (hide or show)
+     * @param {string} id if of the screen
+     * @returns if this screen is showned
+     */
+    getScreenState(id){
+        for (const iterator of this.sceen) {
+            if (iterator.id === id) {
+                return iterator.classList.contains('uiShow');
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Push a new UI state, use full for menu navigation
+     */
+    pushState(){
+        const buffer = [];
+        for (const iterator of this.sceen) {
+            buffer[iterator.id]=iterator.classList.contains('uiShow');
+        }
+        this.menuStateStack.push(buffer);
+    }
+
+    /**
+     * Pop a UI state, index = index of the ui state in stack we want to reatch, if index < 0 => clear the screen
+     * @param {*} index
+     * @returns
+     */
+    popState(index = this.menuStateStack.length-2){
+        if(this.menuStateStack.length===1 || index<0){
+            this.clear();
+            return;
+        }
+        const buffer = this.menuStateStack[index];
+        console.log(index,buffer,this.sceen);
+        for (const iterator of this.sceen) {
+            this.#toggleScreen(iterator,buffer[iterator.id]);
+        }
+        this.menuStateStack.splice(index+1,this.menuStateStack.length-index);
+    }
+
+    /**
+     * clear all ui and reste the menu state stack
      */
     clear() {
         for (const iterator of this.sceen) {
@@ -55,6 +103,7 @@ export class UiManager{
             iterator.classList.add('uiHide');
             iterator.hidden = true;
         }
+        this.menuStateStack=[];
     }
 
     /**
