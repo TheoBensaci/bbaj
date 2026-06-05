@@ -1,7 +1,6 @@
-import express, { json } from 'express';
-import expressWs from 'express-ws';
-
-const { MongoClient } = require("mongodb");
+import express from "express";
+import expressWs from "express-ws";
+import { MongoClient } from "mongodb";
 
 const app = express();
 expressWs(app);
@@ -23,59 +22,131 @@ app.use(express.static('app'));
 // Serve the src directory
 app.use('/src', express.static('src'));
 
-app.post('/publishMap', (req, res) => {
-    db.collection("map").insertOne(req.params.map);
+//Permet de lire req.body
+app.use(express.json());
+
+//Publie une map sur la db
+app.post('/publishMap', async (req, res) => {
+    const map = req.body.map;
+
+    if (!map) {
+        return res.status(400).json({ error: "Map manquante" });
+    }
+
+    await db.collection("map").insertOne({ map });
+
+    res.json({ success: true });
 });
 
+//Retourne une map par rapport à son id
+app.get("/map/:id", async (req, res) => {
+    try {
+        const user = await db.collection("map").findOne({
+            _id: new ObjectId(req.params.id)
+        });
+
+        if (!user) {
+            return res.status(404).json({ error: "map introuvable" });
+        }
+
+        res.json(user);
+
+    } catch (err) {
+        res.status(400).json({ error: "id invalide" });
+    }
+});
+
+
+//Creation d'une room
 app.post('/createRoom', (req, res) => {
-    rooms[idRoom++] = { levelId: req.params.levelId, playersInfo: [] };
+    const levelId = req.body.levelId;
+
+    if (!levelId) {
+        return res.status(400).json({ error: "levelId manquant" });
+    }
+
+    const roomId = idRoom++;
+
+    rooms[roomId] = {
+        levelId,
+        playersInfo: {}
+    };
+
+    res.json({ roomId });
+});
+
+//On récupére l'id de la room s'il existe
+app.get('/room/:id', async (req, res) => {
+    if (req.params <= idRoom){
+        res.json(req.params);
+    }else {
+        return res.status(404).json({error: "Id room invalide"})
+    }
 });
 
 // Websocket game events
 app.ws('/', (ws) => {
     ws.room = null;
     ws.id = idSocket++; 
-    
+
     ws.on('message', (msg) => {
         const data = JSON.parse(msg);
 
         if (data.type === 'join') {
+            //Check des infos de la room
             if (data.idRoom == undefined || rooms[data.idRoom] == undefined) {
-                //ws.send() error l'id room pas valide TODO methode send
+                ws.send(JSON.stringify({
+                    type: "error",
+                    message: "Room introuvable"
+                }));
                 return;
             }
 
+            //Check du pseudo
             if (
-                data.username == undefined ||
-                data.username == null ||
-                username.trim().length === 0 ||
-                !/^[a-zA-Z0-9_-]{3,16}$/.test(username)
+                !data.username ||
+                data.username.trim().length === 0 ||
+                !/^[a-zA-Z0-9_-]{3,16}$/.test(data.username)
             ) {
-                //ws.send() error le username pas valide TODO methode send
+                ws.send(JSON.stringify({
+                    type: "error",
+                    message: "Username invalide"
+                }));
                 return;
             }
 
+            //Ajout des infos du player. On ajoute le websocket avec pour le broadcast plus tard
             rooms[data.idRoom].playersInfo[ws.id] = {
                 username: data.username,
                 time: 0,
                 socket: ws,
             };
+
             ws.room = data.idRoom;
         } else if (data.type === 'position') {
-            //TODO afficher phantom joueur
+            if (!ws.room || !rooms[ws.room]) return; //Room n'existe pas
+
+            if (!data.positions) return; //Aucune positions
+
             //brodcast all joueur
-            //rooms[ws.room].forEach((socket) => /*send*/); check si socket pas null
+            //I gues on aura les postitions des joueurs dans data.positions {{id:joueur, x:x, y:y}, {...}, ...}
+            rooms[ws.room].forEach((socket) => {
+                socket.send(JSON.stringify(data.positions));
+            });
         }
     });
 
-    ws.on('close', (msg) => {
-        rooms[ws.room].playersInfo[ws.id].socket = null;
+    //Quand la socket se ferme on delete les infos du joueur parti
+    ws.on('close', () => {
+        if (ws.room != null && rooms[ws.room]) {
+            delete rooms[ws.room].playersInfo[ws.id];
+        }
     });
 });
 
 
 const server = app.listen(3000, () => {
-    console.log("App started");
+    console.log("Server start");
 });
 
 
