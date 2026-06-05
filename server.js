@@ -9,6 +9,7 @@ expressWs(app);
 let idRoom = 0;
 let idSocket = 0;
 const rooms = {};
+const INTERVAL = 20;
 
 //Connexion db
 const client = new MongoClient("mongodb://localhost:27017");
@@ -134,19 +135,17 @@ app.ws('/', (ws) => {
                 username: data.username,
                 time: 0,
                 socket: ws,
+                data: {},
             };
 
             ws.room = data.idRoom;
         } else if (data.type === 'position') {
             if (!ws.room || !rooms[ws.room]) return; //Room n'existe pas
-
+            if (!data.userid) return; //Aucun id
             if (!data.positions) return; //Aucune positions
 
-            //brodcast all joueur
-            //I gues on aura les postitions des joueurs dans data.positions {{id:joueur, x:x, y:y}, {...}, ...}
-            rooms[ws.room].forEach((socket) => {
-                socket.send(JSON.stringify(data.positions));
-            });
+            //Enregistrement des données sur la position, vélocity, etc
+            rooms[ws.room].playersInfo[data.userid].data = data.positions;
         }
     });
 
@@ -162,6 +161,39 @@ app.ws('/', (ws) => {
 const server = app.listen(3000, () => {
     console.log("Server start");
 });
+
+//A un interval regulier, on envoie a tous les joueurs les données des positions de tous les joueurs.
+setInterval(() => {
+    const allPositions = []; //On stock toute les positions de tous les joueurs
+    
+    rooms.forEach(room => {
+        room.forEach(playersInfo => {
+            if (playersInfo.length != 0){
+                playersInfo.forEach(playInfo => {
+                    allPositions.push({
+                        id: playInfo.id,
+                        data: playInfo.data
+                    });
+                });
+            }
+        });
+    });
+    
+    rooms.forEach(room => {
+        room.forEach(playersInfo => {
+            if (playersInfo.length != 0){
+                playersInfo.forEach(playInfo => {
+                    //Ne pas envoyer sa propre position
+                    const filtered = allPositions.filter(
+                        p => p.id !== playInfo.id
+                    );
+
+                    playInfo.ws.send(JSON.stringify(filtered));
+                });
+            }
+        });
+    });
+}, INTERVAL);
 
 
 //Quand on ferme le server, on ferme la connexion db
