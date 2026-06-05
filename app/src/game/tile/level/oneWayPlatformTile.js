@@ -15,6 +15,8 @@ export class OneWayPlatformTile extends DynamicTile {
             ).setRotation(rad)
         ]);
 
+        this.rad = rad;
+
         this.active = true;
 
         this.direction = new Vector(0, -1).rotate(rad).normalize();
@@ -27,10 +29,13 @@ export class OneWayPlatformTile extends DynamicTile {
     }
 
     render(x, y, context, t){
-        const col = this.getCollider();
-        for (const c of col) {
-            context.debugRenderShape(c, '#ff0055', false);
-        }
+        const col = this.getCollider()[0];
+        context.debugRenderShape(col, '#ff0055', false);
+        context.debugRenderShape(Shape.createShape(
+            ShapeType.SQUARE,
+            new Vector(0, -TILE_SIZE * 0.2),
+            new Vector(TILE_SIZE, TILE_SIZE * 0.2)
+        ).setRotation(this.rad).setOrigine(this.position), '#960050', false);
     }
 
     canCollide(player) {

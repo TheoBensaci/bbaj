@@ -1,7 +1,7 @@
 import { MAX_NUMBER_OF_KEY_INPUT } from "../constant.js";
 import { Director } from "../director.js";
 import { InputManager } from "../utils/inputManager.js";
-import { setSaveInputKey } from "../utils/saveManager.js";
+import { getSaveItem, setSaveInputKey, setSaveItem } from "../utils/saveManager.js";
 
 // gen keys
 const controllesContainer = document.getElementById("controllesContainer");
@@ -21,7 +21,6 @@ function updateKeyList(newKeyLists){
 }
 
 document.getElementById("keyChange").addEventListener("keyup",(e)=>{
-    console.log(keyChangeKeyLists);
     const i = keyChangeKeyLists.indexOf(e.code)
     if(i>=0){
         keyChangeKeyLists.splice(i,1);
@@ -35,7 +34,6 @@ document.getElementById("keyChange").addEventListener("keyup",(e)=>{
 
 export function endKeyChange(){
     document.getElementById("keyChange").tabIndex=-10;
-    document.activeElement.blur();
 }
 
 export function keyChangeMenu(context,actionName){
@@ -56,7 +54,7 @@ export function keyChangeMenu(context,actionName){
     document.getElementById("keyChangeSave").onclick=(e)=>{
         context.getAction(actionName).keys=keyChangeKeyLists;
         setSaveInputKey(context.name,actionName,keyChangeKeyLists);
-        genControls();
+        loadOption();
         endKeyChange();
         Director.getUIManager().popState();
     }
@@ -67,7 +65,8 @@ export function keyChangeMenu(context,actionName){
     }
 }
 
-export function genControls(){
+
+export function loadOption(){
     const contextUse = ["other","game","editor"];
     controllesContainer.innerHTML="";
     for (const contextName of contextUse) {
@@ -97,4 +96,12 @@ export function genControls(){
             controllesContainer.appendChild(inp);
         }
     }
+
+
+    document.getElementById("optionUsername").value =getSaveItem("username");
+}
+
+
+document.getElementById("optionUsernameSave").onclick=(e)=>{
+    setSaveItem("username",document.getElementById("optionUsername").value);
 }

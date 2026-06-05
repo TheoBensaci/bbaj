@@ -56,6 +56,13 @@ export class Renderer {
 
         // debug
         this.debugLabel = document.getElementById('debugLabel');
+
+
+        // timer
+        this.timerElements = [
+            document.getElementById("actualTime"),
+            document.getElementById("actualTimeMilis")
+        ]
     }
 
     #setContextFunction(contextBackground, context, contextDebug) {
@@ -275,6 +282,24 @@ export class Renderer {
         }
     }
 
+    formatNumber(number,length){
+        number = number.toString();
+        while (number.length < length) number = "0" + number;
+        return number.substring(0,length);
+    }
+
+    renderTimer(){
+        if(this.world.levelTimer!==undefined && this.timerElements[0] && this.timerElements[1]){
+            const minuts = Math.floor(this.world.levelTimer / 60);
+            const sec = Math.floor((this.world.levelTimer-minuts*60));
+
+            const millis = Math.floor((this.world.levelTimer * 1000) - sec * 1000 - minuts * 60000);
+
+            this.timerElements[0].innerText=this.formatNumber(minuts,2) + ":"+this.formatNumber(sec,2);
+            this.timerElements[1].innerText="."+this.formatNumber(millis,3);
+        }
+    }
+
     /**
      * Clear screen
      * @param {*} context context to use
@@ -317,6 +342,7 @@ export class Renderer {
 
         if (this.renderJob.player) this.renderPlayer(t);
 
+        this.renderTimer();
 
         this.context.font = "15px serif";
         this.context.fillText(t+"", 550, 30);

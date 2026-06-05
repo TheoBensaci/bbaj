@@ -1,3 +1,4 @@
+import { FinishTile } from "./game/tile/level/finishTile.js";
 import { GroundTile } from "./game/tile/level/groundTile.js";
 import { JumpPadTile } from "./game/tile/level/jumpPadTile.js";
 import { MovingPlatform } from "./game/tile/level/movingPlatform.js";
@@ -34,7 +35,9 @@ export const GAMES_KEYS = [
     ['up', ['KeyW']],
     ['down', ['KeyS']],
     ['jump', ['Space', 'KeyK']],
-    ['action', ['KeyJ']]
+    ['action', ['KeyJ']],
+    ['respawn', ['KeyR']],
+    ['reset', ['Delete']]
 ]
 
 export const PERLOADED_TEXTURE=[
@@ -45,7 +48,8 @@ export const PERLOADED_TEXTURE=[
     "./ressource/testPlayer3.png",
     "./ressource/customFruit.png",
     "./ressource/testSpike.png",
-    "./ressource/checkPoint.png"
+    "./ressource/checkPoint.png",
+    "./ressource/faces.png"
 ];
 
 // register all tile
@@ -59,3 +63,4 @@ TileIndex.registerTile("main",TriggerSpike);
 TileIndex.registerTile("main",OneWayPlatformTile);
 TileIndex.registerTile("main",PlayerCheckPointTile);
 TileIndex.registerTile("main",PlayerSpawnTile);
+TileIndex.registerTile("main",FinishTile);

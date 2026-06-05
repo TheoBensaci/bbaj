@@ -144,7 +144,7 @@ export class Game extends World {
         this.level = buffer;
 
         this.checkpoints=[];
-        this.originalSpawnPoint=null;
+        this.originalSpawnPoint={position:new Vector(0,0)};
         this.activeTile = {};
         this.advanceCollisionTile = {};
 
@@ -273,13 +273,23 @@ export class Game extends World {
     }
 
     cleanSpawnPlayer(){
-        this.resetTilesChange();
-        this.nValidatedCheck=0;
-        this.setPlayerSpawnPoint((this.originalSpawnPoint===null)?new Vector(0,0):this.originalSpawnPoint.position);
-        this.spawnPlayer();
-        this.levelTimer = 0;
-        this.levelDeath = 0;
-        this.levelState = 0;
+        this.levelState=-1;
+        this.player.dead=true;
+        Director.transition(()=>{
+            this.resetTilesChange();
+            this.nValidatedCheck=0;
+
+            // reset check points
+            for (const iterator of this.checkpoints) {
+                iterator.active=false;
+            }
+
+            this.setPlayerSpawnPoint((this.originalSpawnPoint===null)?new Vector(0,0):this.originalSpawnPoint.position);
+            this.spawnPlayer();
+            this.levelTimer = 0;
+            this.levelDeath = 0;
+            this.levelState=0;
+        });
     }
 
     setPlayerSpawnPoint(position){
@@ -297,7 +307,7 @@ export class Game extends World {
     }
 
     canFinish(){
-        return this.nValidatedCheck===this.checkpoints.length;
+        return this.levelState===1 && this.nValidatedCheck===this.checkpoints.length;
     }
 
     startLevel(){
@@ -311,9 +321,9 @@ export class Game extends World {
     }
 
     updateLevelState(t){
-        if(this.player===null)return;
+        if(this.player===null || this.levelState<0)return;
         if(this.levelState===0){
-            if(Vector.sub(this.originalSpawnPoint.position,this.player.position).magnetude()>TILE_SIZE){
+            if(Vector.sub(this.originalSpawnPoint.position,this.player.position).magnetude()>1){
                 this.startLevel();
                 console.log("start");
             }
@@ -333,7 +343,7 @@ export class Game extends World {
     }
 
     step() {
-        if (this.pause) {
+        if (this.pause || this.levelState===2) {
             this.t = 0;
             this.lastTime = new Date();
             return;
