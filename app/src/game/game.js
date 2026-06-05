@@ -47,6 +47,8 @@ export class Game extends World {
         this.player=null;
         this.playerSpawnPoint=new Vector(0,0);
 
+        this.ghosts=new Map();
+
         // ending and checkPoint
         this.checkpoints = [];
         this.nValidatedCheck=0;
@@ -332,9 +334,34 @@ export class Game extends World {
         if(this.levelState===1){
             this.levelTimer+=t;
         }
-
-
     }
+
+    //#endregion
+
+    //#region Ghost
+
+    createGhost(id,ghost){
+        this.ghosts.set(id,ghost);
+    }
+
+    destroyGhost(id){
+        this.ghosts.delete(id);
+    }
+
+    getGhost(id){
+        return this.ghosts.get(id);
+    }
+
+    forEachGhost(fnc){
+        for (const iterator of this.ghosts) {
+            fnc(iterator[1]);
+        }
+    }
+
+    clearGhost(){
+        this.ghosts.clear();
+    }
+
 
     //#endregion
 
@@ -360,6 +387,11 @@ export class Game extends World {
             // update player
             this.player.update(this.t);
         }
+
+        // ghost update
+        this.forEachGhost((g)=>{
+            g.update(this.t);
+        });
 
         // level state update
         this.updateLevelState(this.t);

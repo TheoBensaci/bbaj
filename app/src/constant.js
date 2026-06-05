@@ -9,6 +9,8 @@ import { PlayerCheckPointTile, PlayerSpawnTile } from "./game/tile/other/playerS
 import { TileIndex } from "./game/tileSystem/tileIndexer.js";
 
 export const GAME_UPDATE_INTERVAL = 10;
+export const SERVER_ADDRESS = "127.0.0.1";
+export const SERVER_PORT = "80";
 
 //const lvlSquareSize=1;
 
@@ -26,7 +28,8 @@ export const RENDER_RESOLUTION = [600, 400];
 export const MAX_NUMBER_OF_KEY_INPUT=5;
 
 export const OTHER_KEYS = [
-    ['pause', ['Escape']]
+    ['pause', ['Escape']],
+    ['debug', ['KeyP']]
 ]
 
 export const GAMES_KEYS = [

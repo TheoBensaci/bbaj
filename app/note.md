@@ -118,13 +118,13 @@ ____
   - [ _ ] Refactor director
 
 - [ _ ] animation / art
-  - [ _ ] logo
+  - **[ x ]** logo
   - [ _ ] player "final" animation
   - [ _ ] text face
   - [ _ ] checkpoint animation
   - [ _ ] moving platform
   - [ _ ] baloon
-  - [ _ ]
+  - [ _ ] finish
 
 - [ _ ] Online
   - [ _ ] ghost
@@ -135,12 +135,13 @@ ____
 - [ _ ] UI
   - [ _ ] score board
   - [ _ ] tab
+  - [ _ ] finish menu
   - [ _ ] map score board
   - [ _ ] main menu
-    - [ _ ] solo
-    - [ _ ] option
+    - **[ x ]** solo
+    - **[ x ]** option
     - [ _ ] mutli
-  - [ _ ] option menu
+  - **[ x ]** option menu
   - [ _ ] connection menu
     - [ _ ] join
     - [ _ ] create

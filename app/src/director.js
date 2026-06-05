@@ -5,6 +5,8 @@
  * In nutshell, it's use to switch from editor mode, main menu and the actual game
  */
 
+import { PlayerD } from './game/player/playerD.js';
+import { PlayerGhost } from './game/player/playerGhost.js';
 import { endKeyChange } from './ui/optionMenu.js';
 import { InputManager } from './utils/inputManager.js';
 
@@ -12,10 +14,11 @@ export class Director {
     // instance of the director
     static #inst = null;
 
-    constructor(gameInstance, editorInstance, renderInstance) {
+    constructor(gameInstance, editorInstance, renderInstance,networkInstance) {
         this.game = gameInstance;
         this.editor = editorInstance;
         this.render = renderInstance;
+        this.network = networkInstance;
         this.lastSceen = '';
 
         this.pause = false;
@@ -107,8 +110,8 @@ export class Director {
         };
     }
 
-    static init(gameInstance, editorInstance, renderInstance) {
-        this.#inst = new Director(gameInstance, editorInstance, renderInstance);
+    static init(gameInstance, editorInstance, renderInstance, networkInstance) {
+        this.#inst = new Director(gameInstance, editorInstance, renderInstance,networkInstance);
     }
 
     static switchSceen(sceenName, ...params) {
@@ -122,6 +125,10 @@ export class Director {
 
     static transition(callback) {
         this.#inst.render.uiManager.transition(callback);
+    }
+
+    static network(){
+        return this.#inst.network;
     }
 
     static setSceen(sceenName, ...params) {
@@ -221,6 +228,12 @@ export class Director {
                 this.#inst.game.cleanSpawnPlayer();
             }
             return;
+        }
+
+        if(InputManager.getContext("other").getAction("debug").justPressed){
+            let p = new PlayerGhost("test");
+            p.position.set(50,300);
+            this.#inst.game.createGhost("test",p);
         }
     }
 }

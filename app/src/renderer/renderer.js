@@ -239,7 +239,16 @@ export class Renderer {
      * Render player
      * @param {number} t delta t
      */
-    renderPlayer(t) {
+    renderPlayers(t) {
+        // render ghost
+        if(this.world.forEachGhost) {
+            this.world.forEachGhost((g)=>{
+                const pos = this.wordToScreenPosition(g.position);
+                g.render(pos.x, pos.y, this.context, t);
+            });
+        }
+
+        // render player
         if (this.world.player === null) return;
         const pos = this.wordToScreenPosition(this.world.player.position);
         this.world.player.render(pos.x, pos.y, this.context, t);
@@ -340,7 +349,7 @@ export class Renderer {
 
         if (this.renderJob.level) this.renderLevel(t);
 
-        if (this.renderJob.player) this.renderPlayer(t);
+        if (this.renderJob.player) this.renderPlayers(t);
 
         this.renderTimer();
 

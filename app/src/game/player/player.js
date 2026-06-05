@@ -1050,12 +1050,14 @@ export class Player extends Actor {
     //#region ============== ONLINE ==============
 
     getData(){
-
+        return {
+            position : this.position
+        };
     }
 
 
     setData(data){
-
+        this.position.set(data.position);
     }
 
 
