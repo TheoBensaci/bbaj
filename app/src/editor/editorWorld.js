@@ -1,6 +1,6 @@
-import { RENDER_RESOLUTION, TILE_SIZE } from "../constant.js";
-import { World } from "../world.js";
-import { TileEditorWrapper } from "./tileEditorWrapper.js";
+import { TILE_SIZE, WORLD_LIMIT } from '../constant.js';
+import { World } from '../world.js';
+import { TileEditorWrapper } from './tileEditorWrapper.js';
 
 export class EditorWorld extends World {
     constructor() {
@@ -11,13 +11,23 @@ export class EditorWorld extends World {
     }
 
     /**
+     * Check if a grid position is within the world boundaries
+     * @param {number} x grid level position
+     * @param {number} y grid level position
+     * @returns {boolean}
+     */
+    isInBounds(x, y) {
+        return x >= 0 && x < WORLD_LIMIT[0] && y >= 0 && y < WORLD_LIMIT[1];
+    }
+
+    /**
      * Set the tile x and y (grid level pos) to a set tile
      * @param {number} x x grid level position
      * @param {number} y x grid level position
      * @param {object} params tile parameter => [group-id,tile-id,{params}];
      */
     setTile(x, y, params) {
-        if (x < 0 || y < 0) return;
+        if (!this.isInBounds(x, y)) return;
         if (this.level.length <= y) {
             if (params === null) return;
             const l = this.level.length - 1;
@@ -49,7 +59,8 @@ export class EditorWorld extends World {
     }
 
     getTile(x, y) {
-        if (y < 0 || this.level[y] === undefined || x < 0 || x >= this.level[y].length) return null; if(this.level[y][x]===undefined)return null;
+        if (y < 0 || this.level[y] === undefined || x < 0 || x >= this.level[y].length) return null;
+        if (this.level[y][x] === undefined) return null;
         return this.level[y][x];
     }
 
