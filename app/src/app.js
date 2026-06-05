@@ -9,8 +9,15 @@ import { InputManager } from './utils/inputManager.js';
 import { RessourceLoader } from './utils/ressouceLoader.js';
 import './ui/menu.js';
 import { EditorWorld } from './editor/editorWorld.js';
+import { getSaveItem, setSaveItem } from './utils/saveManager.js';
+import { usernameGenerator } from './utils/utils.js';
 
 const canvasContainer = document.getElementById('gameCanavas');
+
+// load username
+if(getSaveItem("username")===null){
+    setSaveItem("username",usernameGenerator());
+}
 
 const game = new Game();
 const editor = new EditorWorld();

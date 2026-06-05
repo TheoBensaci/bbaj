@@ -100,7 +100,6 @@ export class TriggerSpike extends DynamicTile {
     onReset() {
         this.activated = false;
         this.animationT = 0;
-        console.log('reset');
     }
 
     static getSpriteOffset(offsetX, offsetY, rotation) {

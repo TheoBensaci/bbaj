@@ -87,11 +87,12 @@ export class UiManager{
             return;
         }
         const buffer = this.menuStateStack[index];
-        console.log(index,buffer,this.sceen);
         for (const iterator of this.sceen) {
             this.#toggleScreen(iterator,buffer[iterator.id]);
         }
         this.menuStateStack.splice(index+1,this.menuStateStack.length-index);
+
+        document.activeElement.blur();
     }
 
     /**
@@ -104,6 +105,7 @@ export class UiManager{
             iterator.hidden = true;
         }
         this.menuStateStack=[];
+        document.activeElement.blur();
     }
 
     /**
