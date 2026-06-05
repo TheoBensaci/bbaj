@@ -22,6 +22,12 @@ export class Editor {
         this.currentGridPos = new Vector(-1, -1);
         this.lastPlacedGridPos = new Vector(-1, -1);
         this.isPanning = false;
+
+        // Rectangle tool state
+        this.isDrawingRect = false;
+        this.rectStart = new Vector(-1, -1);
+        this.rectEnd = new Vector(-1, -1);
+        this.rectMode = null;
     }
 
     update() {
@@ -34,6 +40,7 @@ export class Editor {
 
         const mousePos = InputManager.getMousePosition();
         const gridPos = this._screenToGrid(mousePos);
+        const rectModifier = InputManager.getAction('rect')?.pressed;
 
         const panModifier = InputManager.getAction('panModifier');
         const panning = InputManager.isMouseButtonPressed(1) ||
@@ -48,6 +55,26 @@ export class Editor {
         const wasPanning = this.isPanning;
         this.isPanning = panning;
 
+        // rectangle tool mode
+        if (this.isDrawingRect) {
+            this.rectEnd.set(gridPos.x, gridPos.y);
+
+            if (panning) {
+                const delta = InputManager.getMouseDelta();
+                this.world.moveCamera(-delta.x, -delta.y);
+            }
+
+            const placeReleased = this.rectMode === 'place' && !InputManager.getAction('place')?.pressed;
+            const eraseReleased = this.rectMode === 'erase' && !InputManager.getAction('erase')?.pressed;
+
+            if (placeReleased || eraseReleased) {
+                this._commitRectangle();
+                this.isDrawingRect = false;
+                this.rectMode = null;
+            }
+            return;
+        }
+
         if (panning) {
             const delta = InputManager.getMouseDelta();
             this.world.moveCamera(-delta.x, -delta.y);
@@ -57,7 +84,9 @@ export class Editor {
             const justStoppedPanning = wasPanning && !panning;
 
             if (placeAction && !justStoppedPanning) {
-                if (placeAction.justPressed) {
+                if (placeAction.justPressed && rectModifier) {
+                    this._startRectangle(gridPos, 'place');
+                } else if (placeAction.justPressed) {
                     this._placeTile(gridPos);
                     this.lastPlacedGridPos.set(gridPos.x, gridPos.y);
                 } else if (placeAction.pressed && !gridPos.equals(this.lastPlacedGridPos)) {
@@ -67,7 +96,9 @@ export class Editor {
             }
 
             if (eraseAction && !justStoppedPanning) {
-                if (eraseAction.justPressed) {
+                if (eraseAction.justPressed && rectModifier) {
+                    this._startRectangle(gridPos, 'erase');
+                } else if (eraseAction.justPressed) {
                     this._eraseTile(gridPos);
                     this.lastPlacedGridPos.set(gridPos.x, gridPos.y);
                 } else if (eraseAction.pressed && !gridPos.equals(this.lastPlacedGridPos)) {
@@ -88,10 +119,35 @@ export class Editor {
     }
 
     _updatePreviewPosition(gridPos) {
-        const centerWorld = gridPos.add(0.5, 0.5).scale(TILE_SIZE);
+        // `.add()` mutates the object, so we want to clone it.
+        const centerWorld = gridPos.clone().add(0.5, 0.5).scale(TILE_SIZE);
         const screenPos = this.renderer.wordToScreenPosition(centerWorld);
         this.tilePreview.div.style.left = screenPos.x + 'px';
         this.tilePreview.div.style.top = screenPos.y + 'px';
+    }
+
+    _startRectangle(gridPos, mode) {
+        this.isDrawingRect = true;
+        this.rectMode = mode;
+        this.rectStart.set(gridPos.x, gridPos.y);
+        this.rectEnd.set(gridPos.x, gridPos.y);
+    }
+
+    _commitRectangle() {
+        const minX = Math.min(this.rectStart.x, this.rectEnd.x);
+        const maxX = Math.max(this.rectStart.x, this.rectEnd.x);
+        const minY = Math.min(this.rectStart.y, this.rectEnd.y);
+        const maxY = Math.max(this.rectStart.y, this.rectEnd.y);
+
+        for (let y = minY; y <= maxY; y++) {
+            for (let x = minX; x <= maxX; x++) {
+                if (this.rectMode === 'place') {
+                    this.world.setTile(x, y, this.palette.getCurrentTileData());
+                } else {
+                    this.world.setTile(x, y, null);
+                }
+            }
+        }
     }
 
     _placeTile(gridPos) {
@@ -164,5 +220,53 @@ export class Editor {
 
     hidePreview() {
         this.tilePreview.hide(true);
+    }
+
+    renderOverlay(context) {
+        if (!this.isDrawingRect) return;
+
+        const minX = Math.min(this.rectStart.x, this.rectEnd.x);
+        const maxX = Math.max(this.rectStart.x, this.rectEnd.x);
+        const minY = Math.min(this.rectStart.y, this.rectEnd.y);
+        const maxY = Math.max(this.rectStart.y, this.rectEnd.y);
+
+        context.save(); // so we can enable alpha then restore
+        context.globalAlpha = 0.5;
+
+        const screenPos = new Vector(0, 0);
+
+        for (let y = minY; y <= maxY; y++) {
+            for (let x = minX; x <= maxX; x++) {
+                this.renderer.wordToScreenPosition(
+                    new Vector(x * TILE_SIZE, y * TILE_SIZE),
+                    screenPos
+                );
+
+                if (this.rectMode === 'place') {
+                    context.fillStyle = 'rgba(128, 128, 128, 0.3)';
+                } else {
+                    context.fillStyle = 'rgba(255, 0, 85, 0.3)';
+                }
+                context.fillRect(screenPos.x, screenPos.y, TILE_SIZE, TILE_SIZE);
+            }
+        }
+
+        // grey border
+        const topLeft = this.renderer.wordToScreenPosition(
+            new Vector(minX * TILE_SIZE, minY * TILE_SIZE)
+        );
+        const bottomRight = this.renderer.wordToScreenPosition(
+            new Vector((maxX + 1) * TILE_SIZE, (maxY + 1) * TILE_SIZE)
+        );
+        context.strokeStyle = '#888888';
+        context.lineWidth = 3;
+        context.strokeRect(
+            topLeft.x,
+            topLeft.y,
+            bottomRight.x - topLeft.x,
+            bottomRight.y - topLeft.y
+        );
+
+        context.restore();
     }
 }

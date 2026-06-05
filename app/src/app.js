@@ -53,6 +53,9 @@ setInterval(() => {
 
 function loop() {
     renderer.render();
+    if (Director.inEditor()) {
+        editor.renderOverlay(renderer.context);
+    }
     requestAnimationFrame(loop);
 }
 requestAnimationFrame(loop);
@@ -115,6 +118,7 @@ function init() {
     editorCtx.addAction('selectTile6', ['Digit7']);
     editorCtx.addAction('selectTile7', ['Digit8']);
     editorCtx.addAction('selectTile8', ['Digit9']);
+    editorCtx.addAction('rect', ['ControlLeft', 'ControlRight']);
     editorCtx.addAction('toggleMode', ['Period']);
     // other contexts (empty for now)
     InputManager.createContext('loading');
