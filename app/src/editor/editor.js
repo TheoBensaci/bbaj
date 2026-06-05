@@ -222,8 +222,10 @@ export class Editor {
         this.tilePreview.hide(true);
     }
 
-    renderOverlay(context) {
+    renderOverlay() {
         if (!this.isDrawingRect) return;
+
+        const context = this.renderer.contextEditorOverlay;
 
         const minX = Math.min(this.rectStart.x, this.rectEnd.x);
         const maxX = Math.max(this.rectStart.x, this.rectEnd.x);

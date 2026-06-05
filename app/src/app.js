@@ -58,7 +58,7 @@ setInterval(() => {
 function loop() {
     renderer.render();
     if (Director.inEditor()) {
-        editor.renderOverlay(renderer.context);
+        editor.renderOverlay();
     }
     requestAnimationFrame(loop);
 }
