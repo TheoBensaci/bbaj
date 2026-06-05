@@ -92,6 +92,10 @@ body{
     z-index: 2;
 }
 
+#gameCanavas>#canvasEditorOverlay{
+    z-index: 3;
+}
+
 #gameCanavas>div{
     position: absolute;
     top: 0;

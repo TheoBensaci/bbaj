@@ -50,6 +50,7 @@ export class Renderer {
         this.context.imageSmoothingEnabled = false;
 
         this.contextDebug = canvas[2].getContext('2d');
+        this.contextEditorOverlay = canvas[3].getContext('2d');
 
         // add function to the context to create the 'context2D extended'
         this.#setContextFunction(this.contextBackground, this.context, this.contextDebug);
@@ -78,6 +79,13 @@ export class Renderer {
          */
         context.getDebugContext = () => {
             return contextDebug;
+        };
+
+        /**
+         * Get editor overlay context2D
+         */
+        context.getEditorOverlayContext = () => {
+            return this.contextEditorOverlay;
         };
 
         // same as 'this.wordToScreenPosition'
@@ -317,6 +325,7 @@ export class Renderer {
         this.clearScreen(this.context, this.gameWidth + DROP_SHADOW_MARGE);
 
         this.clearScreen(this.contextDebug);
+        this.clearScreen(this.contextEditorOverlay);
     }
 
     /**
