@@ -1,4 +1,4 @@
-import { GAMES_KEYS, GAME_UPDATE_INTERVAL, OTHER_KEYS, PERLOADED_TEXTURE, RENDER_RESOLUTION } from './constant.js';
+import { GAMES_KEYS, GAME_UPDATE_INTERVAL, OTHER_KEYS, PERLOADED_TEXTURE, RENDER_RESOLUTION, SERVER_ADDRESS, SERVER_PORT } from './constant.js';
 import { Director } from './director.js';
 import { Game } from './game/game.js';
 import { Renderer } from './renderer/renderer.js';
@@ -12,6 +12,7 @@ import './ui/menu.js';
 import { EditorWorld } from './editor/editorWorld.js';
 import { getSaveItem, setSaveItem } from './utils/saveManager.js';
 import { usernameGenerator } from './utils/utils.js';
+import { NetworkSystem } from './network/networkSystem.js';
 
 const canvasContainer = document.getElementById('gameCanavas');
 
@@ -22,6 +23,7 @@ if(getSaveItem("username")===null){
 
 const game = new Game();
 const editorWorld = new EditorWorld();
+const network = new NetworkSystem(SERVER_ADDRESS,SERVER_PORT,game);
 
 const uiManager = new UiManager(document.getElementById('ui'), document.getElementById('transition'));
 
@@ -49,6 +51,8 @@ setInterval(() => {
             Director.switchSceen('editor');
         }
     }
+    // network
+    network.update();
 }, GAME_UPDATE_INTERVAL);
 
 function loop() {
@@ -61,7 +65,7 @@ function loop() {
 requestAnimationFrame(loop);
 
 // setUp director
-Director.init(game, editorWorld, renderer);
+Director.init(game, editorWorld, renderer,network);
 
 Director.setSceen('loading');
 
