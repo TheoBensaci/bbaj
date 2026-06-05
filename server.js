@@ -1,6 +1,7 @@
 import express from "express";
 import expressWs from "express-ws";
 import { MongoClient } from "mongodb";
+import { ObjectId } from "mongodb";
 
 const app = express();
 expressWs(app);
@@ -38,21 +39,28 @@ app.post('/publishMap', async (req, res) => {
     res.json({ success: true });
 });
 
+//Retourne tous les ids
+app.get("/maps", async (req, res) => {
+    const maps = await db.collection("map").find().toArray();
+    const ids = maps.map(r => r._id);
+
+    res.json(ids);
+});
+
 //Retourne une map par rapport à son id
 app.get("/map/:id", async (req, res) => {
     try {
-        const user = await db.collection("map").findOne({
+        const map = await db.collection("map").findOne({
             _id: new ObjectId(req.params.id)
         });
 
-        if (!user) {
+        if (!map) {
             return res.status(404).json({ error: "map introuvable" });
         }
 
-        res.json(user);
-
+        res.json(map.map);
     } catch (err) {
-        res.status(400).json({ error: "id invalide" });
+        res.status(500).json({ error: "id invalide" });
     }
 });
 
@@ -77,11 +85,17 @@ app.post('/createRoom', (req, res) => {
 
 //On récupére l'id de la room s'il existe
 app.get('/room/:id', async (req, res) => {
-    if (req.params <= idRoom){
-        res.json(req.params);
-    }else {
-        return res.status(404).json({error: "Id room invalide"})
+    const id = Number(req.params.id);
+
+    if (Number.isNaN(id)) {
+        return res.status(400).json({ error: "Id invalide" });
     }
+
+    if (!rooms[id]) {
+        return res.status(404).json({ error: "Room introuvable" });
+    }
+
+    res.json(rooms[id]);
 });
 
 // Websocket game events
