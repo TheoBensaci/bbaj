@@ -4,6 +4,8 @@
     --color_3 : hsla(339, 100%, 55%, 1);
     --color_background : #19191a;
 
+    --curve : cubic-bezier(0.23,1.5,0,1.23);
+
     display: flex;
     align-items: center;
 
@@ -17,7 +19,7 @@
     cursor: pointer;
     transform: scale(1);
     animation: none;
-    transition: all 0.25s cubic-bezier(0.23,2,0,1.23), color 0s;
+    transition: all 0.25s var(--curve), color 0s;
     font-size: 10px;
 
     user-select: none;
@@ -30,7 +32,7 @@
     width: 0px;
     height: 15px;
     margin-right: 0px;
-    transition: all 0.25s cubic-bezier(0.23,2,0,1.23), color 0s;
+    transition: all 0.25s var(--curve), color 0s;
     background-color: var(--color_2);
 }
 
@@ -71,7 +73,7 @@
     transform: translate(-50%,-50%) scale(1,1);
     background-color: var(--color_background);
     transition:
-    all 0.3s cubic-bezier(0.23,2,0,1.23),
+    all 0.3s var(--curve),
     background-color 0.25s linear;
     border: var(--color_2) solid;
 }

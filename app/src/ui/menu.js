@@ -9,7 +9,7 @@ import { TEST_LEVEL_DATA } from '../testLevel.js';
 import { fetchLevelFile, importFile, loadLevelFromFile } from '../utils/fileUtils.js';
 import "./joinRoomMenu.js";
 import "./optionMenu.js";
-import { genControls } from './optionMenu.js';
+import { loadOption } from './optionMenu.js';
 
 // back button
 const uiConatiner = document.getElementById("ui");
@@ -29,7 +29,7 @@ document.getElementById('mainLocal').onclick = () => {
 };
 document.getElementById('mainOption').onclick = () => {
     Director.getUIManager().toggle('option', true);
-    genControls();
+    loadOption();
     Director.getUIManager().toggle('mainMenu', false);
     Director.getUIManager().pushState();
 };
@@ -61,7 +61,7 @@ document.getElementById('mainOnline').onclick = () => {
 
 document.getElementById('pauseOption').onclick = () => {
     Director.getUIManager().toggle('option', true);
-    genControls();
+    loadOption();
     Director.getUIManager().toggle('pauseMenu', false);
     Director.getUIManager().pushState();
 };
@@ -96,7 +96,7 @@ document.getElementById('localCampaign').onclick = () => {
         if(data===null)return;
         Director.loadLevel(data);
         Director.setEditorQuickSwitch(false);
-    },"./ressource/levels/testLevel.json")
+    },"./ressource/levels/testMovingPlat.json")
 };
 
 document.getElementById('localImport').onclick = () => {

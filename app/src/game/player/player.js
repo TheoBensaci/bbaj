@@ -12,6 +12,7 @@ import { Shape, ShapeType } from '../../utils/shape.js';
 import { MathUtils } from '../../utils/utils.js';
 import { Vector } from '../../utils/vector.js';
 import { Actor } from '../actor.js';
+import { MovingPlatform } from '../tile/level/movingPlatform.js';
 import { MovingTile } from '../tileSystem/tile.js';
 import { Buffer, BufferSystem } from './bufferSystem.js';
 
@@ -58,6 +59,9 @@ export const CROUTCH_MUL = 1.5;                             // croutch friction 
 export const CROUTCH_MOVE_PENALITY = 0.5;                   // croutch movement penality multiplyer
 
 const RESPAWN_TIME = 0.25;
+
+
+const RIDING_MOMENTUM_CONSERVATION_TIME = 0.1;              // time in which the player can use the riding moment conservation
 
 // camera
 const CAMERA_LOOK_AHEAD_STRENGTH = 100;                     // camera look ahead strength
@@ -118,6 +122,10 @@ export class Player extends Actor {
             },
             BUFFER_LENGTH
         ));
+
+        // use for riding momentum concervation
+        this.ridingMomentumConcervation=new Vector(0,0);
+        this.ridingMomentumConcervationTimer = 0;
 
         // state
         this.facing = 1; // where the player is facing
@@ -232,6 +240,10 @@ export class Player extends Actor {
         if (InputManager.getAction('jump').justReleased
                 && (this.bufferSystem.has('initJump') || this.onJump)) {
             this.bufferSystem.init('endJump');
+        }
+
+        if(InputManager.getAction("respawn").justPressed && !this.dead){
+            this.death();
         }
     }
 
@@ -656,20 +668,35 @@ export class Player extends Actor {
      */
     endRide() {
         if (this.rideTile === null) return;
-        this.velocity.add(this.rideTile.velocity);
+        this.velocity.add(this.ridingMomentumConcervation);
         this.rideTile = null;
         this.ridePositionBuffer.set(0, 0);
+        this.ridingMomentumConcervation.set(0,0);
     }
 
     /**
      * Update tile riding
      */
-    updateRideTile() {
+    updateRideTile(t) {
         if (this.rideTile === null) return;
         const buffer = this.rideTile.position.clone();
         buffer.sub(this.ridePositionBuffer);
         this.position.add(buffer.x, buffer.y);
         this.ridePositionBuffer.set(this.rideTile.position);
+
+        // riding momentum conveervation check
+        if((this.rideTile.velocity.x===0 && this.rideTile.velocity.y===0)){
+            if(this.ridingMomentumConcervationTimer>0){
+                this.ridingMomentumConcervationTimer-=t;
+            }
+            else if((this.ridingMomentumConcervation.x!==0 || this.ridingMomentumConcervation.y!==0)){
+                this.ridingMomentumConcervation.set(0,0);
+            }
+        }
+        else{
+            this.ridingMomentumConcervation.set(this.rideTile.velocity);
+            this.ridingMomentumConcervationTimer=RIDING_MOMENTUM_CONSERVATION_TIME;
+        }
     }
 
     /**
@@ -962,7 +989,7 @@ export class Player extends Actor {
         }
 
         // riding update
-        this.updateRideTile();
+        this.updateRideTile(t);
 
         // ground detetction
         this.environmentDetection(this.game.getSuroundTiles(this.position.x, this.position.y, 2));

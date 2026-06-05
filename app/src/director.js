@@ -205,6 +205,7 @@ export class Director {
         if(this.#inst===null)return;
 
         if(!this.#inst.sceens[this.#inst.lastSceen].globalInput)return;
+
         // check if we are not in the input settings screen
         if(this.#inst.render.uiManager.getScreenState("keyChange"))return;
         // check for special input
@@ -213,6 +214,13 @@ export class Director {
         }
 
         if(this.#inst.editorQuickSwitch && !Director.onPause()){
+        }
+
+        if(this.#inst.lastSceen==="game" && InputManager.getContext("game").getAction("reset").justPressed ){
+            if(this.#inst.game.levelState>0){
+                this.#inst.game.cleanSpawnPlayer();
+            }
+            return;
         }
     }
 }

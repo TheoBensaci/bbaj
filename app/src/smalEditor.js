@@ -77,7 +77,7 @@ export function initSmallEditor(canvas, editor, renderer) {
                 setTile(7);
             }
             if(e.key==='9'){
-                setTile(8);
+                setTile(9);
             }
 
             if (e.key === 'c') {

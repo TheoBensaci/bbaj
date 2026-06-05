@@ -141,3 +141,22 @@ export class MathUtils {
         return Math.max(min, Math.min(max, value));
     }
 }
+
+
+export function usernameGenerator(){
+
+    // TODO : add more prefix / sufix
+    const prefix = [
+        "","Hot","Cold","..."
+    ];
+
+    const sufix = [
+        "Sigma","Borris","Square","Triangle","Lord"
+    ];
+
+
+    // the number at the end is totaly arbitrary
+    const indexs = [Math.floor(Math.random() * prefix.length),Math.floor(Math.random() * sufix.length),Math.floor(Math.random() * 668)];
+
+    return prefix[indexs[0]]+" "+sufix[indexs[1]]+" "+indexs[2];
+}
