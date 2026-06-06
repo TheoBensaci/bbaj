@@ -1,4 +1,4 @@
-import { GAMES_KEYS, GAME_UPDATE_INTERVAL, OTHER_KEYS, PERLOADED_TEXTURE, RENDER_RESOLUTION, SERVER_ADDRESS, SERVER_PORT } from './constant.js';
+import { EDITOR_KEYS, GAMES_KEYS, GAME_UPDATE_INTERVAL, OTHER_KEYS, PERLOADED_TEXTURE, RENDER_RESOLUTION, SERVER_ADDRESS, SERVER_PORT } from './constant.js';
 import { Director } from './director.js';
 import { Game } from './game/game.js';
 import { Renderer } from './renderer/renderer.js';
@@ -65,7 +65,7 @@ function loop() {
 requestAnimationFrame(loop);
 
 // setUp director
-Director.init(game, editorWorld, renderer,network);
+Director.init(game, editor, renderer,network);
 
 Director.setSceen('loading');
 
@@ -105,25 +105,7 @@ function init() {
     gameCtx.addAction('toggleMode', ['Period']);
     // editor context
     const editorCtx = InputManager.createContext('editor');
-    editorCtx.addAction('place', [], [0]);
-    editorCtx.addAction('erase', [], [2]);
-    editorCtx.addAction('pan', [], [1]);
-    editorCtx.addAction('panModifier', ['Space']);
-    editorCtx.addAction('rotate', ['KeyR']);
-    editorCtx.addAction('exportLevel', ['Minus']);
-    editorCtx.addAction('importLevel', ['Comma']);
-    editorCtx.addAction('selectEraser', ['Digit0']);
-    editorCtx.addAction('selectTile0', ['Digit1']);
-    editorCtx.addAction('selectTile1', ['Digit2']);
-    editorCtx.addAction('selectTile2', ['Digit3']);
-    editorCtx.addAction('selectTile3', ['Digit4']);
-    editorCtx.addAction('selectTile4', ['Digit5']);
-    editorCtx.addAction('selectTile5', ['Digit6']);
-    editorCtx.addAction('selectTile6', ['Digit7']);
-    editorCtx.addAction('selectTile7', ['Digit8']);
-    editorCtx.addAction('selectTile8', ['Digit9']);
-    editorCtx.addAction('rect', ['ControlLeft', 'ControlRight']);
-    editorCtx.addAction('toggleMode', ['Period']);
+    editorCtx.loadInputFromSave(EDITOR_KEYS);
     // other contexts (empty for now)
     InputManager.createContext('loading');
     InputManager.createContext('main');

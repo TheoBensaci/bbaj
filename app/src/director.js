@@ -9,6 +9,7 @@ import { PlayerD } from './game/player/playerD.js';
 import { PlayerGhost } from './game/player/playerGhost.js';
 import { endKeyChange } from './ui/optionMenu.js';
 import { InputManager } from './utils/inputManager.js';
+import { Vector } from './utils/vector.js';
 
 export class Director {
     // instance of the director
@@ -53,11 +54,13 @@ export class Director {
                 globalInput:true
             },
             'editor': {
-                in: () => {
-                    // ...
-                    this.render.world = editorInstance;
+                in: (syncCam = true) => {
+                    // TODO add settings to load a new level or contiune the last one
+                    this.render.world = this.editor.world;
 
-                    this.editor.setCameraPosition(this.game.cameraPosition);
+                    this.editor.tilePreview.hide(false);
+
+                    this.editor.world.setCameraPosition(syncCam?this.game.cameraPosition:new Vector(0,0));
 
                     this.render.uiManager.clear();
                     this.render.setRenderJob({
@@ -72,7 +75,7 @@ export class Director {
                     this.game.pause = true;
                 },
                 out: () => {
-                    // ...
+                    this.editor.tilePreview.hide(true);
                 },
                 globalInput:true
             },
@@ -158,6 +161,10 @@ export class Director {
         this.#inst.render.pause = state;
     }
 
+    static isPause(){
+        return this.#inst.pause;
+    }
+
     static loadLevel(levelData) {
         if(this.#inst.lastSceen!=="loading")Director.switchSceen('loading');
 
@@ -218,9 +225,6 @@ export class Director {
         // check for special input
         if(InputManager.getContext("other").getAction("pause").justPressed){
             Director.togglePause(!Director.onPause());
-        }
-
-        if(this.#inst.editorQuickSwitch && !Director.onPause()){
         }
 
         if(this.#inst.lastSceen==="game" && InputManager.getContext("game").getAction("reset").justPressed ){

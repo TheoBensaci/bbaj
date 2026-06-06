@@ -36,7 +36,7 @@ export class InputContext {
 
     loadInputFromSave(defaultActions){
         for (const iterator of defaultActions) {
-            this.addAction(iterator[0],getSaveInputKey(this.name,iterator[0])?getSaveInputKey(this.name,iterator[0]):iterator[1]);
+            this.addAction(iterator[0],getSaveInputKey(this.name,iterator[0])?getSaveInputKey(this.name,iterator[0]):iterator[1],iterator[2]?iterator[2]:[]);
         }
     }
 }

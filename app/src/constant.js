@@ -30,7 +30,7 @@ export const MAX_NUMBER_OF_KEY_INPUT=5;
 export const OTHER_KEYS = [
     ['pause', ['Escape']],
     ['debug', ['KeyP']]
-]
+];
 
 export const GAMES_KEYS = [
     ['left', ['KeyA']],
@@ -41,6 +41,28 @@ export const GAMES_KEYS = [
     ['action', ['KeyJ']],
     ['respawn', ['KeyR']],
     ['reset', ['Delete']]
+];
+
+export const EDITOR_KEYS = [
+    ['place', [], [0]],
+    ['erase', [], [2]],
+    ['pan', [], [1]],
+    ['panModifier', ['Space']],
+    ['rotate', ['KeyR']],
+    ['exportLevel', ['Minus']],
+    ['importLevel', ['Comma']],
+    ['selectEraser', ['Digit0']],
+    ['selectTile0', ['Digit1']],
+    ['selectTile1', ['Digit2']],
+    ['selectTile2', ['Digit3']],
+    ['selectTile3', ['Digit4']],
+    ['selectTile4', ['Digit5']],
+    ['selectTile5', ['Digit6']],
+    ['selectTile6', ['Digit7']],
+    ['selectTile7', ['Digit8']],
+    ['selectTile8', ['Digit9']],
+    ['rect', ['ControlLeft', 'ControlRight']],
+    ['toggleMode', ['Period']]
 ]
 
 export const PERLOADED_TEXTURE=[

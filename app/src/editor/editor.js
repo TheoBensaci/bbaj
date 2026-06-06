@@ -31,12 +31,9 @@ export class Editor {
     }
 
     update() {
-        if (!Director.inEditor()) {
-            this.tilePreview.hide(true);
+        if (Director.isPause() || !Director.inEditor()) {
             return;
         }
-
-        this.tilePreview.hide(false);
 
         const mousePos = InputManager.getMousePosition();
         const gridPos = this._screenToGrid(mousePos);

@@ -48,7 +48,7 @@ document.getElementById('mainLocal').onclick = () => {
 
 document.getElementById('mainEditor').onclick = () => {
     Director.setEditorQuickSwitch(true);
-    Director.switchSceen("editor",null);
+    Director.switchSceen("editor",false);
 };
 
 document.getElementById('mainOnline').onclick = () => {
