@@ -38,13 +38,10 @@ export class MovingPlatform extends MovingTile {
         this.originePos = new Vector(0,0);
 
         this.waitTimer = 0;
-
     }
 
     render(x, y, context, t) {
         const col = this.getCollider();
-        const r = RessourceLoader.getInstance();
-        const image = r.get('./ressource/testPlayer.png');
         const pos = context.wordToScreenPosition(this.position);
         context.debugRenderShape(col[1], '#00ff99', false);
         context.debugRenderShape(col[0], '#ff0055', false);

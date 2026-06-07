@@ -13,6 +13,7 @@ import { EditorWorld } from './editor/editorWorld.js';
 import { getSaveItem, setSaveItem } from './utils/saveManager.js';
 import { usernameGenerator } from './utils/utils.js';
 import { NetworkSystem } from './network/networkSystem.js';
+import { fetchLevelFile } from './utils/fileUtils.js';
 
 const canvasContainer = document.getElementById('gameCanavas');
 
@@ -110,5 +111,10 @@ function init() {
     InputManager.createContext('loading');
     InputManager.createContext('main');
 
-    Director.switchSceen('editor');
+    //Director.switchSceen('main');
+    fetchLevelFile((data)=>{
+        if(data===null)return;
+        Director.loadLevel(data);
+        Director.setEditorQuickSwitch(false);
+    },"./ressource/levels/testLevel.json")
 }

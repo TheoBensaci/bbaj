@@ -384,6 +384,7 @@ h1{
     justify-content: space-between;
     border-bottom: solid #00000055 2px;
     padding: 5px;
+    height: 25px;
     transition: all 0.1s cubic-bezier(0.23,2,0,1.23);
     margin-bottom: 10px;
     padding: 4px 5px;

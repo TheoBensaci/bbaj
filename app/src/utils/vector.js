@@ -131,6 +131,10 @@ export class Vector{
         return new Vector(lerp(this.x, b.x, t), lerp(this.y, b.y, t));
     }
 
+    static lerp(a,b, t) {
+        return new Vector(lerp(a.x, b.x, t), lerp(a.y, b.y, t));
+    }
+
     setX(value) {
         return new Vector(value, this.y);
     }
