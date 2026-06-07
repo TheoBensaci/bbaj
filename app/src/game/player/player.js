@@ -59,7 +59,7 @@ export const JUMP_MIN_END_COUNTER = 100;
 export const CROUTCH_MUL = 1.5;                             // croutch friction multiplyer
 export const CROUTCH_MOVE_PENALITY = 0.5;                   // croutch movement penality multiplyer
 
-const RESPAWN_TIME = 0.25;
+const RESPAWN_TIME = 0.6;
 
 
 const RIDING_MOMENTUM_CONSERVATION_TIME = 0.1;              // time in which the player can use the riding moment conservation
@@ -218,11 +218,13 @@ export class Player extends Actor {
         this.animSystem=new AnimationSystem({
             scale : new Vector(1,1),
             offset: new Vector(0,0),
-            skich : 0
+            skich : 0,
+            rotation:0,
+            spritePath:""
         });
 
         this.animSystem.addState("idle",(t)=>{
-            const c = (t * Math.PI*2)*1;
+            const c = (t * Math.PI*2);
 
             const v = (Math.abs(Math.cos(c)) - 0.5) * 0.15;
             const sY = 1 - v;
@@ -231,12 +233,14 @@ export class Player extends Actor {
             return {
                 scale : new Vector(1,sY),
                 offset: new Vector(0,oY),
-                skich : 0
+                skich : 0,
+                rotation:0,
+                spritePath:"./ressource/testPlayer.png"
             };
         },4,0.05,true);
 
         this.animSystem.addState("walk",(t)=>{
-            const c = (t * Math.PI*2)*1;
+            const c = (t * Math.PI*2);
 
             const v = (Math.abs(Math.cos(c)) - 0.5) * 0.2;
             const sY = 1 - v;
@@ -245,43 +249,67 @@ export class Player extends Actor {
             return {
                 scale : new Vector(1,sY),
                 offset: new Vector(0,oY),
-                skich : MathUtils.clamp(this.velocity.x / 100, -1, 1) * 0.2
+                skich : MathUtils.clamp(this.velocity.x / 100, -1, 1) * 0.2,
+                rotation:0,
+                spritePath:"./ressource/testPlayer.png"
             };
-        },0.4,0.05,true);
+        },0.4,0.1,true);
 
         this.animSystem.addState("croutch",(t)=>{
-            const v = 0.5;
+            const v = 0.455;
             const x = 1+v;
             const y = 1-v;
             const oY = TILE_SIZE * v * 0.5;
             return {
                 scale : new Vector(x,y),
                 offset: new Vector(0,oY),
-                skich : 0
+                skich : 0,
+                rotation:0,
+                spritePath:"./ressource/testPlayer.png"
             };
         },1,0.05,false);
 
         this.animSystem.addState("jump",(t)=>{
-            const v = 0.5;
+            const v = 0.6 * (1-t);
             const x = 1-v;
             const y = 1+v;
             return {
                 scale : new Vector(x,y),
                 offset: new Vector(0,0),
-                skich : 0
+                skich : 0,
+                rotation:0,
+                spritePath:"./ressource/testPlayer.png"
             };
-        },0,0,false);
+        },0.3,0,false);
 
         this.animSystem.addState("air",(t)=>{
-            const v = 0.5 * Math.max(0, Math.abs(this.velocity.y / 1000));
+            const v = 0.5 * Math.min(1, Math.abs(this.velocity.y / 1000));
             const x = 1-v;
             const y = 1+v;
             return {
                 scale : new Vector(x,y),
                 offset: new Vector(0,0),
-                skich : 0
+                skich : 0,
+                rotation:0,
+                spritePath:"./ressource/testPlayer.png"
             };
         },0,0.2,false);
+
+        this.animSystem.addState("dead",(t)=>{
+            const v = MathUtils.lerp(2,1,t);
+            const x = v;
+            const y = v;
+            return {
+                scale : new Vector(x,y),
+                offset: new Vector(this.facing * 16*x * 0.5,16 * y * 0.5),
+                skich : Math.sin((v*3)-3),
+                rotation:0,
+                spritePath:"./ressource/testPlayerDead.png"
+            };
+        },0.1,0,false);
+
+
+        this.animSystem.setTransitionTime("croutch","air",0.05);
 
 
         this.walkAnimation = {
@@ -1133,6 +1161,42 @@ export class Player extends Actor {
 
     //#endregion
 
+    renderAnimation(targetState,x,y,context,t){
+        const r = RessourceLoader.getInstance();
+        context.save();
+
+        let skich = 0;
+
+        this.animSystem.setState(targetState);
+        this.animSystem.update(t);
+        const value = this.animSystem.get();
+        const scale=value.scale;
+        const offset=value.offset;
+        skich=value.skich;
+
+        scale.x *= this.facing;
+
+        const image = r.get(value.spritePath);
+
+        //this.onMove
+
+        context.transform(scale.x, 0, -skich, scale.y, x-(TILE_SIZE/2)*scale.x + offset.x, y-(TILE_SIZE/2)*scale.y + offset.y);
+
+        context.translate(TILE_SIZE/2,TILE_SIZE/2);
+
+        context.transform(Math.cos(value.rotation), Math.sin(value.rotation), -Math.sin(value.rotation), Math.cos(value.rotation),0, 0);
+
+        context.translate(-TILE_SIZE/2,-TILE_SIZE/2);
+        if (this.dead) {
+            context.renderTexture(image, 0, 0, 16, 16, -16, -16, 32, 32);
+        }
+        else{
+            context.renderTexture(image, 0, 0, 16, 16, 0, 0, TILE_SIZE, TILE_SIZE);
+        }
+
+        context.restore();
+    }
+
     /**
      * Render the player
      * @param {number} x position X on screen
@@ -1142,25 +1206,7 @@ export class Player extends Actor {
      */
     render(x, y, context, t) {
         const r = RessourceLoader.getInstance();
-        context.save();
-        if (this.dead) {
-            const image = r.get('./ressource/testPlayerDead.png');
-            context.transform(this.facing, 0, 0, 1, x, y);
 
-            //context.rotate(-1*Math.PI/8);
-
-            context.renderTexture(image, 0, 0, 16, 16, -16, -16, 32, 32);
-
-            context.restore();
-            return;
-        }
-        const image = r.get('./ressource/testPlayer.png');
-
-        let skich = 0;
-
-        const scale = new Vector(1, 1);
-
-        const offset = new Vector(0, 0);
 
         let targetState="idle";
 
@@ -1180,30 +1226,11 @@ export class Player extends Actor {
             targetState="air";
         }
 
-        this.animSystem.setState(targetState);
-        this.animSystem.update(t);
-        const value = this.animSystem.get();
-        scale.set(value.scale);
-        offset.set(value.offset);
-        skich=value.skich;
+        if(this.dead){
+            targetState="dead";
+        }
 
-        scale.x *= this.facing;
-
-        //this.onMove
-
-        context.transform(scale.x, 0, -skich, scale.y, x-(TILE_SIZE/2)*scale.x + offset.x, y-(TILE_SIZE/2)*scale.y + offset.y);
-
-        context.renderTexture(image, 0, 0, 16, 16, 0, 0, TILE_SIZE, TILE_SIZE);
-
-        // text face
-        /*
-        context.rotate(Math.PI/2);
-
-        context.font = "bold 15px Segoe UI";
-        context.fillText(">:(", 5, -7);
-        */
-
-        context.restore();
+        this.renderAnimation(targetState,x,y,context,t);
 
         this.renderDebug(x, y, context, t);
     }

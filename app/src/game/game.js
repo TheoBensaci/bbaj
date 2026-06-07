@@ -283,7 +283,7 @@ export class Game extends World {
 
             // reset check points
             for (const iterator of this.checkpoints) {
-                iterator.active=false;
+                iterator.reset();
             }
 
             this.setPlayerSpawnPoint((this.originalSpawnPoint===null)?new Vector(0,0):this.originalSpawnPoint.position);
