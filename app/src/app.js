@@ -43,15 +43,6 @@ setInterval(() => {
     }
     game.step();
     Director.update();
-    if (InputManager.getAction('toggleMode')?.justPressed) {
-        if (Director.inEditor()) {
-            editor.hidePreview();
-            const data = editor.export();
-            Director.loadLevel(data);
-        } else {
-            Director.switchSceen('editor');
-        }
-    }
     // network
     network.update();
 }, GAME_UPDATE_INTERVAL);
@@ -111,10 +102,5 @@ function init() {
     InputManager.createContext('loading');
     InputManager.createContext('main');
 
-    //Director.switchSceen('main');
-    fetchLevelFile((data)=>{
-        if(data===null)return;
-        Director.loadLevel(data);
-        Director.setEditorQuickSwitch(false);
-    },"./ressource/levels/testLevel.json")
+    Director.switchSceen('main');
 }

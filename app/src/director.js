@@ -234,6 +234,19 @@ export class Director {
             return;
         }
 
+
+        if(Director.getEditorQuickSwitch()){
+            if (InputManager.getAction('toggleMode')?.justPressed) {
+                if (Director.inEditor()) {
+                    this.#inst.editor.hidePreview();
+                    const data = this.#inst.editor.export();
+                    Director.loadLevel(data);
+                } else {
+                    Director.switchSceen('editor');
+                }
+            }
+        }
+
         if(InputManager.getContext("other").getAction("debug").justPressed){
             let p = new PlayerGhost("test");
             p.position.set(50,300);
