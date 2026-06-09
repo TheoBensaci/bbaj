@@ -11,7 +11,13 @@ let idSocket = 0;
 const rooms = [];
 const INTERVAL = 20;
 
+function generateRoomId(){
+    // date -> number -> string (base 36)
+    return Date.now().valueOf().toString(36);
+}
+
 //Connexion db
+// TODO reable data base
 /*
 const client = new MongoClient("mongodb://localhost:27017");
 await client.connect();
@@ -43,14 +49,42 @@ app.post('/publishMap', async (req, res) => {
 
 //Retourne tous les ids
 app.get("/maps", async (req, res) => {
-    console.log("yo");
+    // TODO reable data base
     //const maps = await db.collection("map").find().toArray();
-    const ids = [1,2,3,4,5];//maps.map(r => r._id);
+    //const result = maps.map(r => r._id);
 
-    res.json(ids);
+    const result=[
+        {
+            id:1,
+            name:"map name 1"
+        },
+        {
+            id:2,
+            name:"map name 2"
+        },
+        {
+            id:3,
+            name:"map name 3"
+        },
+        {
+            id:4,
+            name:"map name 4"
+        },
+
+        {
+            id:5,
+            name:"map name 5"
+        },
+        {
+            id:6,
+            name:"map name 6"
+        }
+    ]
+
+    res.json(result);
 });
 
-//Retourne une map par rapport à son id
+//Retourne une map par rapport à son id (JSON)
 app.get("/map/:id", async (req, res) => {
     try {
         const map = await db.collection("map").findOne({
@@ -67,6 +101,8 @@ app.get("/map/:id", async (req, res) => {
     }
 });
 
+// TODO get pour avoir le temp d'une map
+
 
 //Creation d'une room
 app.post('/createRoom', (req, res) => {
@@ -77,7 +113,7 @@ app.post('/createRoom', (req, res) => {
     }
 
     // check if the map id is valide
-    const roomId = idRoom++;
+    const roomId = generateRoomId();
 
     const room ={
         mapId: mapId,
@@ -104,7 +140,7 @@ app.post('/createRoom', (req, res) => {
     },INTERVAL);
 
 
-    console.log(roomId + " created | "+rooms.length);
+    console.log(`create room "${roomId}"`);
 
 
     rooms[roomId] = room;
@@ -114,17 +150,23 @@ app.post('/createRoom', (req, res) => {
 
 //On récupére l'id de la room s'il existe
 app.get('/room/:id', async (req, res) => {
-    const id = new Number(req.params.id);
-
-    if (Number.isNaN(id)) {
-        return res.status(400).json({ error: "Id invalide" });
-    }
-
-    if (!rooms[id]) {
+    const id = req.params.id;
+    if (!id || !rooms[id]) {
         return res.status(404).json({ error: "Room introuvable" });
     }
 
-    res.json(id);
+    const times = [];
+    rooms[id].foreachPlayer((pl)=>{
+        times.push({
+            username:pl.username,
+            time : pl.time
+        });
+    });
+
+    res.json({
+        id:id,
+        times : times
+    });
 });
 
 // Websocket game events
@@ -132,15 +174,11 @@ app.ws('/', (ws) => {
     ws.room = null;
     ws.id = idSocket++;
 
-
-    console.log("ws created : id->"+ws.id);
-
     ws.on('message', (msg) => {
         const data = JSON.parse(msg);
 
         switch(data.type){
-            case 'join':
-                console.log("ws join : id->"+ws.id+", ->"+data.roomId);
+            case 'playerJoin':
                 //Check des infos de la room
                 if (data.roomId == undefined || rooms[data.roomId] == undefined) {
                     ws.send(JSON.stringify({
@@ -149,8 +187,6 @@ app.ws('/', (ws) => {
                     }));
                     return;
                 }
-
-                console.log("ws username : id->"+ws.id+", ->"+data.username);
 
                 //Check du pseudo
                 if(!data.username || data.username.length===0 || data.username.length>20){
@@ -178,14 +214,14 @@ app.ws('/', (ws) => {
                     return;
                 }
 
-                console.log("ws join : id->"+ws.id+", ->"+data.roomId);
+                console.log(`player ${data.username} (id : ${ws.id}) join room "${data.roomId}"`);
 
                 ws.room=data.roomId;
 
                 //Ajout des infos du player. On ajoute le websocket avec pour le broadcast plus tard
                 rooms[data.roomId].players[ws.id] = {
                     username: data.username,
-                    time: 0,
+                    time: Infinity,
                     socket: ws,
                     data: {},
                 };
@@ -208,13 +244,15 @@ app.ws('/', (ws) => {
             break;
 
             case 'playerTime':
-                if (!data.username) return; //Aucun username
-                if (!data.data) return; //Aucune data
+                if (!data.time) return; //Aucune time
 
-                console.log("ws send TIME : id->"+ws.id);
+                console.log(`player ${data.username} (id : ${ws.id}) finish map with "${data.time}"s`);
 
                 //Enregistrement des données sur la position, vélocity, etc
-                //rooms[ws.room].players[ws.id].data = data.data;
+                const lastTime = rooms[ws.room].players[ws.id].time;
+                rooms[ws.room].players[ws.id].time = Math.min(lastTime,data.time);
+
+                // TODO check si le temps est top 5, si oui, place it
             break;
 
 
@@ -226,17 +264,21 @@ app.ws('/', (ws) => {
         console.log("ws quit : id->"+ws.id);
         if(ws.room===null)return;
 
-        if (rooms[ws.room] && rooms[ws.room].players[ws.id]) {
-            delete rooms[ws.room].players[ws.id];
-            rooms[ws.room].playerCount--;
-        }
+        if(!rooms[ws.room] || !rooms[ws.room].players[ws.id])return;
 
-        if(rooms[ws.room].playerCount<=0){
-            console.log(ws.room + " kill room");
+        const player = rooms[ws.room].players[ws.id];
+        console.log(`player ${player.username} (id : ${ws.id}) leave room "${ws.room}"`);
+        if(rooms[ws.room].playerCount===1){
+            console.log(`room "${ws.room}" kill`);
             clearInterval(rooms[ws.room].interval);
             delete rooms[ws.room];
-
-            console.log( rooms[ws.room]===undefined);
+        }
+        else{
+            delete rooms[ws.room].players[ws.id];
+            rooms[ws.room].foreachPlayer(pl=>{
+                pl.socket.send(JSON.stringify({type:"playerLeave",username:player.username}));
+            })
+            rooms[ws.room].playerCount--;
         }
     });
 });
@@ -252,6 +294,7 @@ const server = app.listen(3000, () => {
 //Quand on ferme le server, on ferme la connexion db
 async function shutdown() {
     server.close(async () => {
+        // TODO reable data base
         //await client.close();
         process.exit(0);
     });

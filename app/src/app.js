@@ -1,4 +1,4 @@
-import { EDITOR_KEYS, GAMES_KEYS, GAME_UPDATE_INTERVAL, OTHER_KEYS, PERLOADED_TEXTURE, RENDER_RESOLUTION, SERVER_ADDRESS, SERVER_HTTP_PROTO, SERVER_PORT } from './constant.js';
+import { EDITOR_KEYS, GAMES_KEYS, GAME_UPDATE_INTERVAL, ONLINE_KEYS, OTHER_KEYS, PERLOADED_TEXTURE, RENDER_RESOLUTION, SERVER_ADDRESS, SERVER_HTTP_PROTO, SERVER_PORT } from './constant.js';
 import { Director } from './director.js';
 import { Game } from './game/game.js';
 import { Renderer } from './renderer/renderer.js';
@@ -14,6 +14,7 @@ import { getSaveItem, setSaveItem } from './utils/saveManager.js';
 import { usernameGenerator } from './utils/utils.js';
 import { NetworkSystem } from './network/networkSystem.js';
 import { fetchLevelFile } from './utils/fileUtils.js';
+import { loadOption } from './ui/optionMenu.js';
 
 const canvasContainer = document.getElementById('gameCanavas');
 
@@ -61,6 +62,10 @@ Director.init(game, editor, renderer,network);
 
 Director.setSceen('loading');
 
+Director.getUIManager().setOnOpen("option",()=>{
+    loadOption();
+});
+
 // set up ressource loader
 RessourceLoader.getInstance().preloadImage(PERLOADED_TEXTURE, () => {
     init();
@@ -101,6 +106,7 @@ function init() {
     // other contexts (empty for now)
     InputManager.createContext('loading');
     InputManager.createContext('main');
+    InputManager.createContext('online').loadInputFromSave(ONLINE_KEYS);
 
     Director.switchSceen('main');
 }

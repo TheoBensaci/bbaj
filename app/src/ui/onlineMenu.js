@@ -36,9 +36,9 @@ createBnt.onclick=(e)=>{
     // ... try to join room
     createBnt.innerHTML='Creating ...';
     Director.network().createRoom(1,(data)=>{
-        console.log(data);
         createBnt.innerHTML=baseText;
         createBnt.disabled=false;
+        if(data===null)return;
         Director.network().joinRoom(data.roomId,(errorMessage)=>{
             Director.setSceen("main",null);
         });

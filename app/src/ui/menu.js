@@ -5,11 +5,11 @@
  */
 
 import { Director } from '../director.js';
+import { Renderer } from '../renderer/renderer.js';
 import { TEST_LEVEL_DATA } from '../testLevel.js';
 import { fetchLevelFile, importFile, loadLevelFromFile } from '../utils/fileUtils.js';
 import "./onlineMenu.js";
 import "./optionMenu.js";
-import { loadOption } from './optionMenu.js';
 
 // back button
 const uiConatiner = document.getElementById("ui");
@@ -29,7 +29,6 @@ document.getElementById('mainLocal').onclick = () => {
 };
 document.getElementById('mainOption').onclick = () => {
     Director.getUIManager().toggle('option', true);
-    loadOption();
     Director.getUIManager().toggle('mainMenu', false);
     Director.getUIManager().pushState();
 };
@@ -61,7 +60,6 @@ document.getElementById('mainOnline').onclick = () => {
 
 document.getElementById('pauseOption').onclick = () => {
     Director.getUIManager().toggle('option', true);
-    loadOption();
     Director.getUIManager().toggle('pauseMenu', false);
     Director.getUIManager().pushState();
 };
@@ -83,9 +81,9 @@ onlineCreateBnt.onclick = () => {
     // ... try to join room
     onlineCreateBnt.innerHTML='Connecting ...';
     Director.network().getMaps((data)=>{
-        console.log(data);
         onlineCreateBnt.innerHTML=baseText;
         onlineCreateBnt.disabled=false;
+        if(data===null)return;
         Director.getUIManager().toggle('createRoom', true);
         Director.getUIManager().toggle('online', false);
         Director.getUIManager().pushState();
@@ -116,3 +114,48 @@ document.getElementById('localImport').onclick = () => {
         Director.setEditorQuickSwitch(false);
     });
 };
+
+
+// =============== TAB ===============
+
+export function genTabElements(title,elements){
+    document.getElementById("tabObjectTitle").innerHTML=title;
+
+    const list=document.getElementById("tabObjectList");
+    list.innerHTML="";
+
+    for (let index = 0; index < elements.length; index++) {
+        const el = elements[index];
+        //<div class="<div class="tabEntry"><label class="runPlacement">1</label><label class="runUsername">username</label><label class="runTime">00:10.022</label></div>"><label class="runPlacement">1</label><label class="runUsername">username</label><label class="runTime">00:10.022</label></div>
+        const entry = document.createElement("div");
+        entry.className="tabEntry";
+
+        const placement = document.createElement("label");
+        placement.className="runPlacement";
+        placement.innerText=index+1;
+        entry.appendChild(placement);
+
+        const username = document.createElement("label");
+        username.className="runUsername";
+        username.innerText=el.username;
+        entry.appendChild(username);
+
+        const levelTime = document.createElement("label");
+        levelTime.className="runTime";
+        if(el.time===null){
+            levelTime.innerText="...";
+        }
+        else{
+            const time = Renderer.formatTime(el.time);
+            levelTime.innerText=time[0]+":"+time[1]+"."+time[2];
+        }
+        entry.appendChild(levelTime);
+
+        list.appendChild(entry);
+    }
+}
+
+export function setTabThinking(){
+    document.getElementById("tabObjectList").innerHTML="";
+    document.getElementById("tabObjectTitle").innerHTML="...";
+}

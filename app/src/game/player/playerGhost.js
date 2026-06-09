@@ -18,7 +18,7 @@ export class PlayerGhost extends PlayerD{
         context.strokeStyle ="#000000";
         context.lineWidth = 3;
         const tx=x - textSize*this.name.length * 0.25;
-        const ty=y-TILE_SIZE-1;
+        const ty=y-TILE_SIZE+1;
         context.strokeText(this.name, tx, ty);
         context.fillText(this.name, tx, ty);
     }

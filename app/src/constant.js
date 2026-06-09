@@ -29,8 +29,7 @@ export const RENDER_RESOLUTION = [600, 400];
 export const MAX_NUMBER_OF_KEY_INPUT=5;
 
 export const OTHER_KEYS = [
-    ['pause', ['Escape']],
-    ['debug', ['KeyP']]
+    ['pause', ['Escape']]
 ];
 
 export const GAMES_KEYS = [
@@ -42,6 +41,10 @@ export const GAMES_KEYS = [
     ['action', ['KeyJ']],
     ['respawn', ['KeyR']],
     ['reset', ['Delete']]
+];
+
+export const ONLINE_KEYS = [
+    ['room_time', ['Tab']]
 ];
 
 export const EDITOR_KEYS = [

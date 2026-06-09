@@ -38,11 +38,21 @@ export class UiManager{
         }
     }
 
+
+    setOnOpen(id,callback){
+        for (const iterator of this.sceen) {
+            if (iterator.id === id) {
+                iterator.onOpen=callback;
+            }
+        }
+    }
+
     #toggleScreen(node,state){
         if (state) {
             node.classList.add('uiShow');
             node.classList.remove('uiHide');
             node.hidden = false;
+            if(node.onOpen)node.onOpen();
         } else {
             node.classList.remove('uiShow');
             node.classList.add('uiHide');

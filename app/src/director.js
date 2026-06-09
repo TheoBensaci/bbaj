@@ -7,6 +7,7 @@
 
 import { PlayerD } from './game/player/playerD.js';
 import { PlayerGhost } from './game/player/playerGhost.js';
+import { genTabElements, setTabThinking } from './ui/menu.js';
 import { endKeyChange } from './ui/optionMenu.js';
 import { InputManager } from './utils/inputManager.js';
 import { Vector } from './utils/vector.js';
@@ -150,10 +151,17 @@ export class Director {
             // use to track the target state we need to go back when the pause menu will go off
             this.#inst.pauseMenuBackState=this.#inst.render.uiManager.menuStateStack.length-1;
 
+            // if online hide when pause
+            if(this.isOnline()){
+                setTabThinking();
+                this.#inst.render.uiManager.toggle('tab', true);
+            }
 
             this.#inst.render.uiManager.toggle('pauseMenu', state);
             this.#inst.render.uiManager.toggle('blackBackground', state);
             this.#inst.render.uiManager.pushState();
+
+
         }
         else{
             // pop to the menu just befor the pause menu
@@ -247,6 +255,28 @@ export class Director {
             return;
         }
 
+        if(!this.isPause() && this.isOnline() && this.inGame()){
+            if(InputManager.getContext("online").getAction("room_time").justPressed){
+                setTabThinking();
+                this.network().checkRoom(this.network().roomId,(data)=>{
+                    if(data===null)return;
+                    genTabElements("room time : "+this.network().roomId,data.times.sort((a,b)=>{
+                        if(a.time === null && b.time ===null)return 0;
+                        if(a.time===null){
+                            return 1;
+                        }
+                        if(b.time===null){
+                            return -1;
+                        }
+                        return a.time-b.time;
+                    }));
+                });
+                this.#inst.render.uiManager.toggle('tab', true);
+            }
+            if(InputManager.getContext("online").getAction("room_time").justReleased){
+                this.#inst.render.uiManager.toggle('tab', false);
+            }
+        }
 
         if(Director.getEditorQuickSwitch() && !this.onPause()){
             if (InputManager.getAction('toggleMode')?.justPressed) {
@@ -258,12 +288,6 @@ export class Director {
                     Director.switchSceen('editor');
                 }
             }
-        }
-
-        if(InputManager.getContext("other").getAction("debug").justPressed){
-            let p = new PlayerGhost("test");
-            p.position.set(50,300);
-            this.#inst.game.createGhost("test",p);
         }
     }
 }

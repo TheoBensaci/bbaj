@@ -320,6 +320,14 @@ export class Game extends World {
     endLevel(){
         if(this.levelState!==1)return;
         this.levelState=2;
+        this.player.velocity.set(0,0);
+
+        // if online -> send time
+        if(Director.isOnline()){
+            Director.network().sendData("playerTime",{
+                time : this.levelTimer
+            });
+        }
     }
 
     updateLevelState(t){
@@ -345,6 +353,7 @@ export class Game extends World {
     }
 
     destroyGhost(id){
+        if(!this.ghosts.has(id))return;
         this.ghosts.delete(id);
     }
 

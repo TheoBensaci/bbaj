@@ -54,7 +54,6 @@ export function keyChangeMenu(context,actionName){
     document.getElementById("keyChangeSave").onclick=(e)=>{
         context.getAction(actionName).keys=keyChangeKeyLists;
         setSaveInputKey(context.name,actionName,keyChangeKeyLists);
-        loadOption();
         endKeyChange();
         Director.getUIManager().popState();
     }
@@ -67,7 +66,7 @@ export function keyChangeMenu(context,actionName){
 
 
 export function loadOption(){
-    const contextUse = ["other","game","editor"];
+    const contextUse = ["other","game","online","editor"];
     controllesContainer.innerHTML="";
     for (const contextName of contextUse) {
         const context = InputManager.getContext(contextName);
@@ -99,6 +98,8 @@ export function loadOption(){
 
 
     document.getElementById("optionUsername").value =getSaveItem("username");
+    document.getElementById("optionUsername").disabled=Director.isOnline();
+    document.getElementById("optionUsernameSave").disabled=Director.isOnline();
 }
 
 

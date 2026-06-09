@@ -1163,6 +1163,7 @@ export class Player extends Actor {
 
 
     setData(data){
+        if(data===null)return;
         this.position.set(data.position);
         this.velocity.set(data.velocity);
         this.facing = data.facing;

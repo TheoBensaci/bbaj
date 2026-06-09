@@ -37,10 +37,11 @@ export class NetworkSystem{
     createGhost(name){
         const ghost = new PlayerGhost(name);
         this.game.createGhost(name,ghost);
+        console.log(name+" -> "+this.game.ghosts.size);
     }
 
     destroyGhost(name){
-        this.game.destroyGhost(name,ghost);
+        this.game.destroyGhost(name);
     }
 
     joinRoom(roomId,errorCallback){
@@ -50,7 +51,7 @@ export class NetworkSystem{
 
         this.socket.addEventListener("open",(e)=>{
             console.log("open");
-            this.sendData("join",{
+            this.sendData("playerJoin",{
                 roomId:roomId,
                 username:getSaveItem("username")
             });
@@ -64,6 +65,7 @@ export class NetworkSystem{
                     this.quitRoom();
                 break;
                 case 'joinOK' :
+                    this.playerId=data.playerId;
                     fetchLevelFile((d)=>{
                         if(d===null){
                             this.quitRoom();
@@ -73,12 +75,14 @@ export class NetworkSystem{
                         this.roomId=roomId;
                         Director.loadLevel(d);
                         Director.setEditorQuickSwitch(false);
-                        console.log(data);
-                        this.playerId=data.playerId;
                     },this.getMap(data.mapId));
                 break;
                 case 'state' :
                     this.updateGhost(data.data);
+                break;
+                case 'playerLeave' :
+                    console.log(data);
+                    this.destroyGhost(data.username);
                 break;
             }
         });
@@ -144,7 +148,6 @@ export class NetworkSystem{
     }
 
     checkRoom(roomId,callback){
-        console.log(this.httpProto+"://"+this.server+":"+this.port+"/room/"+roomId);
         fetch(this.httpProto+"://"+this.server+":"+this.port+"/room/"+roomId)
             .then(response => {
                 if (!response.ok) {
@@ -173,7 +176,7 @@ export class NetworkSystem{
     }
 
     getMap(id){
-        return "./ressource/levels/testLevel.json";//this.server+":"+this.port+"/map/"+id;
+        return "./ressource/levels/testLevelFinish.json";//this.server+":"+this.port+"/map/"+id;
     }
 
     //#endregion
