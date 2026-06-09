@@ -96,6 +96,11 @@ export class Director {
             },
             'main': {
                 in: () => {
+
+                    if(Director.isOnline()){
+                        this.network.quitRoom();
+                    }
+
                     this.render.uiManager.clear();
                     this.render.uiManager.toggle('mainMenu');
                     this.render.uiManager.pushState();
@@ -197,6 +202,14 @@ export class Director {
         return this.#inst.lastSceen === 'editor';
     }
 
+    static inGame() {
+        return this.#inst.lastSceen === 'game';
+    }
+
+    static isOnline() {
+        return this.#inst.network.socket!==null;
+    }
+
     static setEditorQuickSwitch(state){
         this.#inst.editorQuickSwitch=state;
     }
@@ -227,7 +240,7 @@ export class Director {
             Director.togglePause(!Director.onPause());
         }
 
-        if(this.#inst.lastSceen==="game" && InputManager.getContext("game").getAction("reset").justPressed ){
+        if(this.inGame() && !this.onPause() && InputManager.getContext("game").getAction("reset").justPressed ){
             if(this.#inst.game.levelState>0){
                 this.#inst.game.cleanSpawnPlayer();
             }
@@ -235,7 +248,7 @@ export class Director {
         }
 
 
-        if(Director.getEditorQuickSwitch()){
+        if(Director.getEditorQuickSwitch() && !this.onPause()){
             if (InputManager.getAction('toggleMode')?.justPressed) {
                 if (Director.inEditor()) {
                     this.#inst.editor.hidePreview();

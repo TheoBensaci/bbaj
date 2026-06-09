@@ -1028,6 +1028,7 @@ export class Player extends Actor {
         this.dead = true;
         this.waitForRespawn = true;
         this.deathTimer = RESPAWN_TIME;
+        this.velocity.set(0,0);
 
         this.game.levelDeath++;
     }
@@ -1149,13 +1150,27 @@ export class Player extends Actor {
 
     getData(){
         return {
-            position : this.position
+            position : this.position,
+            velocity : this.velocity,
+            facing : this.facing,
+            dead : this.dead,
+            onCroutch:this.onCroutch,
+            onMove : this.onMove,
+            onJump : this.onJump,
+            onGround : this.onGround
         };
     }
 
 
     setData(data){
         this.position.set(data.position);
+        this.velocity.set(data.velocity);
+        this.facing = data.facing;
+        this.dead=data.dead;
+        this.onCroutch=data.onCroutch;
+        this.onJump = data.onJump;
+        this.onGround=data.onGround;
+        this.onMove=data.onMove;
     }
 
 

@@ -349,6 +349,7 @@ export class Game extends World {
     }
 
     getGhost(id){
+        if(!this.ghosts.has(id))return null;
         return this.ghosts.get(id);
     }
 

@@ -7,7 +7,7 @@
 import { Director } from '../director.js';
 import { TEST_LEVEL_DATA } from '../testLevel.js';
 import { fetchLevelFile, importFile, loadLevelFromFile } from '../utils/fileUtils.js';
-import "./joinRoomMenu.js";
+import "./onlineMenu.js";
 import "./optionMenu.js";
 import { loadOption } from './optionMenu.js';
 
@@ -57,7 +57,7 @@ document.getElementById('mainOnline').onclick = () => {
     Director.getUIManager().pushState();
 };
 
-// =============== OPTION ===============
+// =============== PAUSE ===============
 
 document.getElementById('pauseOption').onclick = () => {
     Director.getUIManager().toggle('option', true);
@@ -76,10 +76,20 @@ document.getElementById('pauseMainMenu').onclick = () => {
 
 
 // =============== ONLINE ===============
-document.getElementById('onlineCreate').onclick = () => {
-    Director.getUIManager().toggle('createRoom', true);
-    Director.getUIManager().toggle('online', false);
-    Director.getUIManager().pushState();
+const onlineCreateBnt = document.getElementById('onlineCreate');
+onlineCreateBnt.onclick = () => {
+    const baseText = onlineCreateBnt.innerHTML;
+    onlineCreateBnt.disabled=true;
+    // ... try to join room
+    onlineCreateBnt.innerHTML='Connecting ...';
+    Director.network().getMaps((data)=>{
+        console.log(data);
+        onlineCreateBnt.innerHTML=baseText;
+        onlineCreateBnt.disabled=false;
+        Director.getUIManager().toggle('createRoom', true);
+        Director.getUIManager().toggle('online', false);
+        Director.getUIManager().pushState();
+    });
 };
 
 document.getElementById('onlineJoin').onclick = () => {

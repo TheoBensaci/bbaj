@@ -100,8 +100,8 @@ ____
   - [ _ ] Place effect
 
 - [ _ ] Level Object
-  - [ _ ] check point
-  - [ _ ] spawn point
+  - **[ x ]**  check point
+  - **[ x ]** spawn point
   - **[ x ]** spike
   - **[ x ]** trigger spike
   - [ _ ] jump pad
@@ -119,9 +119,9 @@ ____
 
 - [ _ ] animation / art
   - **[ x ]** logo
-  - [ _ ] player "final" animation
-  - [ _ ] text face
-  - [ _ ] checkpoint animation
+  - **[ x ]**  player "final" animation
+  - **[ ? ]**  text face
+  - **[ x ]**  checkpoint animation
   - [ _ ] moving platform
   - [ _ ] baloon
   - [ _ ] finish

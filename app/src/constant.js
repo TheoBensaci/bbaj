@@ -9,9 +9,10 @@ import { PlayerCheckPointTile, PlayerSpawnTile } from "./game/tile/other/playerS
 import { TileIndex } from "./game/tileSystem/tileIndexer.js";
 
 export const GAME_UPDATE_INTERVAL = 10;
-export const SERVER_ADDRESS = "127.0.0.1";
-export const SERVER_PORT = "80";
-
+export const SERVER_HTTP_PROTO = "http";
+export const SERVER_ADDRESS = "localhost";
+export const SERVER_PORT = "3000";
+export const REQUEST_TIMOUT=500;
 //const lvlSquareSize=1;
 
 // tile size in pixel

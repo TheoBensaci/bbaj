@@ -1,4 +1,4 @@
-import { EDITOR_KEYS, GAMES_KEYS, GAME_UPDATE_INTERVAL, OTHER_KEYS, PERLOADED_TEXTURE, RENDER_RESOLUTION, SERVER_ADDRESS, SERVER_PORT } from './constant.js';
+import { EDITOR_KEYS, GAMES_KEYS, GAME_UPDATE_INTERVAL, OTHER_KEYS, PERLOADED_TEXTURE, RENDER_RESOLUTION, SERVER_ADDRESS, SERVER_HTTP_PROTO, SERVER_PORT } from './constant.js';
 import { Director } from './director.js';
 import { Game } from './game/game.js';
 import { Renderer } from './renderer/renderer.js';
@@ -24,7 +24,7 @@ if(getSaveItem("username")===null){
 
 const game = new Game();
 const editorWorld = new EditorWorld();
-const network = new NetworkSystem(SERVER_ADDRESS,SERVER_PORT,game);
+const network = new NetworkSystem(SERVER_HTTP_PROTO,SERVER_ADDRESS,SERVER_PORT,game);
 
 const uiManager = new UiManager(document.getElementById('ui'), document.getElementById('transition'));
 

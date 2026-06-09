@@ -214,6 +214,8 @@ export class PlayerD extends Player{
         const v_y = vel_y * (this.onDemoRoll?0.75:1);;
         this.endRoll();
 
+        this.onRoll=false;
+
         this.onCroutch=false;
 
         return v_y;
@@ -426,6 +428,20 @@ export class PlayerD extends Player{
     death(){
         super.death();
         this.onRoll=false;
+    }
+
+    getData(){
+        return {...super.getData(),
+            onRoll : this.onRoll,
+            onDemoRoll : this.onDemoRoll
+        };
+    }
+
+
+    setData(data){
+        super.setData(data);
+        this.onRoll=data.onRoll;
+        this.onDemoRoll=data.onDemoRoll;
     }
 
     render(x,y,context,t){
