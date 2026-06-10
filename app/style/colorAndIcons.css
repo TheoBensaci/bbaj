@@ -57,3 +57,56 @@
 .iconJoin{
     mask-image: url("../ressource/join.svg");
 }
+
+/* editor icons - most of them from flaticons.com / Uicons */
+
+/* TODO(sss): find icon */
+.iconUndo {
+    mask-image: url("../ressource/back.svg");
+}
+
+.iconRedo {
+    mask-image: url("../ressource/redo.svg");
+}
+
+.iconNew {
+    mask-image: url("../ressource/add-document.svg");
+}
+
+.iconSave {
+    mask-image: url("../ressource/disk.svg");
+}
+
+.iconSaveAs {
+    mask-image: url("../ressource/floppy-disk-pen.svg");
+}
+
+.iconLoad {
+    mask-image: url("../ressource/file-upload.svg");
+}
+
+.iconUpload {
+    mask-image: url("../ressource/cloud-upload-alt.svg");
+}
+
+.iconTest {
+    mask-image: url("../ressource/play.svg");
+}
+
+.iconDraw {
+    mask-image: url("../ressource/paint.svg");
+}
+
+.iconErase {
+    mask-image: url("../ressource/eraser.svg");
+}
+
+/* TODO(tbi): create pan icon */
+.iconPan {
+    mask-image: url("../ressource/play.svg");
+}
+
+/* TODO: find icon */
+.iconRect {
+    mask-image: url("../ressource/play.svg");
+}

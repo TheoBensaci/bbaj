@@ -27,6 +27,12 @@ export class Editor {
         this.rectStart = new Vector(-1, -1);
         this.rectEnd = new Vector(-1, -1);
         this.rectMode = null;
+
+        // HACK(sss): hacky solution, couldn't find a better way of preventing
+        //            click passthrough to editor canvas without refactoring
+        //            a lot...
+        document.getElementById('editorTopBar').addEventListener('mousedown', (e) => e.stopPropagation());
+        document.getElementById('editorBottomBar').addEventListener('mousedown', (e) => e.stopPropagation());
     }
 
     update() {
@@ -216,6 +222,16 @@ export class Editor {
 
     hidePreview() {
         this.tilePreview.hide(true);
+    }
+
+    showBars() {
+        document.getElementById('editorTopBar').hidden = false;
+        document.getElementById('editorBottomBar').hidden = false;
+    }
+
+    hideBars() {
+        document.getElementById('editorTopBar').hidden = true;
+        document.getElementById('editorBottomBar').hidden = true;
     }
 
     renderOverlay() {

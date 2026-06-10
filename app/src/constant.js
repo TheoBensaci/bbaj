@@ -54,18 +54,6 @@ export const EDITOR_KEYS = [
     ['pan', [], [1]],
     ['panModifier', ['Space']],
     ['rotate', ['KeyR']],
-    ['exportLevel', ['Minus']],
-    ['importLevel', ['Comma']],
-    ['selectEraser', ['Digit0']],
-    ['selectTile0', ['Digit1']],
-    ['selectTile1', ['Digit2']],
-    ['selectTile2', ['Digit3']],
-    ['selectTile3', ['Digit4']],
-    ['selectTile4', ['Digit5']],
-    ['selectTile5', ['Digit6']],
-    ['selectTile6', ['Digit7']],
-    ['selectTile7', ['Digit8']],
-    ['selectTile8', ['Digit9']],
     ['rect', ['ControlLeft', 'ControlRight']],
     ['toggleMode', ['Period']]
 ]

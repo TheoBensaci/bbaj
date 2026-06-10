@@ -1,0 +1,179 @@
+#editorTopBar {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, 0);
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    background-color: #19191a;
+    border: 2px solid #333;
+    border-top: none;
+    border-radius: 0 0 3px 3px;
+    padding: 4px 10px;
+}
+
+#editorTopBar .bnt,
+#editorBottomBar .bnt {
+    padding: 4px 6px;
+    font-size: 9px;
+}
+
+.editorBtnLabel {
+    display: none;
+    white-space: nowrap;
+}
+
+#editorTopBar .bnt:enabled:hover .editorBtnLabel,
+#editorBottomBar .bnt:enabled:hover .editorBtnLabel {
+    display: inline;
+}
+
+#editorTopBar .bnt:enabled:hover,
+#editorBottomBar .bnt:enabled:hover {
+    color: var(--color_2);
+}
+
+#editorTopBar .bntIcon,
+#editorBottomBar .bntIcon {
+    width: 14px;
+    height: 14px;
+    margin-right: 0;
+    background-color: #fff;
+}
+
+#editorTopBar .bnt:enabled:hover .bntIcon,
+#editorBottomBar .bnt:enabled:hover .bntIcon {
+    width: 14px;
+    margin-right: 4px;
+    background-color: var(--color_2);
+}
+
+#editorTopBar .bnt:disabled .bntIcon,
+#editorBottomBar .bnt:disabled .bntIcon {
+    background-color: #555;
+}
+
+.editorSeparator {
+    display: block;
+    width: 1px;
+    height: 18px;
+    background-color: #444;
+    margin: 0 4px;
+}
+
+#editorLevelName {
+    color: #aaa;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 0 8px;
+    user-select: none;
+    white-space: nowrap;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#editorTopBar .editorToolBtn.active,
+#editorBottomBar .editorToolBtn.active {
+    --color_2: #00ff99;
+}
+
+#editorTopBar .editorToolBtn.active .bntIcon,
+#editorBottomBar .editorToolBtn.active .bntIcon {
+    background-color: #00ff99;
+}
+
+#editorTopBar .editorRectOn,
+#editorBottomBar .editorRectOn {
+    --color_2: #ffbb00;
+}
+
+#editorTopBar .editorRectOn .bntIcon,
+#editorBottomBar .editorRectOn .bntIcon {
+    background-color: #ffbb00;
+}
+
+#editorTopBar .editorRectOff,
+#editorBottomBar .editorRectOff {
+    --color_2: #555;
+}
+
+#editorTopBar .editorRectOff .bntIcon,
+#editorBottomBar .editorRectOff .bntIcon {
+    background-color: #555;
+}
+
+#editorBottomBar {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translate(-50%, 0);
+    z-index: 1;
+    display: flex;
+    align-items: flex-end;
+    gap: 0;
+    background-color: #19191a;
+    border: 2px solid #333;
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    padding: 4px 8px 0px 8px;
+}
+
+#editorTopBar[hidden],
+#editorBottomBar[hidden] {
+    display: none;
+}
+
+.editorDropdown {
+    position: relative;
+}
+
+.editorDropdownIcon {
+    width: 14px;
+    height: 14px;
+    border-radius: 2px;
+    image-rendering: pixelated;
+    flex-shrink: 0;
+}
+
+.editorDropdownPanel {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translate(-50%, 0);
+    background-color: #19191a;
+    border: 2px solid #333;
+    border-radius: 4px;
+    padding: 4px;
+    margin-bottom: 2px;
+    gap: 2px;
+    flex-wrap: wrap;
+    max-width: 200px;
+    z-index: 10;
+}
+
+.editorDropdown.open .editorDropdownPanel {
+    display: flex;
+}
+
+.editorDropdownPanel canvas {
+    width: 28px;
+    height: 28px;
+    border: 1px solid #555;
+    border-radius: 2px;
+    cursor: pointer;
+    image-rendering: pixelated;
+}
+
+.editorDropdownPanel canvas:hover {
+    border-color: #00ff99;
+    background-color: #00000044;
+}
+
+.editorDropdownPanel canvas.selected {
+    border-color: #00ff99;
+    background-color: #00ff9922;
+}

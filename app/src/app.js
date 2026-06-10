@@ -15,6 +15,35 @@ import { usernameGenerator } from './utils/utils.js';
 import { NetworkSystem } from './network/networkSystem.js';
 import { fetchLevelFile } from './utils/fileUtils.js';
 import { optionLoadOption } from './ui/optionMenu.js';
+import { TileIndex, TILE_GROUP } from './game/tileSystem/tileIndexer.js';
+import { GroundTile } from './game/tile/level/groundTile.js';
+import { Slope } from './game/tile/level/slope.js';
+import { OneWayPlatformTile } from './game/tile/level/oneWayPlatformTile.js';
+import { SpikeTile, TriggerSpike } from './game/tile/level/spikeTile.js';
+import { JumpPadTile } from './game/tile/level/jumpPadTile.js';
+import { MovingPlatform } from './game/tile/level/movingPlatform.js';
+import { PlayerCheckPointTile, PlayerSpawnTile } from './game/tile/other/playerSpawnTile.js';
+import { FinishTile } from './game/tile/level/finishTile.js';
+
+function registerTiles() {
+    TileIndex.createGroup(TILE_GROUP.TERRAIN);
+    TileIndex.registerTile(TILE_GROUP.TERRAIN, GroundTile);
+    TileIndex.registerTile(TILE_GROUP.TERRAIN, Slope);
+    TileIndex.registerTile(TILE_GROUP.TERRAIN, OneWayPlatformTile);
+
+    TileIndex.createGroup(TILE_GROUP.HAZARDS);
+    TileIndex.registerTile(TILE_GROUP.HAZARDS, SpikeTile);
+    TileIndex.registerTile(TILE_GROUP.HAZARDS, TriggerSpike);
+
+    TileIndex.createGroup(TILE_GROUP.MECHANICS);
+    TileIndex.registerTile(TILE_GROUP.MECHANICS, JumpPadTile);
+    TileIndex.registerTile(TILE_GROUP.MECHANICS, MovingPlatform);
+
+    TileIndex.createGroup(TILE_GROUP.LOGIC);
+    TileIndex.registerTile(TILE_GROUP.LOGIC, PlayerCheckPointTile);
+    TileIndex.registerTile(TILE_GROUP.LOGIC, PlayerSpawnTile);
+    TileIndex.registerTile(TILE_GROUP.LOGIC, FinishTile);
+}
 
 const canvasContainer = document.getElementById('gameCanavas');
 
@@ -58,7 +87,7 @@ function loop() {
 requestAnimationFrame(loop);
 
 // setUp director
-Director.init(game, editor, renderer,network);
+Director.init(game, editorWorld, renderer, editor, network);
 
 Director.setSceen('loading');
 
@@ -88,6 +117,8 @@ function setCanvasScale() {
 }
 
 function init() {
+    registerTiles();
+
     InputManager.init(window, canvasContainer);
 
     InputManager.createContext('other').loadInputFromSave(OTHER_KEYS);
@@ -108,5 +139,5 @@ function init() {
     InputManager.createContext('main');
     InputManager.createContext('online').loadInputFromSave(ONLINE_KEYS);
 
-    Director.switchSceen('main');
+    Director.switchSceen('editor');
 }
