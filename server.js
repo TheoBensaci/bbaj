@@ -118,6 +118,7 @@ app.post('/createRoom', (req, res) => {
     const room ={
         mapId: mapId,
         players: {},
+        times: {},
         playerCount:0,
         interval : null,
         foreachPlayer:(fnc)=>{
@@ -156,12 +157,15 @@ app.get('/room/:id', async (req, res) => {
     }
 
     const times = [];
-    rooms[id].foreachPlayer((pl)=>{
-        times.push({
-            username:pl.username,
-            time : pl.time
-        });
-    });
+    for (const key in rooms[id].times) {
+        if (Object.hasOwnProperty.call(rooms[id].times, key)) {
+            const element = rooms[id].times[key];
+            times.push({
+                username:element.username,
+                time : element.time
+            });
+        }
+    }
 
     res.json({
         id:id,
@@ -225,6 +229,10 @@ app.ws('/', (ws) => {
                     socket: ws,
                     data: {},
                 };
+                if(!rooms[data.roomId].times[data.username])rooms[data.roomId].times[data.username]={
+                    username: data.username,
+                    time : Infinity
+                };
                 rooms[ws.room].playerCount++;
 
                 ws.send(JSON.stringify({
@@ -245,12 +253,12 @@ app.ws('/', (ws) => {
 
             case 'playerTime':
                 if (!data.time) return; //Aucune time
-
-                console.log(`player ${rooms[ws.room].players[ws.id].username} (id : ${ws.id}) finish map "${ws.room}" with "${data.time}"s`);
+                const pl =  rooms[ws.room].players[ws.id];
+                console.log(`player ${pl.username} (id : ${ws.id}) finish map "${ws.room}" with "${data.time}"s`);
 
                 //Enregistrement des données sur la position, vélocity, etc
-                const lastTime = rooms[ws.room].players[ws.id].time;
-                rooms[ws.room].players[ws.id].time = Math.min(lastTime,data.time);
+                const lastTime = rooms[ws.room].times[pl.username].time;
+                rooms[ws.room].times[pl.username].time = Math.min(lastTime,data.time);
 
                 // TODO check si le temps est top 5, si oui, place it
             break;
