@@ -299,21 +299,26 @@ export class Renderer {
         }
     }
 
-    formatNumber(number,length){
+    static formatNumber(number,length){
         number = number.toString();
         while (number.length < length) number = "0" + number;
         return number.substring(0,length);
     }
 
+    static formatTime(time){
+        const minuts = Math.floor(time / 60);
+        const sec = Math.floor((time-minuts*60));
+
+        const millis = Math.floor((time * 1000) - sec * 1000 - minuts * 60000);
+        return [Renderer.formatNumber(minuts,2),Renderer.formatNumber(sec,2),Renderer.formatNumber(millis,3)];
+    }
+
     renderTimer(){
         if(this.world.levelTimer!==undefined && this.timerElements[0] && this.timerElements[1]){
-            const minuts = Math.floor(this.world.levelTimer / 60);
-            const sec = Math.floor((this.world.levelTimer-minuts*60));
+            let times = Renderer.formatTime(this.world.levelTimer);
 
-            const millis = Math.floor((this.world.levelTimer * 1000) - sec * 1000 - minuts * 60000);
-
-            this.timerElements[0].innerText=this.formatNumber(minuts,2) + ":"+this.formatNumber(sec,2);
-            this.timerElements[1].innerText="."+this.formatNumber(millis,3);
+            this.timerElements[0].innerText=times[0] + ":"+times[1];
+            this.timerElements[1].innerText="."+times[2];
         }
     }
 

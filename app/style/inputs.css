@@ -21,3 +21,7 @@
 .textInput:enabled:focus{
     transform: scale(1.1);
 }
+
+.textInput:disabled{
+    opacity: 0.5;
+}

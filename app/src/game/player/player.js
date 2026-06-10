@@ -6,6 +6,7 @@
 
 import { TILE_SIZE } from '../../constant.js';
 import { Director } from '../../director.js';
+import { AnimationSystem } from '../../utils/animationUtils.js';
 import { InputManager } from '../../utils/inputManager.js';
 import { RessourceLoader } from '../../utils/ressouceLoader.js';
 import { Shape, ShapeType } from '../../utils/shape.js';
@@ -58,7 +59,7 @@ export const JUMP_MIN_END_COUNTER = 100;
 export const CROUTCH_MUL = 1.5;                             // croutch friction multiplyer
 export const CROUTCH_MOVE_PENALITY = 0.5;                   // croutch movement penality multiplyer
 
-const RESPAWN_TIME = 0.25;
+const RESPAWN_TIME = 0.6;
 
 
 const RIDING_MOMENTUM_CONSERVATION_TIME = 0.1;              // time in which the player can use the riding moment conservation
@@ -213,6 +214,103 @@ export class Player extends Actor {
         this.freeCamOffset = new Vector(0, 0);
 
         // animation
+
+        this.animSystem=new AnimationSystem({
+            scale : new Vector(1,1),
+            offset: new Vector(0,0),
+            skich : 0,
+            rotation:0,
+            spritePath:""
+        });
+
+        this.animSystem.addState("idle",(t)=>{
+            const c = (t * Math.PI*2);
+
+            const v = (Math.abs(Math.cos(c)) - 0.5) * 0.15;
+            const sY = 1 - v;
+            const oY = v * 10;
+
+            return {
+                scale : new Vector(1,sY),
+                offset: new Vector(0,oY),
+                skich : 0,
+                rotation:0,
+                spritePath:"./ressource/testPlayer.png"
+            };
+        },4,0.05,true);
+
+        this.animSystem.addState("walk",(t)=>{
+            const c = (t * Math.PI*2);
+
+            const v = (Math.abs(Math.cos(c)) - 0.5) * 0.2;
+            const sY = 1 - v;
+            const oY = v * 10;
+
+            return {
+                scale : new Vector(1,sY),
+                offset: new Vector(0,oY),
+                skich : MathUtils.clamp(this.velocity.x / 100, -1, 1) * 0.2,
+                rotation:0,
+                spritePath:"./ressource/testPlayer.png"
+            };
+        },0.4,0.1,true);
+
+        this.animSystem.addState("croutch",(t)=>{
+            const v = 0.455;
+            const x = 1+v;
+            const y = 1-v;
+            const oY = TILE_SIZE * v * 0.5;
+            return {
+                scale : new Vector(x,y),
+                offset: new Vector(0,oY),
+                skich : 0,
+                rotation:0,
+                spritePath:"./ressource/testPlayer.png"
+            };
+        },1,0.05,false);
+
+        this.animSystem.addState("jump",(t)=>{
+            const v = 0.6 * (1-t);
+            const x = 1-v;
+            const y = 1+v;
+            return {
+                scale : new Vector(x,y),
+                offset: new Vector(0,0),
+                skich : 0,
+                rotation:0,
+                spritePath:"./ressource/testPlayer.png"
+            };
+        },0.3,0,false);
+
+        this.animSystem.addState("air",(t)=>{
+            const v = 0.5 * Math.min(1, Math.abs(this.velocity.y / 1000));
+            const x = 1-v;
+            const y = 1+v;
+            return {
+                scale : new Vector(x,y),
+                offset: new Vector(0,0),
+                skich : 0,
+                rotation:0,
+                spritePath:"./ressource/testPlayer.png"
+            };
+        },0,0.2,false);
+
+        this.animSystem.addState("dead",(t)=>{
+            const v = MathUtils.lerp(2,1,t);
+            const x = v;
+            const y = v;
+            return {
+                scale : new Vector(x,y),
+                offset: new Vector(this.facing * 16*x * 0.5,16 * y * 0.5),
+                skich : Math.sin((v*3)-3),
+                rotation:0,
+                spritePath:"./ressource/testPlayerDead.png"
+            };
+        },0.1,0,false);
+
+
+        this.animSystem.setTransitionTime("croutch","air",0.05);
+
 
         this.walkAnimation = {
             dis: 0,
@@ -930,6 +1028,7 @@ export class Player extends Actor {
         this.dead = true;
         this.waitForRespawn = true;
         this.deathTimer = RESPAWN_TIME;
+        this.velocity.set(0,0);
 
         this.game.levelDeath++;
     }
@@ -1051,17 +1150,68 @@ export class Player extends Actor {
 
     getData(){
         return {
-            position : this.position
+            position : this.position,
+            velocity : this.velocity,
+            facing : this.facing,
+            dead : this.dead,
+            onCroutch:this.onCroutch,
+            onMove : this.onMove,
+            onJump : this.onJump,
+            onGround : this.onGround
         };
     }
 
 
     setData(data){
+        if(data===null)return;
         this.position.set(data.position);
+        this.velocity.set(data.velocity);
+        this.facing = data.facing;
+        this.dead=data.dead;
+        this.onCroutch=data.onCroutch;
+        this.onJump = data.onJump;
+        this.onGround=data.onGround;
+        this.onMove=data.onMove;
     }
 
 
     //#endregion
+
+    renderAnimation(targetState,x,y,context,t){
+        const r = RessourceLoader.getInstance();
+        context.save();
+
+        let skich = 0;
+
+        this.animSystem.setState(targetState);
+        this.animSystem.update(t);
+        const value = this.animSystem.get();
+        const scale=value.scale;
+        const offset=value.offset;
+        skich=value.skich;
+
+        scale.x *= this.facing;
+
+        const image = r.get(value.spritePath);
+
+        //this.onMove
+
+        context.transform(scale.x, 0, -skich, scale.y, x-(TILE_SIZE/2)*scale.x + offset.x, y-(TILE_SIZE/2)*scale.y + offset.y);
+
+        context.translate(TILE_SIZE/2,TILE_SIZE/2);
+
+        context.transform(Math.cos(value.rotation), Math.sin(value.rotation), -Math.sin(value.rotation), Math.cos(value.rotation),0, 0);
+
+        context.translate(-TILE_SIZE/2,-TILE_SIZE/2);
+        if (this.dead) {
+            context.renderTexture(image, 0, 0, 16, 16, -16, -16, 32, 32);
+        }
+        else{
+            context.renderTexture(image, 0, 0, 16, 16, 0, 0, TILE_SIZE, TILE_SIZE);
+        }
+
+        context.restore();
+    }
 
     /**
      * Render the player
@@ -1071,72 +1221,32 @@ export class Player extends Actor {
      * @param {number} t delta t between 2 render
      */
     render(x, y, context, t) {
-        if (this.dead) return;
-
         const r = RessourceLoader.getInstance();
-        const image = r.get('./ressource/testPlayer.png');
 
-        const scale = new Vector(1, 1);
 
-        const offset = new Vector(0, 0);
+        let targetState="idle";
 
         if (this.onMove && this.onGround) {
-            this.walkAnimation.dis = MathUtils.approche(this.walkAnimation.dis, MathUtils.clamp(this.velocity.x / 100, -1, 1) * 0.2, t * 2);
-            this.walkAnimation.c += t * 15;
-
-            const v = (Math.abs(Math.cos(this.walkAnimation.c)) - 0.5) * 0.2;
-            scale.y = 1 - v;
-            offset.y = +v * 10;
+            targetState="walk";
         } else if (this.onGround) {
-            this.walkAnimation.dis = MathUtils.approche(this.walkAnimation.dis, 0, t * 2);
-            this.walkAnimation.c += t * 1.5;
-            const v = (Math.abs(Math.cos(this.walkAnimation.c)) - 0.5) * 0.15;
-            scale.y = scale.y - v;
-            offset.y = +v * 10;
-        } else {
-            this.walkAnimation.dis = 0;
-            this.walkAnimation.c = 0;
+            targetState="idle";
         }
 
         if (this.onCroutch) {
-            this.croutchAnimation.skich = MathUtils.approche(this.croutchAnimation.skich, 1, t * 20);
-            const v = this.croutchAnimation.skich * 0.4;
-            scale.x = scale.x + v;
-            scale.y = scale.y - v;
-            offset.y += TILE_SIZE * v * 0.5;
-        } else {
-            this.croutchAnimation.skich = 0;
+            targetState="croutch";
         }
 
         if (!this.onCroutch && !this.onGround && this.onJump) {
-            this.airAnimation.skich = MathUtils.approche(this.airAnimation.skich, 0, t * 2);
-            scale.x = scale.x - this.airAnimation.skich;
-            scale.y = scale.y + this.airAnimation.skich;
+            targetState="jump";
         } else if (!this.onCroutch && !this.onGround) {
-            this.airAnimation.skich = MathUtils.approche(this.airAnimation.skich, 0.5 * Math.min(1, Math.abs(this.velocity.y / 1000)), t * 2);
-            scale.x = scale.x - this.airAnimation.skich;
-            scale.y = scale.y + this.airAnimation.skich;
-        } else {
-            this.airAnimation.skich = this.onJump ? 0.5 : 0;
+            targetState="air";
         }
 
-        scale.x *= this.facing;
+        if(this.dead){
+            targetState="dead";
+        }
 
-        //this.onMove
-
-        context.transform(scale.x, 0, -this.walkAnimation.dis, scale.y, x-(TILE_SIZE/2)*scale.x + offset.x, y-(TILE_SIZE/2)*scale.y + offset.y);
-
-        context.renderTexture(image, 0, 0, 16, 16, 0, 0, TILE_SIZE, TILE_SIZE);
-
-        // text face
-        /*
-        context.rotate(Math.PI/2);
-
-        context.font = "bold 15px Segoe UI";
-        context.fillText(">:(", 5, -7);
-        */
-
-        context.resetTransform();
+        this.renderAnimation(targetState,x,y,context,t);
 
         this.renderDebug(x, y, context, t);
     }

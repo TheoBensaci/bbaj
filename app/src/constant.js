@@ -9,9 +9,10 @@ import { PlayerCheckPointTile, PlayerSpawnTile } from "./game/tile/other/playerS
 import { TileIndex } from "./game/tileSystem/tileIndexer.js";
 
 export const GAME_UPDATE_INTERVAL = 10;
-export const SERVER_ADDRESS = "127.0.0.1";
-export const SERVER_PORT = "80";
-
+export const SERVER_HTTP_PROTO = "http";
+export const SERVER_ADDRESS = "localhost";
+export const SERVER_PORT = "3000";
+export const REQUEST_TIMOUT=500;
 //const lvlSquareSize=1;
 
 // tile size in pixel
@@ -28,8 +29,7 @@ export const RENDER_RESOLUTION = [600, 400];
 export const MAX_NUMBER_OF_KEY_INPUT=5;
 
 export const OTHER_KEYS = [
-    ['pause', ['Escape']],
-    ['debug', ['KeyP']]
+    ['pause', ['Escape']]
 ];
 
 export const GAMES_KEYS = [
@@ -41,6 +41,10 @@ export const GAMES_KEYS = [
     ['action', ['KeyJ']],
     ['respawn', ['KeyR']],
     ['reset', ['Delete']]
+];
+
+export const ONLINE_KEYS = [
+    ['roomTime', ['Tab']]
 ];
 
 export const EDITOR_KEYS = [
@@ -69,6 +73,8 @@ export const PERLOADED_TEXTURE=[
     "./ressource/basicTileSet.png",
     "./ressource/completBasicTileSet.png",
     "./ressource/testPlayer.png",
+    "./ressource/testPlayerDash.png",
+    "./ressource/testPlayerDead.png",
     "./ressource/testPlayer2.png",
     "./ressource/testPlayer3.png",
     "./ressource/customFruit.png",

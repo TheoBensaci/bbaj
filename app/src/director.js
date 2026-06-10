@@ -7,7 +7,8 @@
 
 import { PlayerD } from './game/player/playerD.js';
 import { PlayerGhost } from './game/player/playerGhost.js';
-import { endKeyChange } from './ui/optionMenu.js';
+import { genTabElements as tabGenElement, setTabThinking, endSetTime } from './ui/menu.js';
+import { optionKeyChangeEnd } from './ui/optionMenu.js';
 import { InputManager } from './utils/inputManager.js';
 import { Vector } from './utils/vector.js';
 
@@ -96,6 +97,11 @@ export class Director {
             },
             'main': {
                 in: () => {
+
+                    if(Director.isOnline()){
+                        this.network.quitRoom();
+                    }
+
                     this.render.uiManager.clear();
                     this.render.uiManager.toggle('mainMenu');
                     this.render.uiManager.pushState();
@@ -145,15 +151,22 @@ export class Director {
             // use to track the target state we need to go back when the pause menu will go off
             this.#inst.pauseMenuBackState=this.#inst.render.uiManager.menuStateStack.length-1;
 
+            // if online hide when pause
+            if(this.isOnline()){
+                setTabThinking();
+                this.#inst.render.uiManager.toggle('tab', true);
+            }
 
             this.#inst.render.uiManager.toggle('pauseMenu', state);
             this.#inst.render.uiManager.toggle('blackBackground', state);
             this.#inst.render.uiManager.pushState();
+
+
         }
         else{
             // pop to the menu just befor the pause menu
             this.#inst.render.uiManager.popState(this.#inst.pauseMenuBackState);
-            endKeyChange();
+            optionKeyChangeEnd();
         }
         if(this.#inst.lastSceen==='game'){
             this.#inst.game.pause = state;
@@ -164,6 +177,20 @@ export class Director {
     static isPause(){
         return this.#inst.pause;
     }
+
+    static toggleEndScreen(state){
+        if(state){
+            endSetTime(this.#inst.game.levelTimer);
+        }
+        this.#inst.render.uiManager.toggle('blackBackground', state);
+        this.#inst.render.uiManager.toggle('endScreen', state);
+    }
+
+    static onEndScreen(){
+        return this.inGame() && this.#inst.game.levelState>1;
+    }
+
+
 
     static loadLevel(levelData) {
         if(this.#inst.lastSceen!=="loading")Director.switchSceen('loading');
@@ -197,8 +224,23 @@ export class Director {
         return this.#inst.lastSceen === 'editor';
     }
 
+    static inGame() {
+        return this.#inst.lastSceen === 'game';
+    }
+
+    static isOnline() {
+        return this.#inst.network.socket!==null;
+    }
+
     static setEditorQuickSwitch(state){
         this.#inst.editorQuickSwitch=state;
+    }
+
+
+    static resetGame(){
+        if(this.#inst.game.levelState>0){
+            this.#inst.game.cleanSpawnPlayer();
+        }
     }
 
 
@@ -223,21 +265,54 @@ export class Director {
         // check if we are not in the input settings screen
         if(this.#inst.render.uiManager.getScreenState("keyChange"))return;
         // check for special input
-        if(InputManager.getContext("other").getAction("pause").justPressed){
+        if(InputManager.getContext("other").getAction("pause").justPressed && !this.onEndScreen()){
             Director.togglePause(!Director.onPause());
         }
 
-        if(this.#inst.lastSceen==="game" && InputManager.getContext("game").getAction("reset").justPressed ){
-            if(this.#inst.game.levelState>0){
-                this.#inst.game.cleanSpawnPlayer();
-            }
+        if(this.inGame() && !this.onPause() && InputManager.getContext("game").getAction("reset").justPressed ){
+            this.resetGame();
             return;
         }
 
-        if(InputManager.getContext("other").getAction("debug").justPressed){
-            let p = new PlayerGhost("test");
-            p.position.set(50,300);
-            this.#inst.game.createGhost("test",p);
+        if(!this.isPause() && this.isOnline() && this.inGame()){
+            if(InputManager.getContext("online").getAction("roomTime").justPressed){
+                setTabThinking();
+                this.network().checkRoom(this.network().roomId,(data)=>{
+                    if(data===null)return;
+                    tabGenElement(
+                        "code : "+this.network().roomId,
+                        data.times.sort((a,b)=>{
+                            if(a.time === null && b.time ===null)return 0;
+                            if(a.time===null){
+                                return 1;
+                            }
+                            if(b.time===null){
+                                return -1;
+                            }
+                            return a.time-b.time;
+                        })
+                        ,(e)=>{
+                            navigator.clipboard.writeText(this.network().roomId);
+                        }
+                    );
+                });
+                this.#inst.render.uiManager.toggle('tab', true);
+            }
+            if(InputManager.getContext("online").getAction("roomTime").justReleased){
+                this.#inst.render.uiManager.toggle('tab', false);
+            }
+        }
+
+        if(Director.getEditorQuickSwitch() && !this.onPause()){
+            if (InputManager.getAction('toggleMode')?.justPressed) {
+                if (Director.inEditor()) {
+                    this.#inst.editor.hidePreview();
+                    const data = this.#inst.editor.export();
+                    Director.loadLevel(data);
+                } else {
+                    Director.switchSceen('editor');
+                }
+            }
         }
     }
 }

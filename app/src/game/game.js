@@ -283,7 +283,7 @@ export class Game extends World {
 
             // reset check points
             for (const iterator of this.checkpoints) {
-                iterator.active=false;
+                iterator.reset();
             }
 
             this.setPlayerSpawnPoint((this.originalSpawnPoint===null)?new Vector(0,0):this.originalSpawnPoint.position);
@@ -291,7 +291,11 @@ export class Game extends World {
             this.levelTimer = 0;
             this.levelDeath = 0;
             this.levelState=0;
+
+            Director.toggleEndScreen(false);
         });
+
+
     }
 
     setPlayerSpawnPoint(position){
@@ -320,6 +324,16 @@ export class Game extends World {
     endLevel(){
         if(this.levelState!==1)return;
         this.levelState=2;
+        this.player.velocity.set(0,0);
+
+        // if online -> send time
+        if(Director.isOnline()){
+            Director.network().sendData("playerTime",{
+                time : this.levelTimer
+            });
+        }
+
+        Director.toggleEndScreen(true);
     }
 
     updateLevelState(t){
@@ -345,10 +359,12 @@ export class Game extends World {
     }
 
     destroyGhost(id){
+        if(!this.ghosts.has(id))return;
         this.ghosts.delete(id);
     }
 
     getGhost(id){
+        if(!this.ghosts.has(id))return null;
         return this.ghosts.get(id);
     }
 

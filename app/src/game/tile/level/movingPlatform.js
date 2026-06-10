@@ -38,13 +38,10 @@ export class MovingPlatform extends MovingTile {
         this.originePos = new Vector(0,0);
 
         this.waitTimer = 0;
-
     }
 
     render(x, y, context, t) {
         const col = this.getCollider();
-        const r = RessourceLoader.getInstance();
-        const image = r.get('./ressource/testPlayer.png');
         const pos = context.wordToScreenPosition(this.position);
         context.debugRenderShape(col[1], '#00ff99', false);
         context.debugRenderShape(col[0], '#ff0055', false);
@@ -66,11 +63,13 @@ export class MovingPlatform extends MovingTile {
     onReset() {
         this.state=0;
         this.position.set(this.originePos);
+        this.velocity.set(0,0);
     }
 
     startGoing(){
         if(this.state!==0)return;
         this.state=1;
+        this.notifyChange();
     }
 
 
@@ -125,7 +124,7 @@ export class MovingPlatform extends MovingTile {
     }
 
     static setWrapperState(tileWrapper, context, x, y) {
-        const b = new MovingPlatform();
+        const b = new MovingPlatform(new Vector(0,0));
         b.setOriginePosition(new Vector(x, y));
         tileWrapper.shape = b.getCollider();
     }

@@ -12,8 +12,14 @@ export class PlayerGhost extends PlayerD{
 
     render(x,y,context,t){
         super.render(x,y,context,t);
-        context.font = "10px Segoe UI";
-        context.fillStyle ="#000000";
-        context.fillText(this.name, x, y-TILE_SIZE + 5);
+        const textSize = 12;
+        context.font = ""+12+"px Segoe UI";
+        context.fillStyle ="#ffffff";
+        context.strokeStyle ="#000000";
+        context.lineWidth = 3;
+        const tx=x - textSize*this.name.length * 0.25;
+        const ty=y-TILE_SIZE+1;
+        context.strokeText(this.name, tx, ty);
+        context.fillText(this.name, tx, ty);
     }
 }

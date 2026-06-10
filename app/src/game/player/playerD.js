@@ -3,8 +3,8 @@
  * @ Date: 00:15 21.05.2026
  * @ Description: Player test (the "D" stand for i Dont know)
  */
-
 import { TILE_SIZE } from "../../constant.js";
+import { keyFames } from "../../utils/animationUtils.js";
 import { InputManager } from "../../utils/inputManager.js";
 import { Shape, ShapeType } from "../../utils/shape.js";
 import { MathUtils } from "../../utils/utils.js";
@@ -26,7 +26,7 @@ const SUPER_ROLL_JUMP_ADD_SPEED=150;
 
 const ROLL_VERTICAL_STRENGTH = 300;
 const ROLL_VERTICAL_END_COUNTER = 50;
-const ROLL_VERTICAL_CANCEL_BOOST = 50;
+const ROLL_VERTICAL_CANCEL_BOOST = 125;
 const ROLL_VERTICAL_HORIZONTAL_MOVEMENT = 150;
 
 
@@ -34,6 +34,10 @@ const ROLL_VERTICAL_HORIZONTAL_MOVEMENT = 150;
 const WALL_JUMP_HORIZONTAL_SPEED=200;
 const WALL_JUMP_VERTICAL_SPEED=300;
 const WALL_JUMP_TIME=0.1;
+
+
+const WALL_GRIP_MIN_GRAV = 10;
+const WALL_GRIP_STRENGTH = 2000;
 
 
 
@@ -71,6 +75,7 @@ export class PlayerD extends Player{
         this.rollCouldownTimer=0;
         this.rollDir=1;
 
+
         this.onVerticalRoll=false;
 
         this.onRoll=false;
@@ -105,6 +110,28 @@ export class PlayerD extends Player{
                 new Vector(TILE_SIZE*0.5,PLAYER_COLLISION_BOX_SIZE[1] * 0.3)
             )
         ];
+
+
+        this.animSystem.addState("roll",(t)=>{
+            const v = MathUtils.lerp(-Math.PI*2,0,t);
+            let i=MathUtils.lerp(0.4,0,t);
+            let y = this.onDemoRoll?0.7:1;
+
+            let scale;
+            if(this.onVerticalRoll){
+                scale=new Vector(1-i,y+i);
+            }else{
+                scale=new Vector(1+i,y-i);
+            }
+
+            return {
+                scale : scale,
+                offset: new Vector(0, (this.onVerticalRoll)?0:(1-scale.y) * 0.5 *TILE_SIZE),
+                skich : 0,
+                rotation:v,
+                spritePath:"./ressource/testPlayerDash.png"
+            };
+        },ROLL_LENGTH,0,false);
     }
 
     inputUpdate(){
@@ -127,6 +154,9 @@ export class PlayerD extends Player{
 
     // roll
     initRoll(vel_x,t){
+
+        if(this.rollCouldownTimer>0)return vel_x;
+
         this.canRoll=false;
         this.rollTimer=ROLL_LENGTH;
 
@@ -184,6 +214,8 @@ export class PlayerD extends Player{
         const v_y = vel_y * (this.onDemoRoll?0.75:1);;
         this.endRoll();
 
+        this.onRoll=false;
+
         this.onCroutch=false;
 
         return v_y;
@@ -192,11 +224,11 @@ export class PlayerD extends Player{
 
     rollUpdate(vel_x,t){
 
-        if(!this.onRoll && !this.canRoll){
+        if(!this.onRoll){
             if(this.rollCouldownTimer>0){
                 this.rollCouldownTimer-=t;
             }
-            else{
+            else if(!this.canRoll){
                 this.canRoll = this.onGround;
             }
         }
@@ -288,6 +320,9 @@ export class PlayerD extends Player{
         if(this.onRoll){
             return this.initRollJump(super.initJump(vel_y));
         }
+        if(this.rollCouldownTimer>0){
+            this.canRoll=true;
+        }
         return super.initJump(vel_y);
     }
 
@@ -299,7 +334,7 @@ export class PlayerD extends Player{
 
         if(vel_y>0 && this.wallDir!==0 && this.wallDir===this.getTargetFacingDir()){
             this.canRoll=true;
-            return MathUtils.approche(vel_y,3,t * 900);
+            return MathUtils.approche(vel_y,WALL_GRIP_MIN_GRAV,t * WALL_GRIP_STRENGTH);
         }
 
         return super.gravitUpdate(vel_y,t);
@@ -390,17 +425,29 @@ export class PlayerD extends Player{
         super.onSpawn();
     }
 
+    death(){
+        super.death();
+        this.onRoll=false;
+    }
+
+    getData(){
+        return {...super.getData(),
+            onRoll : this.onRoll,
+            onDemoRoll : this.onDemoRoll
+        };
+    }
+
+
+    setData(data){
+        super.setData(data);
+        this.onRoll=data.onRoll;
+        this.onDemoRoll=data.onDemoRoll;
+    }
+
     render(x,y,context,t){
         // TODO : HMMMMM
         if(this.onRoll){
-            let color = "#ff0099";
-            if(this.onRollAttack){
-
-                color="#ffff55";
-            }
-
-            context.debugContextRenderShape(this.getCollider(),color,false);
-
+            this.renderAnimation("roll",x,y,context,t);
             this.renderDebug(x,y,context,t);
             return;
         }

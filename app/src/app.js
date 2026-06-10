@@ -1,4 +1,4 @@
-import { EDITOR_KEYS, GAMES_KEYS, GAME_UPDATE_INTERVAL, OTHER_KEYS, PERLOADED_TEXTURE, RENDER_RESOLUTION, SERVER_ADDRESS, SERVER_PORT } from './constant.js';
+import { EDITOR_KEYS, GAMES_KEYS, GAME_UPDATE_INTERVAL, ONLINE_KEYS, OTHER_KEYS, PERLOADED_TEXTURE, RENDER_RESOLUTION, SERVER_ADDRESS, SERVER_HTTP_PROTO, SERVER_PORT } from './constant.js';
 import { Director } from './director.js';
 import { Game } from './game/game.js';
 import { Renderer } from './renderer/renderer.js';
@@ -13,6 +13,8 @@ import { EditorWorld } from './editor/editorWorld.js';
 import { getSaveItem, setSaveItem } from './utils/saveManager.js';
 import { usernameGenerator } from './utils/utils.js';
 import { NetworkSystem } from './network/networkSystem.js';
+import { fetchLevelFile } from './utils/fileUtils.js';
+import { optionLoadOption } from './ui/optionMenu.js';
 
 const canvasContainer = document.getElementById('gameCanavas');
 
@@ -23,7 +25,7 @@ if(getSaveItem("username")===null){
 
 const game = new Game();
 const editorWorld = new EditorWorld();
-const network = new NetworkSystem(SERVER_ADDRESS,SERVER_PORT,game);
+const network = new NetworkSystem(SERVER_HTTP_PROTO,SERVER_ADDRESS,SERVER_PORT,game);
 
 const uiManager = new UiManager(document.getElementById('ui'), document.getElementById('transition'));
 
@@ -42,15 +44,6 @@ setInterval(() => {
     }
     game.step();
     Director.update();
-    if (InputManager.getAction('toggleMode')?.justPressed) {
-        if (Director.inEditor()) {
-            editor.hidePreview();
-            const data = editor.export();
-            Director.loadLevel(data);
-        } else {
-            Director.switchSceen('editor');
-        }
-    }
     // network
     network.update();
 }, GAME_UPDATE_INTERVAL);
@@ -68,6 +61,10 @@ requestAnimationFrame(loop);
 Director.init(game, editor, renderer,network);
 
 Director.setSceen('loading');
+
+Director.getUIManager().setOnOpen("option",()=>{
+    optionLoadOption();
+});
 
 // set up ressource loader
 RessourceLoader.getInstance().preloadImage(PERLOADED_TEXTURE, () => {
@@ -109,6 +106,7 @@ function init() {
     // other contexts (empty for now)
     InputManager.createContext('loading');
     InputManager.createContext('main');
+    InputManager.createContext('online').loadInputFromSave(ONLINE_KEYS);
 
-    Director.switchSceen('editor');
+    Director.switchSceen('main');
 }

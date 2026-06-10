@@ -58,6 +58,13 @@ export class InputManager {
         if (this.#initialized) return;
         this.#initialized = true;
 
+        // prevent tab focuse
+        document.onkeydown = function (e) {
+            if (e.code === 'Tab') {
+                return false;
+            }
+        }
+
         window.addEventListener('keydown', (e) => {
             this.#keysPressed.add(e.code);
         });
