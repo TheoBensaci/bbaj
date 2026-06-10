@@ -44,7 +44,7 @@ export const GAMES_KEYS = [
 ];
 
 export const ONLINE_KEYS = [
-    ['room_time', ['Tab']]
+    ['roomTime', ['Tab']]
 ];
 
 export const EDITOR_KEYS = [

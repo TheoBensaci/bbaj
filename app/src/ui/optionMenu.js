@@ -32,11 +32,11 @@ document.getElementById("keyChange").addEventListener("keyup",(e)=>{
     updateKeyList(keyChangeKeyLists);
 });
 
-export function endKeyChange(){
+export function optionKeyChangeEnd(){
     document.getElementById("keyChange").tabIndex=-10;
 }
 
-export function keyChangeMenu(context,actionName){
+export function optionKeyChangeMenuGen(context,actionName){
     Director.getUIManager().toggle('option', false);
     Director.getUIManager().toggle('keyChange', true);
     Director.getUIManager().pushState();
@@ -54,18 +54,18 @@ export function keyChangeMenu(context,actionName){
     document.getElementById("keyChangeSave").onclick=(e)=>{
         context.getAction(actionName).keys=keyChangeKeyLists;
         setSaveInputKey(context.name,actionName,keyChangeKeyLists);
-        endKeyChange();
+        optionKeyChangeEnd();
         Director.getUIManager().popState();
     }
 
     document.getElementById("keyChangeBack").onclick = (e)=>{
-        endKeyChange();
+        optionKeyChangeEnd();
         Director.getUIManager().popState();
     }
 }
 
 
-export function loadOption(){
+export function optionLoadOption(){
     const contextUse = ["other","game","online","editor"];
     controllesContainer.innerHTML="";
     for (const contextName of contextUse) {
@@ -89,7 +89,7 @@ export function loadOption(){
             inp.appendChild(keys);
             inp.className="inpuShower";
             inp.onclick=(e)=>{
-                keyChangeMenu(context,iterator[0]);
+                optionKeyChangeMenuGen(context,iterator[0]);
             }
 
             controllesContainer.appendChild(inp);
@@ -106,3 +106,4 @@ export function loadOption(){
 document.getElementById("optionUsernameSave").onclick=(e)=>{
     setSaveItem("username",document.getElementById("optionUsername").value);
 }
+

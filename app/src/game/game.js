@@ -291,7 +291,11 @@ export class Game extends World {
             this.levelTimer = 0;
             this.levelDeath = 0;
             this.levelState=0;
+
+            Director.toggleEndScreen(false);
         });
+
+
     }
 
     setPlayerSpawnPoint(position){
@@ -328,6 +332,8 @@ export class Game extends World {
                 time : this.levelTimer
             });
         }
+
+        Director.toggleEndScreen(true);
     }
 
     updateLevelState(t){

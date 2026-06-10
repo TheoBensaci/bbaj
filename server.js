@@ -246,7 +246,7 @@ app.ws('/', (ws) => {
             case 'playerTime':
                 if (!data.time) return; //Aucune time
 
-                console.log(`player ${data.username} (id : ${ws.id}) finish map with "${data.time}"s`);
+                console.log(`player ${rooms[ws.room].players[ws.id].username} (id : ${ws.id}) finish map "${ws.room}" with "${data.time}"s`);
 
                 //Enregistrement des données sur la position, vélocity, etc
                 const lastTime = rooms[ws.room].players[ws.id].time;

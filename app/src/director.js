@@ -7,8 +7,8 @@
 
 import { PlayerD } from './game/player/playerD.js';
 import { PlayerGhost } from './game/player/playerGhost.js';
-import { genTabElements, setTabThinking } from './ui/menu.js';
-import { endKeyChange } from './ui/optionMenu.js';
+import { genTabElements as tabGenElement, setTabThinking, endSetTime } from './ui/menu.js';
+import { optionKeyChangeEnd } from './ui/optionMenu.js';
 import { InputManager } from './utils/inputManager.js';
 import { Vector } from './utils/vector.js';
 
@@ -166,7 +166,7 @@ export class Director {
         else{
             // pop to the menu just befor the pause menu
             this.#inst.render.uiManager.popState(this.#inst.pauseMenuBackState);
-            endKeyChange();
+            optionKeyChangeEnd();
         }
         if(this.#inst.lastSceen==='game'){
             this.#inst.game.pause = state;
@@ -177,6 +177,20 @@ export class Director {
     static isPause(){
         return this.#inst.pause;
     }
+
+    static toggleEndScreen(state){
+        if(state){
+            endSetTime(this.#inst.game.levelTimer);
+        }
+        this.#inst.render.uiManager.toggle('blackBackground', state);
+        this.#inst.render.uiManager.toggle('endScreen', state);
+    }
+
+    static onEndScreen(){
+        return this.inGame() && this.#inst.game.levelState>1;
+    }
+
+
 
     static loadLevel(levelData) {
         if(this.#inst.lastSceen!=="loading")Director.switchSceen('loading');
@@ -223,6 +237,13 @@ export class Director {
     }
 
 
+    static resetGame(){
+        if(this.#inst.game.levelState>0){
+            this.#inst.game.cleanSpawnPlayer();
+        }
+    }
+
+
     static getEditorQuickSwitch(){
         return this.#inst.editorQuickSwitch;
     }
@@ -244,36 +265,40 @@ export class Director {
         // check if we are not in the input settings screen
         if(this.#inst.render.uiManager.getScreenState("keyChange"))return;
         // check for special input
-        if(InputManager.getContext("other").getAction("pause").justPressed){
+        if(InputManager.getContext("other").getAction("pause").justPressed && !this.onEndScreen()){
             Director.togglePause(!Director.onPause());
         }
 
         if(this.inGame() && !this.onPause() && InputManager.getContext("game").getAction("reset").justPressed ){
-            if(this.#inst.game.levelState>0){
-                this.#inst.game.cleanSpawnPlayer();
-            }
+            this.resetGame();
             return;
         }
 
         if(!this.isPause() && this.isOnline() && this.inGame()){
-            if(InputManager.getContext("online").getAction("room_time").justPressed){
+            if(InputManager.getContext("online").getAction("roomTime").justPressed){
                 setTabThinking();
                 this.network().checkRoom(this.network().roomId,(data)=>{
                     if(data===null)return;
-                    genTabElements("room time : "+this.network().roomId,data.times.sort((a,b)=>{
-                        if(a.time === null && b.time ===null)return 0;
-                        if(a.time===null){
-                            return 1;
+                    tabGenElement(
+                        "code : "+this.network().roomId,
+                        data.times.sort((a,b)=>{
+                            if(a.time === null && b.time ===null)return 0;
+                            if(a.time===null){
+                                return 1;
+                            }
+                            if(b.time===null){
+                                return -1;
+                            }
+                            return a.time-b.time;
+                        })
+                        ,(e)=>{
+                            navigator.clipboard.writeText(this.network().roomId);
                         }
-                        if(b.time===null){
-                            return -1;
-                        }
-                        return a.time-b.time;
-                    }));
+                    );
                 });
                 this.#inst.render.uiManager.toggle('tab', true);
             }
-            if(InputManager.getContext("online").getAction("room_time").justReleased){
+            if(InputManager.getContext("online").getAction("roomTime").justReleased){
                 this.#inst.render.uiManager.toggle('tab', false);
             }
         }

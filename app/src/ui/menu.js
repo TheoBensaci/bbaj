@@ -118,8 +118,17 @@ document.getElementById('localImport').onclick = () => {
 
 // =============== TAB ===============
 
-export function genTabElements(title,elements){
-    document.getElementById("tabObjectTitle").innerHTML=title;
+export function genTabElements(title,elements,onTitleClick=null){
+    const titleNode =  document.getElementById("tabObjectTitle");
+    titleNode.innerHTML=title;
+    if(onTitleClick===null){
+        titleNode.classList.remove("tabTitleEnable");
+    }
+    else{
+        titleNode.classList.add("tabTitleEnable");
+        titleNode.onclick=onTitleClick;
+    }
+
 
     const list=document.getElementById("tabObjectList");
     list.innerHTML="";
@@ -158,4 +167,21 @@ export function genTabElements(title,elements){
 export function setTabThinking(){
     document.getElementById("tabObjectList").innerHTML="";
     document.getElementById("tabObjectTitle").innerHTML="...";
+    document.getElementById("tabObjectTitle").classList.remove("tabTitleEnable");
+}
+
+
+// =============== FINISH ===============
+document.getElementById('endReplay').onclick = () => {
+    Director.resetGame();
+};
+
+document.getElementById('endMainMenu').onclick = () => {
+    Director.switchSceen("main",null);
+};
+
+
+export function endSetTime(time){
+    const timeValue = Renderer.formatTime(time);
+    document.getElementById('endTime').innerText=timeValue[0]+":"+timeValue[1]+"."+timeValue[2];
 }

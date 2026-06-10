@@ -23,7 +23,7 @@
 
                 <div class="uiSceen" id="tab">
                     <div id="tabObject" class="tabObject">
-                        <h3 id="tabObjectTitle">title</h3>
+                        <h3 id="tabObjectTitle" class="tabTitle">title</h3>
                         <div id="tabObjectList">
                             <div class="tabEntry"><label class="runPlacement">1</label><label class="runUsername">username</label><label class="runTime">00:10.022</label></div>
                             <div class="tabEntry"><label class="runPlacement">2</label><label class="runUsername">usernadme</label><label class="runTime">00:10.022</label></div>
@@ -40,8 +40,13 @@
                     </div>
                 </div>
 
-                <div class="uiSceen" id="levelFinish">
-                    tab
+                <div class="uiSceen" id="endScreen">
+                    <div id="endMenuContainer">
+                        <div class="menuTitle">Finish</div>
+                        <div class="time">Time : <label  id="endTime" class="runTime">20:00.000</label></div>
+                        <button id = "endReplay" class="bnt playColor"><div class="bntIcon iconLocal"></div>Replay</button>
+                        <button id = "endMainMenu" class="bnt"><div class="bntIcon iconMain"></div>Main Menu</button>
+                    </div>
                 </div>
 
                 <div class="uiSceen" id="pauseMenu">

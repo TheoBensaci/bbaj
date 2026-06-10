@@ -14,7 +14,7 @@ import { getSaveItem, setSaveItem } from './utils/saveManager.js';
 import { usernameGenerator } from './utils/utils.js';
 import { NetworkSystem } from './network/networkSystem.js';
 import { fetchLevelFile } from './utils/fileUtils.js';
-import { loadOption } from './ui/optionMenu.js';
+import { optionLoadOption } from './ui/optionMenu.js';
 
 const canvasContainer = document.getElementById('gameCanavas');
 
@@ -63,7 +63,7 @@ Director.init(game, editor, renderer,network);
 Director.setSceen('loading');
 
 Director.getUIManager().setOnOpen("option",()=>{
-    loadOption();
+    optionLoadOption();
 });
 
 // set up ressource loader

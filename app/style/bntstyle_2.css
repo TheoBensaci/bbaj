@@ -55,7 +55,6 @@
 
 
 
-
 .bnt:enabled:hover{
     transform: scale(1.15) !important;
     color:var(--color_2);
