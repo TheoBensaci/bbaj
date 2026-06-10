@@ -684,3 +684,24 @@ h1{
 #endScreen #endMenuContainer label{
     margin-left: 5px;
 }
+
+
+#createRoom #mapContainer{
+    background-color: #00ff99;
+    width: 80%;
+    height: 200px;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    padding: 5px;
+}
+
+.mapEntry{
+    display: flex;
+    background-color: #4a434e;
+    flex-direction: column;
+    height: 75px;
+    justify-content: center;
+    width: 130px;
+    align-items: center;
+}

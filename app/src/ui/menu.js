@@ -76,6 +76,7 @@ document.getElementById('pauseMainMenu').onclick = () => {
 // =============== ONLINE ===============
 const onlineCreateBnt = document.getElementById('onlineCreate');
 onlineCreateBnt.onclick = () => {
+    /*
     const baseText = onlineCreateBnt.innerHTML;
     onlineCreateBnt.disabled=true;
     // ... try to join room
@@ -87,7 +88,10 @@ onlineCreateBnt.onclick = () => {
         Director.getUIManager().toggle('createRoom', true);
         Director.getUIManager().toggle('online', false);
         Director.getUIManager().pushState();
-    });
+    });*/
+    Director.getUIManager().toggle('createRoom', true);
+    Director.getUIManager().toggle('online', false);
+    Director.getUIManager().pushState();
 };
 
 document.getElementById('onlineJoin').onclick = () => {
