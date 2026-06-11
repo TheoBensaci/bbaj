@@ -20,6 +20,10 @@ export class NetworkSystem{
         return this.server;
     }
 
+    getHost(){
+        return this.httpProto+"//"+this.server+":"+this.port;
+    }
+
     //#region ============= GAMPLAY =============
     updateGhost(datas){
         for (const data of datas) {
@@ -126,7 +130,7 @@ export class NetworkSystem{
     //#region ============= HTTP =============
 
     createRoom(mapId,callback){
-        fetch(this.httpProto+"://"+this.server+":"+this.port+"/createRoom",{
+        fetch(this.getHost()+"/createRoom",{
             method:"POST",
             headers:{
                 'Content-Type': 'application/json'
@@ -148,7 +152,7 @@ export class NetworkSystem{
     }
 
     checkRoom(roomId,callback){
-        fetch(this.httpProto+"://"+this.server+":"+this.port+"/room/"+roomId)
+        fetch(this.getHost()+"/room/"+roomId)
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);
@@ -162,7 +166,7 @@ export class NetworkSystem{
     }
 
     getMaps(callback){
-        fetch(this.httpProto+"://"+this.server+":"+this.port+"/maps")
+        fetch(this.getHost()+"/maps")
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP error! Status: ${response.status}`);

@@ -612,7 +612,7 @@ h1{
 .tabObject .tabEntry{
     background-color: var(--backgroundColor);
     display: flex;
-    justify-content: center;
+    align-items: center;
     width: 150px;
     font-size: 9px;
     padding: 5px 0 5px 0;
@@ -624,12 +624,9 @@ h1{
 }
 
 .tabObject .tabEntry label{
-    margin: 0;
+    margin-bottom: 0;
 }
 
-.tabObject .tabEntry .runUsername{
-    align-self: flex-start;
-}
 .runTime{
     color: rgb(255, 255, 255);
     background-color: rgba(128, 128, 128, 0.299);
@@ -687,21 +684,55 @@ h1{
 
 
 #createRoom #mapContainer{
-    background-color: #00ff99;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    background-color: #0000004a;
     width: 80%;
-    height: 200px;
+    height: 125px;
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    padding: 5px;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
 }
 
 .mapEntry{
     display: flex;
     background-color: #4a434e;
     flex-direction: column;
-    height: 75px;
+    height: 50px;
     justify-content: center;
-    width: 130px;
+    width: 150px;
     align-items: center;
+    text-align: center;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    transform: scale(1);
+    cursor: pointer;
+    transition: all cubic-bezier(0.23,1.5,0,1.23) 0.2s;
+}
+.mapEntry:hover{
+    transform: scale(1.1);
+}
+
+.mapEntry label{
+    cursor: pointer;
+    user-select: none;
+}
+
+.mapEntry .mapName{
+    font-size: 15px;
+    text-overflow: hide;
+    text-wrap: nowrap;
+    width: 100px;
+    text-align: center;
+    overflow: hidden;
+}
+.mapEntry .mapId{
+    font-size: 10px;
+}
+
+.mapEntry:hover:active{
+    transform: scale(1.05);
 }
