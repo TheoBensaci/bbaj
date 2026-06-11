@@ -5,8 +5,11 @@
  * In nutshell, it's use to switch from editor mode, main menu and the actual game
  */
 
+import { Editor } from './editor/editor.js';
 import { PlayerD } from './game/player/playerD.js';
 import { PlayerGhost } from './game/player/playerGhost.js';
+import { NetworkSystem } from './network/networkSystem.js';
+import { Renderer } from './renderer/renderer.js';
 import { genTabElements as tabGenElement, setTabThinking, endSetTime } from './ui/menu.js';
 import { optionKeyChangeEnd } from './ui/optionMenu.js';
 import { InputManager } from './utils/inputManager.js';
@@ -29,6 +32,7 @@ export class Director {
         // when on, we can switch between editor and game with a short cut
         this.editorQuickSwitch=false;
 
+        // sceen
         this.sceens = {
             'game': {
                 in: (levelData = null) => {
@@ -119,10 +123,22 @@ export class Director {
         };
     }
 
+    /**
+     * init the director
+     * @param {Game} gameInstance
+     * @param {Editor} editorInstance
+     * @param {Renderer} renderInstance
+     * @param {NetworkSystem} networkInstance
+     */
     static init(gameInstance, editorInstance, renderInstance, networkInstance) {
         this.#inst = new Director(gameInstance, editorInstance, renderInstance,networkInstance);
     }
 
+    /**
+     * Switch sceen
+     * @param {*} sceenName next sceen name
+     * @param  {...any} params params given thoe the next sceen
+     */
     static switchSceen(sceenName, ...params) {
         if (this.#inst.sceens[sceenName] === undefined) return;
         this.#inst.game.pause = true;
@@ -132,19 +148,37 @@ export class Director {
         });
     }
 
+    /**
+     * Call a transition
+     * @param {*} callback callback called in the middle of it
+     */
     static transition(callback) {
         this.#inst.render.uiManager.transition(callback);
     }
 
+    /**
+     * Get the network system instance
+     * @returns
+     */
     static network(){
         return this.#inst.network;
     }
 
+    /**
+     * Set a sceen without any transition, raw
+     * @param {*} sceenName
+     * @param  {...any} params
+     * @returns
+     */
     static setSceen(sceenName, ...params) {
         if (this.#inst.sceens[sceenName] === undefined) return;
         this.#inst.switchSceen(sceenName, ...params);
     }
 
+    /**
+     * Toggle pause (for editor or game)
+     * @param {*} state
+     */
     static togglePause(state) {
         this.#inst.pause=state;
         if(state){
@@ -174,10 +208,18 @@ export class Director {
         this.#inst.render.pause = state;
     }
 
+    /**
+     * Is pause menu on
+     * @returns {Boolean}
+     */
     static isPause(){
         return this.#inst.pause;
     }
 
+    /**
+     * toggle the finish/end level screen
+     * @param {*} state
+     */
     static toggleEndScreen(state){
         if(state){
             endSetTime(this.#inst.game.levelTimer);
@@ -186,12 +228,20 @@ export class Director {
         this.#inst.render.uiManager.toggle('endScreen', state);
     }
 
+    /**
+     * Is end menu on
+     * @returns {Boolean}
+     */
     static onEndScreen(){
         return this.inGame() && this.#inst.game.levelState>1;
     }
 
 
 
+    /**
+     * Load a level into the game
+     * @param {*} levelData level data
+     */
     static loadLevel(levelData) {
         if(this.#inst.lastSceen!=="loading")Director.switchSceen('loading');
 
@@ -204,11 +254,20 @@ export class Director {
         });
     }
 
+    /**
+     * Import a level into the editor
+     * @param {*} levelData
+     */
     static importLevel(levelData) {
         // load level
         this.#inst.editor.import(levelData);
     }
 
+    /**
+     * actualy switch sceen
+     * @param {*} nextSceenName
+     * @param  {...any} params
+     */
     switchSceen(nextSceenName, ...params) {
         if (this.lastSceen !== '') this.sceens[this.lastSceen].out();
         InputManager.setActiveContext(nextSceenName);
@@ -216,22 +275,39 @@ export class Director {
         this.lastSceen = nextSceenName;
     }
 
+    /**
+     * Set render background color
+     * @param {*} color
+     */
     setBackgroundColor(color) {
         this.render.setBackgroundColor(color);
     }
 
+    /**
+     * Is in editor
+     * @returns
+     */
     static inEditor() {
         return this.#inst.lastSceen === 'editor';
     }
 
+    /**
+     * Is in game
+     * @returns
+     */
     static inGame() {
         return this.#inst.lastSceen === 'game';
     }
 
+    /**
+     * Is online
+     * @returns
+     */
     static isOnline() {
         return this.#inst.network.socket!==null;
     }
 
+    /** */
     static setEditorQuickSwitch(state){
         this.#inst.editorQuickSwitch=state;
     }

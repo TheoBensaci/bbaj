@@ -53,6 +53,12 @@ export class TileIndex {
         return tileGroup[id].createTile(params);
     }
 
+    /**
+     * Get the tile class
+     * @param {*} groupID
+     * @param {*} id
+     * @returns Tile propotype object
+     */
     static getTileClass(groupID, id) {
         if (!TileIndex.#data.has(groupID)) {
             throw new Error('Group ID "' + groupID + '" dosn\'t exist');
@@ -64,6 +70,11 @@ export class TileIndex {
         return tileGroup[id];
     }
 
+    /**
+     * Get tile name
+     * @param {*} groupID
+     * @param {*} id
+     */
     static getName(groupID, id) {
         if (!TileIndex.#data.has(groupID)) {
             return 'none';

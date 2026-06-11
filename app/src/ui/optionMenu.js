@@ -1,3 +1,9 @@
+/**
+ * @ Autheur: Theo Bensaci
+ * @ Date: 11:59 31.05.2026
+ * @ Description: init option bnt and function
+ */
+
 import { MAX_NUMBER_OF_KEY_INPUT } from "../constant.js";
 import { Director } from "../director.js";
 import { InputManager } from "../utils/inputManager.js";
@@ -10,6 +16,10 @@ const controllesContainer = document.getElementById("controllesContainer");
 const keyLists=document.getElementById("keyChangeList");
 let keyChangeKeyLists=[];
 
+/**
+ * Update key lists in the option (visualy)
+ * @param {*} newKeyLists new key lists
+ */
 function updateKeyList(newKeyLists){
     keyLists.innerHTML="";
     for (const iterator of newKeyLists) {
@@ -32,10 +42,18 @@ document.getElementById("keyChange").addEventListener("keyup",(e)=>{
     updateKeyList(keyChangeKeyLists);
 });
 
+/**
+ * When quiting the key change screen
+ */
 export function optionKeyChangeEnd(){
     document.getElementById("keyChange").tabIndex=-10;
 }
 
+/**
+ * Generate key change menu
+ * @param {*} context input context
+ * @param {*} actionName action name
+ */
 export function optionKeyChangeMenuGen(context,actionName){
     Director.getUIManager().toggle('option', false);
     Director.getUIManager().toggle('keyChange', true);
@@ -65,6 +83,9 @@ export function optionKeyChangeMenuGen(context,actionName){
 }
 
 
+/**
+ * generate option menu
+ */
 export function optionLoadOption(){
     const contextUse = ["other","game","online","editor"];
     controllesContainer.innerHTML="";

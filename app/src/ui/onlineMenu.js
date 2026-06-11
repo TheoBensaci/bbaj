@@ -1,3 +1,9 @@
+/**
+ * @ Autheur: Theo Bensaci
+ * @ Date: 09:32 09.06.2026
+ * @ Description: init online menu function and bnt
+ */
+
 import { Director } from "../director.js";
 
 document.getElementById('joinCode').addEventListener("input",(e)=>{
@@ -47,6 +53,10 @@ createBnt.onclick=(e)=>{
 };
 
 
+/**
+ * Generate map lists
+ * @param {*} maps list of maps data [{name,id},....]
+ */
 export function genMapList(maps){
     mapIdInput.value="";
     const mapContainer = document.getElementById('mapContainer');

@@ -1,3 +1,9 @@
+/**
+ * @ Autheur: Theo Bensaci
+ * @ Date: 12:28 05.06.2026
+ * @ Description: Level finish tile
+ */
+
 import { TILE_SIZE } from "../../../constant.js";
 import { Shape, ShapeType } from "../../../utils/shape.js";
 import { Vector } from "../../../utils/vector.js";

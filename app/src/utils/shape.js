@@ -127,11 +127,22 @@ export class Shape {
         return this;
     }
 
+    /**
+     * Project the shape
+     * @param {*} offset offset
+     * @param {*} scaleVector scale
+     * @param {*} rad rotation in radiant
+     * @returns new shape projected
+     */
     project(offset = new Vector(0,0), scaleVector = new Vector(1,1), rad = 0) {
         const buffer = new Shape(this.points, offset, scaleVector, rad);
         return buffer;
     }
 
+    /**
+     * Get shape edges
+     * @returns
+     */
     getEdge() {
         return this.points;
     }
@@ -177,6 +188,11 @@ export class Shape {
         return Vector.add(boudingBox[0], Vector.sub(boudingBox[1], boudingBox[0]).scale(0.5));
     }
 
+    /**
+     * Get the min, max and center value of the projection of this shape into the givent axis
+     * @param {*} axis target axis
+     * @returns [min,max,center]
+     */
     getMaxMinProjection(axis) {
         let min = Vector.dot(this.points[0], axis);
         let max = min;
@@ -190,6 +206,12 @@ export class Shape {
         return [min, max, center];
     }
 
+    /**
+     * check of overlap between to minMaxProjection
+     * @param {*} minMaxA minMaxProjectionA
+     * @param {*} minMaxB minMaxProjectionB
+     * @returns overlap length
+     */
     static #minMaxOverlap(minMaxA, minMaxB) {
         if (minMaxA[1] - minMaxA[0] === 0) {
             return minMaxB[1] - minMaxB[0];
@@ -285,6 +307,12 @@ export class Shape {
         return smallestAxis.normalize().scale(smalestScale*mult);
     }
 
+    /**
+     * Compute collision using AABB, use bounding box
+     * @param {*} boundingBoxA
+     * @param {*} boundingBoxB
+     * @returns
+     */
     static AABB(boundingBoxA, boundingBoxB) {
         const r1 = this.#minMaxOverlap([boundingBoxA[0].x, boundingBoxA[1].x], [boundingBoxB[0].x, boundingBoxB[1].x]);
         if (r1 >= 0) return false;

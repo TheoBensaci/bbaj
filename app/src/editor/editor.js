@@ -4,7 +4,6 @@ import { EditorTilePreview } from '../renderer/editorTilePreview.js';
 import { InputManager } from '../utils/inputManager.js';
 import { Vector } from '../utils/vector.js';
 import { EditorTilePalette } from './editorTilePalette.js';
-import { TEST_LEVEL_DATA } from '../testLevel.js';
 
 /**
  * @description: Main level editor orchestrator.
@@ -165,7 +164,7 @@ export class Editor {
         const selectActions = [
             { name: 'selectEraser', id: -1 },
             { name: 'selectTile0', id: 0 },
-            { name: 'selectTile1', id: 1 },
+            { name: 'selectTile1', id: 10 },
             { name: 'selectTile2', id: 2 },
             { name: 'selectTile3', id: 3 },
             { name: 'selectTile4', id: 4 },

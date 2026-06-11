@@ -1,3 +1,9 @@
+/**
+ * @ Autheur: Theo Bensaci
+ * @ Date: 17:57 23.05.2026
+ * @ Description: One way platforme
+ */
+
 import { TILE_SIZE } from "../../../constant.js";
 import { Shape, ShapeType } from "../../../utils/shape.js";
 import { MathUtils } from "../../../utils/utils.js";

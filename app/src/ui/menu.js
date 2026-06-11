@@ -6,7 +6,6 @@
 
 import { Director } from '../director.js';
 import { Renderer } from '../renderer/renderer.js';
-import { TEST_LEVEL_DATA } from '../testLevel.js';
 import { fetchLevelFile, importFile, loadLevelFromFile } from '../utils/fileUtils.js';
 import "./onlineMenu.js";
 import { genMapList } from './onlineMenu.js';
@@ -107,7 +106,7 @@ document.getElementById('localCampaign').onclick = () => {
         if(data===null)return;
         Director.loadLevel(data);
         Director.setEditorQuickSwitch(false);
-    },"./ressource/levels/testLevel.json")
+    },"./ressource/levels/testMovingPlat.json")
 };
 
 document.getElementById('localImport').onclick = () => {

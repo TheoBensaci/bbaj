@@ -753,6 +753,11 @@ export class Player extends Actor {
         return true;
     }
 
+    /**
+     * Set a new buffer ridign tile
+     * @param {MovingTile} tile candidate tile
+     * @returns {Boolean} if the tile as been accepted
+     */
     setBufferRidingTile(tile) {
         if (this.rideTile === tile || tile instanceof MovingTile) {
             this.bufferRidingTile = tile;
@@ -1023,6 +1028,9 @@ export class Player extends Actor {
         this.bufferSystem.clearAll();
     }
 
+    /**
+     * kill the player
+     */
     death() {
         if (this.dead) return;
         this.dead = true;
@@ -1148,6 +1156,10 @@ export class Player extends Actor {
 
     //#region ============== ONLINE ==============
 
+    /**
+     * Get player data use by setData
+     * @returns {Object} player Data
+     */
     getData(){
         return {
             position : this.position,
@@ -1162,6 +1174,10 @@ export class Player extends Actor {
     }
 
 
+    /**
+     * Set player data (for dummies and ghost)
+     * @param {*} data player data (form a getData of the same class)
+     */
     setData(data){
         if(data===null)return;
         this.position.set(data.position);
@@ -1177,6 +1193,14 @@ export class Player extends Actor {
 
     //#endregion
 
+    /**
+     * Render animation
+     * @param {*} targetState state targeted
+     * @param {*} x x
+     * @param {*} y y
+     * @param {*} context grahic context
+     * @param {*} t delta t
+     */
     renderAnimation(targetState,x,y,context,t){
         const r = RessourceLoader.getInstance();
         context.save();
@@ -1193,8 +1217,6 @@ export class Player extends Actor {
         scale.x *= this.facing;
 
         const image = r.get(value.spritePath);
-
-        //this.onMove
 
         context.transform(scale.x, 0, -skich, scale.y, x-(TILE_SIZE/2)*scale.x + offset.x, y-(TILE_SIZE/2)*scale.y + offset.y);
 
@@ -1281,7 +1303,6 @@ export class Player extends Actor {
             context.debugContextRenderShape(this.jumpCorrectionBox[0].setOrigine(orgine), '#ff005555', false);
             context.debugContextRenderShape(this.jumpCorrectionBox[1].setOrigine(orgine), '#ff005555', false);
             context.debugContextRenderShape(this.jumpCorrectionBox[3].setOrigine(orgine), '#ff005555', false);
-
         }
 
         if (debug.debugInfo) {

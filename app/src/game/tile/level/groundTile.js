@@ -1,5 +1,10 @@
+/**
+ * @ Autheur: Theo Bensaci
+ * @ Date: 00:03 21.05.2026
+ * @ Description: Basic ground tile
+ */
+
 import { TILE_SIZE } from "../../../constant.js";
-import { RessourceLoader } from "../../../utils/ressouceLoader.js";
 import { Shape, ShapeType } from "../../../utils/shape.js";
 import { Vector } from "../../../utils/vector.js";
 import { Tile } from "../../tileSystem/tile.js";

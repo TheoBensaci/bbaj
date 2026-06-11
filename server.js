@@ -141,7 +141,7 @@ app.post('/createRoom', (req, res) => {
     },INTERVAL);
 
 
-    console.log(`create room "${roomId}"`);
+    console.log(`create room "${roomId}" with map ${mapId}`);
 
 
     rooms[roomId] = room;

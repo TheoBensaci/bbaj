@@ -1,7 +1,21 @@
+/**
+ * @ Autheur: Theo Bensaci
+ * @ Date: 10:47 07.06.2026
+ * @ Description: Animation utils
+ */
+
 import { MathUtils } from "./utils.js";
 import { Vector } from "./vector.js";
 
 
+/**
+ * Animation lerp function
+ * @param {*} values actual value of the animation state
+ * @param {*} source source animation state
+ * @param {*} target target animation state
+ * @param {*} t delta t
+ * @returns
+ */
 export function animationLerp(values,source,target,t){
     let result={};
     for (const key in values) {
@@ -39,18 +53,43 @@ export function animationLerp(values,source,target,t){
 }
 
 
+// animiation sytsme
 export class AnimationSystem{
+    /**
+     *
+     * @param {Object} values object use to make animation, it define which proprity the animation will use and return
+     * this is the source of the animation sytem
+     */
     constructor(values){
         this.values=values;
         this.t = 0;
+
+        // lists of state
         this.states = [];
+
+        // state use for transiton
         this.actualState=null;
         this.lastState=null;
+
+        // transition delat t
         this.transitionT=0;
+
+        // pause the system
         this.pause=false;
+
+        // addition transition data
         this.addTransition={};
     }
 
+    /**
+     * add a animation state
+     * @param {*} name name of state
+     * @param {*} fnc function use to get the state
+     * @param {*} duration duration of state
+     * @param {*} stepInTime step in time (for transition)
+     * @param {*} loop if the state looping
+     * @param {*} onfinish on finish callback, called when the state is finish (even if looping)
+     */
     addState(name,fnc,duration,stepInTime,loop,onfinish=()=>{}){
         this.states[name]={
             name:name,
@@ -64,6 +103,12 @@ export class AnimationSystem{
         }
     }
 
+    /**
+     * Set a transition time between 2 state
+     * @param {*} from from state
+     * @param {*} to to state
+     * @param {*} duration duration
+     */
     setTransitionTime(from,to,duration){
         const name = this.#getTransitionName(from,to);
         this.addTransition[name]=duration;
@@ -79,6 +124,10 @@ export class AnimationSystem{
     }
 
 
+    /**
+     * Set the animation system state
+     * @param {*} name name of the state
+     */
     setState(name){
         if(this.states[name]===undefined)return;
         if(this.actualState!==null && name===this.actualState.name){
@@ -122,11 +171,19 @@ export class AnimationSystem{
         this.values[key]=newValue;
     }
 
+    /**
+     * Is the animation sytsme in transition
+     * @returns {Boolean}
+     */
     inTransition(){
         return(this.lastState!==null && this.transitionT<this.#getTransitionTime(this.lastState.name,this.actualState.name));
     }
 
 
+    /**
+     * Update the animation system
+     * @param {*} t delat t
+     */
     update(t){
         if(this.pause)return;
         if(this.actualState===null)return;
@@ -155,6 +212,9 @@ export class AnimationSystem{
         }
     }
 
+    /**
+     * Get the animation system value base on the source given (constructor)
+     */
     get(){
         return this.values;
     }
