@@ -9,8 +9,8 @@ import { PlayerCheckPointTile, PlayerSpawnTile } from "./game/tile/other/playerS
 import { TileIndex } from "./game/tileSystem/tileIndexer.js";
 
 export const GAME_UPDATE_INTERVAL = 10;
-export const SERVER_HTTP_PROTO = "http";
-export const SERVER_ADDRESS = "localhost";
+export const SERVER_HTTP_PROTO = window.location.protocol;
+export const SERVER_ADDRESS = window.location.hostname;
 export const SERVER_PORT = "3000";
 export const REQUEST_TIMOUT=500;
 //const lvlSquareSize=1;
