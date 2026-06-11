@@ -1,3 +1,9 @@
+/**
+ * @ Autheur: Theo Bensaci
+ * @ Date: 00:03 21.05.2026
+ * @ Description: Slope
+ */
+
 import { TILE_SIZE } from "../../../constant.js";
 import { Shape, ShapeType } from "../../../utils/shape.js";
 import { MathUtils } from "../../../utils/utils.js";

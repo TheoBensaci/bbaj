@@ -143,6 +143,10 @@ export class MathUtils {
 }
 
 
+/**
+ * Generate a username
+ * @returns
+ */
 export function usernameGenerator(){
 
     // TODO : add more prefix / sufix
@@ -158,5 +162,5 @@ export function usernameGenerator(){
     // the number at the end is totaly arbitrary
     const indexs = [Math.floor(Math.random() * prefix.length),Math.floor(Math.random() * sufix.length),Math.floor(Math.random() * 668)];
 
-    return prefix[indexs[0]]+" "+sufix[indexs[1]]+" "+indexs[2];
+    return prefix[indexs[0]]+sufix[indexs[1]]+indexs[2];
 }

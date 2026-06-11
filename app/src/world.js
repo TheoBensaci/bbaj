@@ -86,6 +86,13 @@ export class World {
         return map;
     }
 
+    /**
+     * Get all tile surronding the position xy
+     * @param {*} x pos x
+     * @param {*} y pos y
+     * @param {*} radius radiuse of the surrounding
+     * @returns {Tile[]}
+     */
     getSuroundTiles(x, y, radius = 1) {
         const buffer = [];
         const gridPosX = Math.floor(x / TILE_SIZE);

@@ -39,6 +39,11 @@ export class UiManager{
     }
 
 
+    /**
+     * Set a on open call to a specific screen
+     * @param {*} id screen id
+     * @param {*} callback callback
+     */
     setOnOpen(id,callback){
         for (const iterator of this.sceen) {
             if (iterator.id === id) {
@@ -47,6 +52,11 @@ export class UiManager{
         }
     }
 
+    /**
+     * Toggele (html)node state
+     * @param {*} node html node
+     * @param {*} state hidden or showned
+     */
     #toggleScreen(node,state){
         if (state) {
             node.classList.add('uiShow');

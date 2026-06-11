@@ -1,3 +1,4 @@
+import { FallingTile } from "./game/tile/level/fallingTile.js";
 import { FinishTile } from "./game/tile/level/finishTile.js";
 import { GroundTile } from "./game/tile/level/groundTile.js";
 import { JumpPadTile } from "./game/tile/level/jumpPadTile.js";
@@ -80,7 +81,9 @@ export const PERLOADED_TEXTURE=[
     "./ressource/customFruit.png",
     "./ressource/testSpike.png",
     "./ressource/checkPoint.png",
-    "./ressource/faces.png"
+    "./ressource/faces.png",
+    "./ressource/fallingTile.png",
+    "./ressource/fallingTileReload.png"
 ];
 
 // register all tile
@@ -95,3 +98,4 @@ TileIndex.registerTile("main",OneWayPlatformTile);
 TileIndex.registerTile("main",PlayerCheckPointTile);
 TileIndex.registerTile("main",PlayerSpawnTile);
 TileIndex.registerTile("main",FinishTile);
+TileIndex.registerTile("main",FallingTile);

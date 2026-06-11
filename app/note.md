@@ -66,14 +66,14 @@ ____
   - **[ x ]** Tile post-process function
   - **[ x ]** Tile reset
 
-- [ _ ] Player
+- **[ ^ ]** Player
   - **[ x ]** Basic movment
   - **[ x ]** gravity
   - **[ x ]** buffer system
   - **[ x ]** croutch
   - **[ x ]** respawn
   - [ _ ] friction
-  - [ _ ] find a new movement mecanic
+  - **[ x ]** find a new movement mecanic
     *( The actual movement mecanic is not realy good in my opion, i thinks we need to change it )*
   - **[ x ]** jump correction
   - **[ x ]** coyotie time
@@ -127,22 +127,22 @@ ____
   - [ _ ] finish
 
 - [ _ ] Online
-  - [ _ ] ghost
+  - **[ x ]** ghost
   - [ _ ] load level
   - [ _ ] upload time
-  - [ _ ] load times
+  - **[ x ]** load times
 
-- [ _ ] UI
-  - [ _ ] score board
-  - [ _ ] tab
-  - [ _ ] finish menu
-  - [ _ ] map score board
-  - [ _ ] main menu
+- **[ x ]** UI
+  - **[ x ]** score board
+  - **[ x ]** tab
+  - **[ x ]** finish menu
+  - **[ x ]** map score board
+  - **[ x ]** main menu
     - **[ x ]** solo
     - **[ x ]** option
-    - [ _ ] mutli
+    - **[ x ]** mutli
   - **[ x ]** option menu
-  - [ _ ] connection menu
-    - [ _ ] join
-    - [ _ ] create
-      - [ _ ] map searching
+  - **[ x ]** connection menu
+    - **[ x ]** join
+    - **[ x ]** create
+      - **[ x ]** map searching

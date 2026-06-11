@@ -234,7 +234,7 @@ export class Renderer {
             ];
 
             // add active tile
-            this.world.foreachSpecialTile((tile,x,y)=>{
+            this.world.foreachGivenTile((tile,x,y)=>{
                 if(Shape.AABB(tile.getBoundingBox(),boudingBox)){
                     this.wordToScreenPosition(Vector.temp(x,y),bufferVector);
                     tile.render(bufferVector.x,bufferVector.y,this.context);
@@ -262,6 +262,10 @@ export class Renderer {
         this.world.player.render(pos.x, pos.y, this.context, t);
     }
 
+    /**
+     * render level grid
+     * @param {*} context
+     */
     renderGrid(context) {
         const camPosition = Vector.scale(this.world.cameraPosition, 1/TILE_SIZE).round();
         const camWidth = Math.round(this.gameWidth/TILE_SIZE) + 2;
@@ -299,12 +303,23 @@ export class Renderer {
         }
     }
 
+    /**
+     * Format numbre with leading zero
+     * @param {*} number number
+     * @param {*} length lenghth of the number targeted
+     * @returns
+     */
     static formatNumber(number,length){
         number = number.toString();
         while (number.length < length) number = "0" + number;
         return number.substring(0,length);
     }
 
+    /**
+     * Format time into MM:SS.mmm
+     * @param {*} time time in sec
+     * @returns {string[]} [minutes, seconds, milliseconds]
+     */
     static formatTime(time){
         const minuts = Math.floor(time / 60);
         const sec = Math.floor((time-minuts*60));
@@ -313,6 +328,9 @@ export class Renderer {
         return [Renderer.formatNumber(minuts,2),Renderer.formatNumber(sec,2),Renderer.formatNumber(millis,3)];
     }
 
+    /**
+     * Render timer if the targeted world as a the levelTimer props
+     */
     renderTimer(){
         if(this.world.levelTimer!==undefined && this.timerElements[0] && this.timerElements[1]){
             let times = Renderer.formatTime(this.world.levelTimer);
@@ -332,6 +350,9 @@ export class Renderer {
         context.clearRect(0, 0, width, height);
     }
 
+    /**
+     * Clear all canvas
+     */
     clearAll() {
         this.clearScreen(this.contextBackground);
 

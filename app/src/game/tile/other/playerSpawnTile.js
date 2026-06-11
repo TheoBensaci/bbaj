@@ -1,3 +1,9 @@
+/**
+ * @ Autheur: Theo Bensaci
+ * @ Date: 22:29 24.05.2026
+ * @ Description: all player spawn tile
+ */
+
 import { TILE_SIZE } from "../../../constant.js";
 import { AnimationSystem, keyFames } from "../../../utils/animationUtils.js";
 import { RessourceLoader } from "../../../utils/ressouceLoader.js";
@@ -6,6 +12,7 @@ import { MathUtils } from "../../../utils/utils.js";
 import { Vector } from "../../../utils/vector.js";
 import { Tile } from "../../tileSystem/tile.js";
 
+// player base spawn tile
 export class PlayerSpawnTile extends Tile{
     constructor(){
         super([]);
@@ -32,6 +39,7 @@ export class PlayerSpawnTile extends Tile{
     }
 }
 
+// player check point
 export class PlayerCheckPointTile extends Tile{
     constructor(){
         super([

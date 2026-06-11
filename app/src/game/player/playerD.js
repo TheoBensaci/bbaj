@@ -1,7 +1,7 @@
 /**
  * @ Autheur: Theo Bensaci
  * @ Date: 00:15 21.05.2026
- * @ Description: Player test (the "D" stand for i Dont know)
+ * @ Description: Player with add movement (the "D" stand for i Dont know)
  */
 import { TILE_SIZE } from "../../constant.js";
 import { keyFames } from "../../utils/animationUtils.js";
@@ -12,6 +12,7 @@ import { Vector } from "../../utils/vector.js";
 import { Buffer } from "./bufferSystem.js";
 import { BUFFER_LENGTH, CROUTCH_MUL, JUMP_END_COUNTER, PLAYER_COLLISION_BOX_OFFSET, PLAYER_COLLISION_BOX_SIZE, Player } from "./player.js";
 
+// Roll stats
 const ROLL_LENGTH = 0.2;
 const ROLL_ATTACK_LENGTH = 0.05;
 const ROLL_ATTACK_END_TIME = ROLL_LENGTH-ROLL_ATTACK_LENGTH ;
@@ -21,21 +22,29 @@ const ROLL_ATTACK_VERTICAL_END_SPEED = 100;
 const ROLL_FRICTION = 1;
 const ROLL_COULDOWN = 0.2;
 
+// Roll jump = jumping durring roll, made the player gain speed
 const ROLL_JUMP_ADD_SPEED=50;
-const SUPER_ROLL_JUMP_ADD_SPEED=150;
+const SUPER_ROLL_JUMP_ADD_SPEED=150;            // super roll jump are roll jump init form a roll when croutch
 
+
+const ROLL_JUMP_VERTICAL_MODIFER = 1;
+const DEMO_ROLL_JUMP_VERTICAL_MODIFER = 0.75;
+
+
+// vertical roll stats
 const ROLL_VERTICAL_STRENGTH = 300;
 const ROLL_VERTICAL_END_COUNTER = 50;
 const ROLL_VERTICAL_CANCEL_BOOST = 125;
 const ROLL_VERTICAL_HORIZONTAL_MOVEMENT = 150;
 
 
-
+// wall jump stats
 const WALL_JUMP_HORIZONTAL_SPEED=200;
 const WALL_JUMP_VERTICAL_SPEED=300;
 const WALL_JUMP_TIME=0.1;
 
 
+// wall grip
 const WALL_GRIP_MIN_GRAV = 10;
 const WALL_GRIP_STRENGTH = 2000;
 
@@ -76,13 +85,18 @@ export class PlayerD extends Player{
         this.rollDir=1;
 
 
+        // is the player performing a vertical roll
         this.onVerticalRoll=false;
 
         this.onRoll=false;
+
+        // is the player in the first phase of the roll (when velocity are set)
         this.onRollAttack=false;
 
+        // can the player execute roll jump
         this.canRollJump=false;
 
+        // is the player demo rolling (croutch + roll -> small hitbox)
         this.onDemoRoll = false;
 
         // wall jump
@@ -90,6 +104,7 @@ export class PlayerD extends Player{
         this.onWallJump=false;
         this.wallDir=0;
 
+        // add trigger box to permite the player to roll jump even if they is slightly above the ground
         this.rollJumpTriggerBox=Shape.createShape(
             ShapeType.SQUARE,
             new Vector(0,TILE_SIZE*0.75),
@@ -97,10 +112,6 @@ export class PlayerD extends Player{
         );
 
 
-        // collider and trigger
-        this.dashCornerCorrection = [
-
-        ]
 
 
         this.walkDetection = [
@@ -146,6 +157,7 @@ export class PlayerD extends Player{
     }
 
     getCollider(position = this.position){
+        // if demo rolling -> routch collider
         if(this.onDemoRoll && this.onRoll){
             return this.croutchCollider.setOrigine(position);
         }
@@ -171,6 +183,7 @@ export class PlayerD extends Player{
 
         this.canRollJump=false;
 
+        // is the player vertical rolling
         if(InputManager.getAction('up').pressed){
             this.onVerticalRoll=true;
             this.velocity.y=-ROLL_VERTICAL_STRENGTH;
@@ -179,7 +192,6 @@ export class PlayerD extends Player{
                 return vel_x;
             }
             if(Math.abs(vel_x)<ROLL_VERTICAL_HORIZONTAL_MOVEMENT || Math.sign(vel_x)!==dir){
-                console.log("change ");
                 vel_x = ROLL_VERTICAL_HORIZONTAL_MOVEMENT*dir;
             }
             return vel_x;
@@ -208,10 +220,14 @@ export class PlayerD extends Player{
             return vel_y - ROLL_VERTICAL_CANCEL_BOOST;
         }
         this.velocity.x = this.getTargetFacingDir(true)*(Math.max(Math.abs(this.velocity.x),ROLL_ATTACK_SPEED) + ((this.onDemoRoll)?SUPER_ROLL_JUMP_ADD_SPEED:ROLL_JUMP_ADD_SPEED));
+
+        // if the player roll jump late in the roll, regain roll
         if(this.rollTimer<=ROLL_LENGTH / 3){
             this.canRoll=true;
         }
-        const v_y = vel_y * (this.onDemoRoll?0.75:1);;
+
+        // apply vertical modifyer
+        const v_y = vel_y * (this.onDemoRoll?DEMO_ROLL_JUMP_VERTICAL_MODIFER:ROLL_JUMP_VERTICAL_MODIFER);
         this.endRoll();
 
         this.onRoll=false;
@@ -252,7 +268,10 @@ export class PlayerD extends Player{
                     this.velocity.y+=ROLL_VERTICAL_END_COUNTER;
                     return vel_x;
                 }
+                // if in air, add a vertical force to the player at the end of the roll
                 if(!this.onGround)this.velocity.y=-ROLL_ATTACK_VERTICAL_END_SPEED;
+
+
                 return this.rollDir*ROLL_ATTACK_END_SPEED;
             }
         }
@@ -332,6 +351,7 @@ export class PlayerD extends Player{
             return vel_y;
         }
 
+        // if on wall and hold direction into the wall -> wall grip
         if(vel_y>0 && this.wallDir!==0 && this.wallDir===this.getTargetFacingDir()){
             this.canRoll=true;
             return MathUtils.approche(vel_y,WALL_GRIP_MIN_GRAV,t * WALL_GRIP_STRENGTH);
@@ -340,9 +360,11 @@ export class PlayerD extends Player{
         return super.gravitUpdate(vel_y,t);
     }
 
+
     getMovmentFactor(){
         if(this.onRoll){
             let f = super.getMovmentFactor();
+            // if on roll and croutch, cancel croutch mul
             if(this.onCroutch && this.getTargetFacingDir()!==0)f/=CROUTCH_MUL;
             return f * ROLL_FRICTION;
         }
@@ -355,7 +377,8 @@ export class PlayerD extends Player{
      */
     environmentDetection(tiles){
         super.environmentDetection(tiles);
-        // check ground
+
+        // check for wall
         let wallTile = this.projectTrigger(
             this.walkDetection[0].setOrigine(this.position.clone().add(PLAYER_COLLISION_BOX_SIZE[0]/2,0)),
             tiles
@@ -390,15 +413,6 @@ export class PlayerD extends Player{
         else{
             this.canRollJump=false;
         }
-
-        /*
-        // check for ridding
-        if(this.onGround){
-            for (const tile of groundTile) {
-
-                if(this.setBufferRidingTile(tile))break;
-            }
-        }*/
     }
 
     moveX(vel_x,t){
@@ -465,17 +479,4 @@ export class PlayerD extends Player{
             "Can roll dash jump : " + (this.onRoll && this.canRollJump)
         ]
     }
-
-    renderDebug(x,y,context,t){
-
-        if(false){
-            const orgine=this.getCollider().getCenter().add(0,-this.getCollider().scale.y/2 - 1);
-            context.debugContextRenderShape(this.walkDetection[0].setOrigine(Vector.add(this.position,new Vector(PLAYER_COLLISION_BOX_SIZE[0]/2,0))),"#ff005555",false);
-            context.debugContextRenderShape(this.walkDetection[0].setOrigine(this.position.clone().sub(PLAYER_COLLISION_BOX_SIZE[0]/2,0)),"#ff005555",false);
-            context.debugContextRenderShape(this.rollJumpTriggerBox.setOrigine(this.position),"#ff005555",false);
-        }
-        super.renderDebug(x,y,context,t);
-    }
-
-
 }

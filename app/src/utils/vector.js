@@ -128,11 +128,11 @@ export class Vector{
     }
 
     lerp(b, t) {
-        return new Vector(lerp(this.x, b.x, t), lerp(this.y, b.y, t));
+        return new Vector(MathUtils.lerp(this.x, b.x, t), MathUtils.lerp(this.y, b.y, t));
     }
 
     static lerp(a,b, t) {
-        return new Vector(lerp(a.x, b.x, t), lerp(a.y, b.y, t));
+        return new Vector(MathUtils.lerp(a.x, b.x, t), MathUtils.lerp(a.y, b.y, t));
     }
 
     setX(value) {
@@ -189,6 +189,9 @@ export class Vector{
         return this.x === other.x && this.y === other.y;
     }
 
+    /**
+     * Absolute the vector x y value
+     */
     abs() {
         this.x = Math.abs(this.x);
         this.y = Math.abs(this.y);
@@ -199,15 +202,18 @@ export class Vector{
         return vec.clone().abs();
     }
 
+    /**
+     * use to compute a vector with the buffer vector to avoid making object for nothing
+     * BUT, THIS VECTOR NEED TO BE USE ONLY OF CALCULATION AND NOT TO BE USE A FINAL VALUE
+     * @param  {...any} args
+     * @returns
+     */
     static temp(...args){
         return bufferVector.set(...args);;
     }
 
 }
 
+// buffer vector
 const bufferVector = new Vector(0,0);
 
-
-export function lerp(a,b,t){
-    return a*(1-t)+b*t;
-}

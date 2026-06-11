@@ -1,3 +1,9 @@
+/**
+ * @ Autheur: Theo Bensaci
+ * @ Date: 00:03 21.05.2026
+ * @ Description: The game class, use to manage the game (plaformer part)
+ */
+
 import { CAMERA_DEAD_ZONE, CAMERA_SPEED, RENDER_RESOLUTION, TILE_SIZE, WORLD_LIMIT } from "../constant.js";
 import { Director } from "../director.js";
 import { InputManager } from "../utils/inputManager.js";
@@ -5,26 +11,20 @@ import { Shape, ShapeType } from "../utils/shape.js";
 import { MathUtils } from "../utils/utils.js";
 import { Vector } from "../utils/vector.js";
 import { World } from "../world.js";
+import { Player } from "./player/player.js";
 import { PlayerD } from "./player/playerD.js";
 import { TileIndex } from "./tileSystem/tileIndexer.js";
 import { CONTACT_TILE_MASK_MAP } from "./tileSystem/tileUtils.js";
 
-function cameraStepFunction(distance, mult, t) {
-    const d = Math.abs(distance);
-    let m = 1;
-    if (d >= m) {
-        m = d;
-    }
-
-    return t * mult * m;
-}
-
 export class Game extends World {
     constructor() {
         super();
-        this.lastTime = new Date();
-        this.t = 0;
 
+        // last update time
+        this.lastTime = new Date();
+        this.t = 0; // delta t of each update
+
+        // level data
         this.level = [];
 
         // list of tile which is concidarate
@@ -44,9 +44,13 @@ export class Game extends World {
         // list of tile position use to know which tile need to be reset on respawn
         this.toResetTile = {};
 
+        // player instance
         this.player=null;
+
+        // place actual spawn poiunt
         this.playerSpawnPoint=new Vector(0,0);
 
+        // list of ghost of only or replay for example
         this.ghosts=new Map();
 
         // ending and checkPoint
@@ -54,18 +58,19 @@ export class Game extends World {
         this.nValidatedCheck=0;
         this.originalSpawnPoint=null;
 
+        // time taken to beat the level
         this.levelTimer=0;
+
+        // number of death
         this.levelDeath=0;
+
+        // level state
         this.levelState = 0;    // 0 = none, 1 = start, 2 = end
 
 
         this.cameraTarget=new Vector(0,0);
         this.cameraOffset=new Vector(0,0);
         this.cameraForceTarget=null;
-
-        this.cameraTarget = new Vector(0, 0);
-        this.cameraOffset = new Vector(0, 0);
-        this.cameraForceTarget = null;
 
         this.pause = false;
     }
@@ -78,6 +83,7 @@ export class Game extends World {
         return this.level[y][x];
     }
 
+
     getSuroundTiles(x,y,radius=1){
         const buffer=super.getSuroundTiles(x,y,radius);
 
@@ -88,7 +94,7 @@ export class Game extends World {
         const boudingBox = [point.clone(),point.add(2*radius * TILE_SIZE,2*radius * TILE_SIZE)];
 
         // add active tile
-        this.foreachSpecialTile((tile, x, y) => {
+        this.foreachGivenTile((tile, x, y) => {
             if (
                 gridPosX - radius < x &&
                 gridPosX + radius > x &&
@@ -104,6 +110,10 @@ export class Game extends World {
         return buffer;
     }
 
+    /**
+     * Execut a function for each tiles
+     * @param {*} fnc
+     */
     foreachTile(fnc) {
         for (const i of this.level) {
             for (const tile of i) {
@@ -113,7 +123,11 @@ export class Game extends World {
         }
     }
 
-    foreachSpecialTile(fnc, specialTiles) {
+    /**
+     * Execut a function for each given tile
+     * @param {*} fnc
+     */
+    foreachGivenTile(fnc, specialTiles) {
         for (const key in specialTiles) {
             if (Object.hasOwnProperty.call(specialTiles, key)) {
                 const element = specialTiles[key];
@@ -124,11 +138,17 @@ export class Game extends World {
         }
     }
 
+    // clear level
     clearLevel() {
         this.level = [];
         this.player = null;
     }
 
+    /**
+     * Generate level
+     * @param {*} levelContructData level data
+     * @param {*} callback callback call when the level is generated
+     */
     generateLevel(levelContructData, callback = ()=>{}) {
         const buffer = [];
         for (let y = 0; y < levelContructData.length; y++) {
@@ -168,16 +188,31 @@ export class Game extends World {
         );
     }
 
+    /**
+     * Get a id base on position
+     * @param {*} x pos x grid
+     * @param {*} y pos y grid
+     * @returns {String} id
+     */
     getTileId(x, y) {
         return x + ':' + y;
     }
 
+    /**
+     * Update active tiles
+     * @param {*} t
+     */
     updateActiveTile(t) {
-        this.foreachSpecialTile((tile) => {
+        this.foreachGivenTile((tile) => {
             tile.update(t);
         }, this.activeTile);
     }
 
+    /**
+     * register a active tile
+     * @param {*} x position x of the tile in the level grid
+     * @param {*} y position y of the tile in the level grid
+     */
     registerActiveTile(x, y) {
         const id = this.getTileId(x, y);
         if (this.activeTile[id] === undefined) {
@@ -190,6 +225,11 @@ export class Game extends World {
         }
     }
 
+    /**
+     * unregister a active tile
+     * @param {*} x position x of the tile in the level grid
+     * @param {*} y position y of the tile in the level grid
+     */
     unregisterActiveTile(x, y) {
         const id = this.getTileId(x, y);
         if (this.activeTile[id] !== undefined) {
@@ -197,6 +237,11 @@ export class Game extends World {
         }
     }
 
+    /**
+     * register a advance Collsiion tile
+     * @param {*} x position x of the tile in the level grid
+     * @param {*} y position y of the tile in the level grid
+     */
     registerAdvanceCollisionTile(x, y) {
         const id = this.getTileId(x, y);
         if (this.advanceCollisionTile[id] === undefined) {
@@ -208,6 +253,12 @@ export class Game extends World {
             throw new Error('tile all ready register in the continue collision tiles');
         }
     }
+
+    /**
+     * unregister a advance Collsiion tile
+     * @param {*} x position x of the tile in the level grid
+     * @param {*} y position y of the tile in the level grid
+     */
     unregisterAdvanceCollisionTile(x, y) {
         const id = this.getTileId(x, y);
         if (this.advanceCollisionTile[id] !== undefined) {
@@ -243,10 +294,18 @@ export class Game extends World {
     //#endregion
 
     //#region ============== CAMERA ==============
+
+    /**
+     * set the camera target
+     */
     setCameraTarget(target) {
         this.cameraTarget = target;
     }
 
+    /**
+     * Set camera offset
+     * @param {*} offset
+     */
     setCameraOffset(offset) {
         this.cameraOffset.set(offset);
     }
@@ -255,6 +314,10 @@ export class Game extends World {
 
     //#region ============== PLAYER GESTION ==============
 
+    /**
+     * Create a player
+     * @returns {Player}
+     */
     createPlayer(){
         this.player=new PlayerD(0,0);
         this.player.onCreate(this);
@@ -262,11 +325,18 @@ export class Game extends World {
         return this.player;
     }
 
+    /**
+     * Destroy actual player
+     */
     destroyPlayer(){
         this.player.onDestroy(this);
         this.player = null;
     }
 
+
+    /**
+     * Spawn the player
+     */
     spawnPlayer() {
         this.resetTilesChange();
         this.player.position.set(this.playerSpawnPoint);
@@ -274,6 +344,9 @@ export class Game extends World {
         this.player.onSpawn();
     }
 
+    /**
+     * Spawn the player at the base spawn point and reset all checkpoint
+     */
     cleanSpawnPlayer(){
         this.levelState=-1;
         this.player.dead=true;
@@ -294,33 +367,49 @@ export class Game extends World {
 
             Director.toggleEndScreen(false);
         });
-
-
     }
 
     setPlayerSpawnPoint(position){
         this.playerSpawnPoint.set(position);
     }
 
+    /**
+     * Register a check point
+     * @param {*} checkPoint
+     */
     addCheckPoint(checkPoint){
         this.checkpoints.push(checkPoint);
     }
 
+    /**
+     * Valide a check point
+     * @param {*} position
+     */
     valideCheckPoint(position){
         this.nValidatedCheck++;
         this.setPlayerSpawnPoint(position);
         console.log(this.nValidatedCheck + "/" + this.checkpoints.length);
     }
 
+    /**
+     * Can the player finish the level
+     * @returns
+     */
     canFinish(){
         return this.levelState===1 && this.nValidatedCheck===this.checkpoints.length;
     }
 
+    /**
+     * Start the level
+     */
     startLevel(){
         if(this.levelState!==0)return;
         this.levelState=1;
     }
 
+    /**
+     * end the level
+     */
     endLevel(){
         if(this.levelState!==1)return;
         this.levelState=2;
@@ -336,6 +425,10 @@ export class Game extends World {
         Director.toggleEndScreen(true);
     }
 
+    /**
+     * update level state
+     * @param {*} t
+     */
     updateLevelState(t){
         if(this.player===null || this.levelState<0)return;
         if(this.levelState===0){
@@ -354,26 +447,47 @@ export class Game extends World {
 
     //#region Ghost
 
+    /**
+     * Create a ghost
+     * @param {*} id id given of the ghost
+     * @param {Ghost} ghost ghost object
+     */
     createGhost(id,ghost){
         this.ghosts.set(id,ghost);
     }
 
+    /**
+     * Destroy a ghost
+     * @param {*} id id of the ghost
+     */
     destroyGhost(id){
         if(!this.ghosts.has(id))return;
+        this.ghosts.get(id).onDestroy(this);
         this.ghosts.delete(id);
     }
 
+    /**
+     * get ghost
+     * @param {*} id id of the ghost
+     */
     getGhost(id){
         if(!this.ghosts.has(id))return null;
         return this.ghosts.get(id);
     }
 
+    /**
+     * Exec a function foreach ghosts
+     * @param {*} fnc
+     */
     forEachGhost(fnc){
         for (const iterator of this.ghosts) {
             fnc(iterator[1]);
         }
     }
 
+    /**
+     * clear all ghosts (unclean)
+     */
     clearGhost(){
         this.ghosts.clear();
     }
@@ -385,6 +499,10 @@ export class Game extends World {
         return this.t;
     }
 
+    /**
+     * Step of the game
+     * @returns
+     */
     step() {
         if (this.pause || this.levelState===2) {
             this.t = 0;

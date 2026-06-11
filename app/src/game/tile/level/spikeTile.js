@@ -1,3 +1,9 @@
+/**
+ * @ Autheur: Theo Bensaci
+ * @ Date: 16:18 23.05.2026
+ * @ Description: directional spike, damage the player only when they go directly in the oposite direction
+ */
+
 import { TILE_SIZE } from "../../../constant.js";
 import { RessourceLoader } from "../../../utils/ressouceLoader.js";
 import { Shape, ShapeType } from "../../../utils/shape.js";

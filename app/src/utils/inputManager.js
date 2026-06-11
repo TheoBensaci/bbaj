@@ -1,3 +1,9 @@
+/**
+ * @ Autheur: Theo Bensaci
+ * @ Date: 15:09 30.05.2026
+ * @ Description: Input system
+ */
+
 import { RENDER_RESOLUTION } from '../constant.js';
 import { getSaveInputKey } from './saveManager.js';
 import { Vector } from './vector.js';
@@ -34,6 +40,10 @@ export class InputContext {
         return this.actions.get(name);
     }
 
+    /**
+     * Load action from save
+     * @param {*} defaultActions list of default action name and keys
+     */
     loadInputFromSave(defaultActions){
         for (const iterator of defaultActions) {
             this.addAction(iterator[0],getSaveInputKey(this.name,iterator[0])?getSaveInputKey(this.name,iterator[0]):iterator[1],iterator[2]?iterator[2]:[]);
@@ -103,24 +113,44 @@ export class InputManager {
         this.#mousePos.set(newX, newY);
     }
 
+    /**
+     * Create a input context
+     * @param {*} name
+     * @returns
+     */
     static createContext(name) {
         const ctx = new InputContext(name);
         this.#contexts.set(name, ctx);
         return ctx;
     }
 
+    /**
+     * get a specific context
+     * @param {*} name
+     * @returns
+     */
     static getContext(name){
         return this.#contexts.get(name);
     }
 
+    /**
+     * Set a active context
+     * @param {*} name
+     */
     static setActiveContext(name) {
         this.#active = this.#contexts.get(name) || null;
     }
 
+    /**
+     * Get a action from the active context
+     * @param {*} name
+     * @returns {InputAction}
+     */
     static getAction(name) {
         if (!this.#active) return null;
         return this.#active.getAction(name);
     }
+
 
     static getMousePosition() {
         return this.#mousePos.clone();

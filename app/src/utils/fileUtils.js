@@ -15,6 +15,12 @@ export function downloadJsonFile(filename, data) {
 }
 
 
+/**
+ * Import a file from client
+ * @param {*} callback callback with the file data
+ * @param {*} targetFile target file type
+ * @param {*} mode mode of data traitment
+ */
 export function importFile(callback,targetFile='*',mode='text'){
     const buffer = document.createElement("input");
     buffer.type = "file";
@@ -35,7 +41,10 @@ export function importFile(callback,targetFile='*',mode='text'){
     }
 }
 
-
+/**
+ * Load a level file from client
+ * @param {*} callback
+ */
 export function loadLevelFromFile(callback){
     importFile((e)=>{
         try{
@@ -50,6 +59,11 @@ export function loadLevelFromFile(callback){
 }
 
 
+/**
+ * Fetech a level file from a url
+ * @param {*} callback
+ * @param {*} path path (url)
+ */
 export function fetchLevelFile(callback,path){
     fetch(path)
     .then(response => {

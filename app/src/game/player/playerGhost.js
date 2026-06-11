@@ -1,3 +1,9 @@
+/**
+ * @ Autheur: Theo Bensaci
+ * @ Date: 14:54 05.06.2026
+ * @ Description: Ghost of players (base on PlayerD)
+ */
+
 import { TILE_SIZE } from "../../constant.js";
 import { PlayerD } from "./playerD.js";
 

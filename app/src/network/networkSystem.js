@@ -1,4 +1,9 @@
-import { REQUEST_TIMOUT, SERVER_HTTP_PROTO } from "../constant.js";
+/**
+ * @ Autheur: Theo Bensaci
+ * @ Date: 15:30 05.06.2026
+ * @ Description: Network system
+ */
+
 import { Director } from "../director.js";
 import { PlayerGhost } from "../game/player/playerGhost.js";
 import { fetchLevelFile, loadLevelFromFile } from "../utils/fileUtils.js";
@@ -6,22 +11,32 @@ import { getSaveItem } from "../utils/saveManager.js";
 
 
 export class NetworkSystem{
-    constructor(httpProto,server,port,game){
+    constructor(httpProto,hostname,port,game){
+        // web secket use by the system
         this.socket = null;
+
+        // http protocole of the server
         this.httpProto=httpProto;
-        this.server = server;
+
+        this.hostname = hostname;
         this.port = port;
+
+        // game linked to the network system
         this.game = game;
+
+        // actual room id on the server
         this.roomId="";
+
+        // actual player id on the server
         this.playerId = 0;
     }
 
-    getServer(){
-        return this.server;
-    }
-
+    /**
+     * Get http host name
+     * @returns {String}
+     */
     getHost(){
-        return this.httpProto+"//"+this.server+":"+this.port;
+        return this.httpProto+"//"+this.hostname+":"+this.port;
     }
 
     //#region ============= GAMPLAY =============
@@ -38,18 +53,32 @@ export class NetworkSystem{
         }
     }
 
+    /**
+     * Create a ghost for the player of the name given
+     * @param {*} name name of player
+     */
     createGhost(name){
         const ghost = new PlayerGhost(name);
         this.game.createGhost(name,ghost);
         console.log(name+" -> "+this.game.ghosts.size);
     }
 
+    /**
+     * Destroy a ghost for the player of the name given
+     * @param {*} name name of player
+     */
     destroyGhost(name){
         this.game.destroyGhost(name);
     }
 
+    /**
+     * Request to join the room with the roomid given, if ok load the map and join to room
+     * There for, create the web socket with the player
+     * @param {*} roomId room id
+     * @param {*} errorCallback callback call if we can't join the room
+     */
     joinRoom(roomId,errorCallback){
-        const hostname = this.server+":"+this.port;
+        const hostname = this.hostname+":"+this.port;
         this.socket= new WebSocket('ws://'+hostname+"/");
 
 
@@ -68,7 +97,7 @@ export class NetworkSystem{
                     errorCallback(data.message);
                     this.quitRoom();
                 break;
-                case 'joinOK' :
+                case 'joinOK' : // if join ok, fetch level
                     this.playerId=data.playerId;
                     fetchLevelFile((d)=>{
                         if(d===null){
@@ -81,11 +110,10 @@ export class NetworkSystem{
                         Director.setEditorQuickSwitch(false);
                     },this.getMap(data.mapId));
                 break;
-                case 'state' :
+                case 'state' :  // when recieve a state
                     this.updateGhost(data.data);
                 break;
-                case 'playerLeave' :
-                    console.log(data);
+                case 'playerLeave' :    // whene a player is leaving
                     this.destroyGhost(data.username);
                 break;
             }
@@ -97,7 +125,9 @@ export class NetworkSystem{
         });
     }
 
-
+    /**
+     * Quit the actual room
+     */
     quitRoom(){
         if(this.socket===null)return;
         console.log("socket close");
@@ -106,7 +136,11 @@ export class NetworkSystem{
         this.socket=null;
     }
 
-
+    /**
+     * Send data to the server with web socket
+     * @param {*} type type of data
+     * @param {*} data data object
+     */
     sendData(type,data){
         if(this.socket!==null){
             const d = {
@@ -117,6 +151,9 @@ export class NetworkSystem{
         }
     }
 
+    /**
+     * Update network system, if online, send player data
+     */
     update(){
         if(!Director.inGame() || !Director.isOnline())return;
         const player = this.game.player;
@@ -129,6 +166,11 @@ export class NetworkSystem{
 
     //#region ============= HTTP =============
 
+    /**
+     * Request to create a room
+     * @param {*} mapId map id of the room
+     * @param {*} callback callback of the responce
+     */
     createRoom(mapId,callback){
         fetch(this.getHost()+"/createRoom",{
             method:"POST",
@@ -151,6 +193,11 @@ export class NetworkSystem{
         });
     }
 
+    /**
+     * check if a room existe
+     * @param {*} roomId room id
+     * @param {*} callback callback of the responce
+     */
     checkRoom(roomId,callback){
         fetch(this.getHost()+"/room/"+roomId)
             .then(response => {
@@ -165,6 +212,10 @@ export class NetworkSystem{
         });
     }
 
+    /**
+     * get the maps lists
+     * @param {*} callback callback of the responce
+     */
     getMaps(callback){
         fetch(this.getHost()+"/maps")
             .then(response => {
@@ -179,6 +230,11 @@ export class NetworkSystem{
             });
     }
 
+    /**
+     * get the json path the map with the given id
+     * @param {*} id id of the map
+     * @returns {String} path
+     */
     getMap(id){
         return "./ressource/levels/testLevelFinish.json";//this.server+":"+this.port+"/map/"+id;
     }
