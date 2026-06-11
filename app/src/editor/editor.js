@@ -2,6 +2,7 @@ import { TILE_SIZE } from '../constant.js';
 import { Director } from '../director.js';
 import { EditorTilePreview } from '../renderer/editorTilePreview.js';
 import { InputManager } from '../utils/inputManager.js';
+import { UndoManager } from '../vendor/undomanager.js';
 import { Vector } from '../utils/vector.js';
 import { EditorTilePalette } from './editorTilePalette.js';
 import { TileIndex, TILE_GROUPS } from '../game/tileSystem/tileIndexer.js';
@@ -45,6 +46,13 @@ export class Editor {
             this._lastSelectedPerGroup[g.key] = 0;
         }
 
+        // --- undo / redo ---
+        this.undoManager = new UndoManager();
+        this.undoManager.setCallback(() => this._afterUndoRedo());
+        this._strokeGroupId = null;
+        this._isStroking = false;
+        this._savePointIndex = -1;
+
         // HACK(sss): hacky solution, couldn't find a better way of preventing
         //            click passthrough to editor canvas without refactoring
         //            a lot...
@@ -55,6 +63,7 @@ export class Editor {
 
         this._initToolButtons();
         this._initDropdowns();
+        this._initUndoRedo();
     }
 
     _initToolButtons() {
@@ -251,7 +260,8 @@ export class Editor {
         const wasPanning = this.isPanning;
         this.isPanning = panning;
 
-        // rectangle tool mode
+        // === Rectangle Drawin In Progress ===
+        // ====================================
         if (this.isDrawingRect) {
             this.rectEnd.set(gridPos.x, gridPos.y);
 
@@ -271,37 +281,49 @@ export class Editor {
             return;
         }
 
+        // === Camera Panning ===
+        // ======================
         if (panning) {
             const delta = InputManager.getMouseDelta();
             this.world.moveCamera(-delta.x, -delta.y);
             return;
         }
 
+        // === Tile Editing ===
+        // ====================
         const rectActive = this._isRectActive();
         const placeAction = InputManager.getAction('place');
         const eraseAction = InputManager.getAction('erase');
         const justStoppedPanning = wasPanning && !panning;
-        const isDraw = this.currentTool === TOOL_DRAW;
+        const justPressed = placeAction?.justPressed || eraseAction?.justPressed;
 
-        if (placeAction && !justStoppedPanning) {
-            if (placeAction.justPressed && rectActive) {
-                this._startRectangle(gridPos, this.currentTool === TOOL_ERASE ? 'erase' : 'place');
-            } else if (placeAction.justPressed || (placeAction.pressed && !gridPos.equals(this.lastPlacedGridPos))) {
-                if (isDraw)
-                    this._placeTile(gridPos);
-                else if (this.currentTool === TOOL_ERASE)
-                    this._eraseTile(gridPos);
+        // what the user is actually trying to do (ugly but the branches were
+        // getting even uglier without this :c)
+        let actualOp = null;
+        if (placeAction?.pressed) {
+            if (this.currentTool === TOOL_DRAW) actualOp = 'place';
+            else if (this.currentTool === TOOL_ERASE) actualOp = 'erase';
+        } else if (eraseAction?.pressed) {
+            actualOp = 'erase';
+        }
+
+        if (actualOp && !justStoppedPanning) {
+            if (justPressed && rectActive) {
+                this._startRectangle(gridPos, actualOp);
+            } else if (justPressed || gridChanged) {
+                if (justPressed) {
+                    this._strokeGroupId = Symbol('stroke');
+                    this._isStroking = true;
+                }
+                if (actualOp === 'place') this._placeTile(gridPos);
+                else if (actualOp === 'erase') this._eraseTile(gridPos);
+
                 this.lastPlacedGridPos.set(gridPos.x, gridPos.y);
             }
         }
 
-        if (eraseAction && !justStoppedPanning) {
-            if (eraseAction.justPressed && rectActive) {
-                this._startRectangle(gridPos, 'erase');
-            } else if (eraseAction.justPressed || (eraseAction.pressed && !gridPos.equals(this.lastPlacedGridPos))) {
-                this._eraseTile(gridPos);
-                this.lastPlacedGridPos.set(gridPos.x, gridPos.y);
-            }
+        if (this._isStroking && !(placeAction?.pressed || eraseAction?.pressed)) {
+            this._isStroking = false;
         }
 
         this._handleKeyboard();
@@ -327,6 +349,7 @@ export class Editor {
         this.rectMode = mode;
         this.rectStart.set(gridPos.x, gridPos.y);
         this.rectEnd.set(gridPos.x, gridPos.y);
+        this._strokeGroupId = Symbol('rect');
     }
 
     _commitRectangle() {
@@ -335,24 +358,51 @@ export class Editor {
         const minY = Math.min(this.rectStart.y, this.rectEnd.y);
         const maxY = Math.max(this.rectStart.y, this.rectEnd.y);
 
+        const newData = this.palette.getCurrentTileData();
+
         for (let y = minY; y <= maxY; y++) {
             for (let x = minX; x <= maxX; x++) {
+                const oldTile = this.world.getTile(x, y);
+                const oldTileData = oldTile ? oldTile.data : null;
                 if (this.rectMode === 'place') {
-                    this.world.setTile(x, y, this.palette.getCurrentTileData());
+                    this.world.setTile(x, y, newData);
+                    this._recordTileChange(x, y, oldTileData, newData);
                 } else {
+                    if (!oldTile) continue;
                     this.world.setTile(x, y, null);
+                    this._recordTileChange(x, y, oldTileData, null);
                 }
             }
         }
     }
 
     _placeTile(gridPos) {
+        const oldTile = this.world.getTile(gridPos.x, gridPos.y);
+        const oldTileData = oldTile ? oldTile.data : null;
         const data = this.palette.getCurrentTileData();
+        if (oldTileData && oldTileData[0] === data[0] && oldTileData[1] === data[1]
+            && oldTileData[2].rotation === data[2].rotation) return;
         this.world.setTile(gridPos.x, gridPos.y, data);
+        this._recordTileChange(gridPos.x, gridPos.y, oldTileData, data);
     }
 
     _eraseTile(gridPos) {
+        const oldTile = this.world.getTile(gridPos.x, gridPos.y);
+        if (!oldTile) return;
         this.world.setTile(gridPos.x, gridPos.y, null);
+        this._recordTileChange(gridPos.x, gridPos.y, oldTile.data, null);
+    }
+
+    _recordTileChange(x, y, oldData, newData) {
+        this.undoManager.add({
+            undo: () => {
+                this.world.setTile(x, y, oldData);
+            },
+            redo: () => {
+                this.world.setTile(x, y, newData);
+            },
+            groupId: this._strokeGroupId,
+        });
     }
 
     _handleKeyboard() {
@@ -360,6 +410,36 @@ export class Editor {
             this.palette.rotate();
             this._updatePreviewForTool();
         }
+
+        if (InputManager.getAction('undo')?.justPressed)
+            this.undo();
+
+        if (InputManager.getAction('redo')?.justPressed)
+            this.redo();
+    }
+
+    _initUndoRedo() {
+        document.getElementById('editorUndo').addEventListener('click', () => this.undo());
+        document.getElementById('editorRedo').addEventListener('click', () => this.redo());
+    }
+
+    undo() {
+        this.undoManager.undo();
+    }
+
+    redo() {
+        this.undoManager.redo();
+    }
+
+    _afterUndoRedo() {
+        if (this.undoManager.getIndex() <= this._savePointIndex) {
+            this.world.markClean();
+        }
+    }
+
+    markSaved() {
+        this._savePointIndex = this.undoManager.getIndex();
+        this.world.markClean();
     }
 
     export() {

@@ -44,6 +44,8 @@ export const EDITOR_KEYS = [
     ['panModifier', ['Space']],
     ['rotate', ['KeyR']],
     ['rect', ['ControlLeft', 'ControlRight']],
+    ['undo', ['KeyZ']],
+    ['redo', ['KeyY']],
     ['toggleMode', ['Period']]
 ]
 
