@@ -196,3 +196,53 @@
     border-color: #00ff99;
     background-color: #00ff9922;
 }
+
+/* Editor Dialogs */
+#editorDialogName,
+#editorDialogWarning,
+#editorDialogConfirm {
+    z-index: 2;
+}
+
+.editorDialog {
+    background-color: #222;
+    border: 2px solid #555;
+    border-radius: 6px;
+    padding: 20px 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    min-width: 280px;
+    max-width: 400px;
+}
+
+.editorDialogTitle {
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.editorDialogMessage {
+    color: #ccc;
+    font-size: 11px;
+    text-align: center;
+    line-height: 1.4;
+}
+
+.editorDialogButtons {
+    display: flex;
+    gap: 8px;
+}
+
+.editorDialog .textInput {
+    width: 200px;
+}
+
+.editorDialogBtnSave {
+    --color_2: #00ff99;
+}
+
+.editorDialogBtnDiscard {
+    --color_2: #ff3355;
+}

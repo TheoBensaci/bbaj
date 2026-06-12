@@ -194,6 +194,38 @@
                 <div id = "debugLabel">
                 </div>
 
+                <div class="uiSceen" id="editorDialogName" hidden>
+                    <div class="editorDialog">
+                        <div class="editorDialogTitle" id="editorDialogNameTitle">New Level</div>
+                        <input id="editorDialogNameInput" type="text" class="textInput" maxlength="30" placeholder="Level Name">
+                        <div class="editorDialogButtons">
+                            <button id="editorDialogNameConfirm" class="bnt">Confirm</button>
+                            <button id="editorDialogNameCancel" class="bnt">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="uiSceen" id="editorDialogWarning" hidden>
+                    <div class="editorDialog">
+                        <div class="editorDialogMessage">You have unsaved changes. What would you like to do?</div>
+                        <div class="editorDialogButtons">
+                            <button id="editorDialogWarningSave" class="bnt editorDialogBtnSave">Save first</button>
+                            <button id="editorDialogWarningDiscard" class="bnt editorDialogBtnDiscard">Discard</button>
+                            <button id="editorDialogWarningCancel" class="bnt">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="uiSceen" id="editorDialogConfirm" hidden>
+                    <div class="editorDialog">
+                        <div class="editorDialogMessage" id="editorDialogConfirmMsg"></div>
+                        <div class="editorDialogButtons">
+                            <button id="editorDialogConfirmYes" class="bnt">Yes</button>
+                            <button id="editorDialogConfirmNo" class="bnt">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+
                 <div id="transition" hidden>
                 </div>
             </div>

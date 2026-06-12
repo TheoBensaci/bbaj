@@ -73,14 +73,14 @@ export class Director {
                         grid: true,
                     });
 
-                    this.editorTool.showBars();
+                    this.editorTool.showEditorUI();
                     this.render.uiManager.clear();
                     this.setBackgroundColor('#333333');
                     this.render.pause = false;
                     this.game.pause = true;
                 },
                 out: () => {
-                    this.editorTool.hideBars();
+                    this.editorTool.hideEditorUI();
                     this.editorTool.hidePreview();
                 },
                 globalInput:true
@@ -342,6 +342,10 @@ export class Director {
 
         // check if we are not in the input settings screen
         if(this.#inst.render.uiManager.getScreenState("keyChange"))return;
+
+        // skip global input when an editor dialog is open
+        if (this.#inst.editorTool.ui.currentDialog) return;
+
         // check for special input
         if(InputManager.getContext("other").getAction("pause").justPressed && !this.onEndScreen()){
             Director.togglePause(!Director.onPause());

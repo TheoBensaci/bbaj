@@ -1,20 +1,16 @@
 import { TILE_SIZE } from '../constant.js';
 import { Director } from '../director.js';
-import { EditorTilePreview } from '../renderer/editorTilePreview.js';
+import { EditorUi } from './editorUi.js';
 import { InputManager } from '../utils/inputManager.js';
 import { UndoManager } from '../vendor/undomanager.js';
 import { Vector } from '../utils/vector.js';
 import { EditorTilePalette } from './editorTilePalette.js';
-import { TileIndex, TILE_GROUPS } from '../game/tileSystem/tileIndexer.js';
+import { downloadJsonFile, loadLevelFromFile } from '../utils/fileUtils.js';
+import { getSaveItem, setSaveItem, hasSaveItem } from '../utils/saveManager.js';
 
 const TOOL_DRAW = 'draw';
 const TOOL_ERASE = 'erase';
 const TOOL_PAN = 'pan';
-
-const DROPDOWN_GROUPS = TILE_GROUPS.map(key => ({
-    key,
-    elementId: `editorDropdown${key[0].toUpperCase() + key.slice(1)}`,
-}));
 
 /**
  * @description: Main level editor orchestrator.
@@ -25,10 +21,6 @@ export class Editor {
         this.world = editorWorld;
         this.renderer = renderer;
         this.palette = new EditorTilePalette();
-        this.tilePreview = new EditorTilePreview(
-            document.getElementById('tilePreview'),
-            renderer
-        );
         this.currentGridPos = new Vector(-1, -1);
         this.lastPlacedGridPos = new Vector(-1, -1);
         this.isPanning = false;
@@ -41,11 +33,6 @@ export class Editor {
         this.rectEnd = new Vector(-1, -1);
         this.rectMode = null;
 
-        this._lastSelectedPerGroup = {};
-        for (const g of DROPDOWN_GROUPS) {
-            this._lastSelectedPerGroup[g.key] = 0;
-        }
-
         // --- undo / redo ---
         this.undoManager = new UndoManager();
         this.undoManager.setCallback(() => this._afterUndoRedo());
@@ -53,55 +40,12 @@ export class Editor {
         this._isStroking = false;
         this._savePointIndex = -1;
 
-        // HACK(sss): hacky solution, couldn't find a better way of preventing
-        //            click passthrough to editor canvas without refactoring
-        //            a lot...
-        document.getElementById('editorTopBar').addEventListener('mousedown', (e) => e.stopPropagation());
-        document.getElementById('editorBottomBar').addEventListener('mousedown', (e) => e.stopPropagation());
-
-        this._dropdownsPopulated = false;
-
-        this._initToolButtons();
-        this._initDropdowns();
-        this._initUndoRedo();
-    }
-
-    _initToolButtons() {
-        const drawBtn = document.getElementById('editorDraw');
-        const eraseBtn = document.getElementById('editorErase');
-        const panBtn = document.getElementById('editorPan');
-        const rectBtn = document.getElementById('editorRect');
-
-        drawBtn.addEventListener('click', () => this._setActiveTool(TOOL_DRAW));
-        eraseBtn.addEventListener('click', () => this._setActiveTool(TOOL_ERASE));
-        panBtn.addEventListener('click', () => this._setActiveTool(TOOL_PAN));
-
-        // ignore click when PAN tool selected as it makes no sense to modify this
-        // state when in pan mode.
-        rectBtn.addEventListener('click', () => {
-            if (this.currentTool === TOOL_PAN) return;
-            this.rectToggle = !this.rectToggle;
-            this._updateRectButtonState();
-        });
+        this.ui = new EditorUi(this, renderer);
     }
 
     _setActiveTool(tool) {
         this.currentTool = tool;
-
-        document.getElementById('editorDraw').classList.toggle('active', tool === TOOL_DRAW);
-        document.getElementById('editorErase').classList.toggle('active', tool === TOOL_ERASE);
-        document.getElementById('editorPan').classList.toggle('active', tool === TOOL_PAN);
-
-        this._updateRectButtonState();
-        this._updatePreviewForTool();
-    }
-
-    _updateRectButtonState() {
-        const rectBtn = document.getElementById('editorRect');
-        const isPan = this.currentTool === TOOL_PAN;
-        rectBtn.disabled = isPan;
-        rectBtn.classList.toggle('editorRectOn', !isPan && this.rectToggle);
-        rectBtn.classList.toggle('editorRectOff', isPan || !this.rectToggle);
+        this.ui.onToolChanged(tool);
     }
 
     _isRectActive() {
@@ -109,137 +53,9 @@ export class Editor {
         return this.currentTool !== TOOL_PAN && (this.rectToggle || rectModifier);
     }
 
-    _initDropdowns() {
-        for (const group of DROPDOWN_GROUPS) {
-            const dropdown = document.getElementById(group.elementId);
-            if (!dropdown) continue;
-
-            const btn = dropdown.querySelector('.editorDropdownBtn');
-            const panel = dropdown.querySelector('.editorDropdownPanel');
-
-            btn.addEventListener('click', (e) => {
-                const isOpen = dropdown.classList.contains('open');
-                this._closeAllDropdowns();
-                if (!isOpen) {
-                    dropdown.classList.add('open');
-                    this._refreshDropdownPanel(group.key, panel);
-                }
-            });
-        }
-
-        // NOTE(sss): this was easier than trying to close on any clicks,
-        //            but could be improved
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.editorDropdown')) {
-                this._closeAllDropdowns();
-            }
-        });
-    }
-
-    _closeAllDropdowns() {
-        for (const group of DROPDOWN_GROUPS) {
-            const dropdown = document.getElementById(group.elementId);
-            if (dropdown) dropdown.classList.remove('open');
-        }
-    }
-
-    _populateAllDropdownPanels() {
-        for (const group of DROPDOWN_GROUPS) {
-            const dropdown = document.getElementById(group.elementId);
-            if (!dropdown) continue;
-            const panel = dropdown.querySelector('.editorDropdownPanel');
-            const iconCanvas = dropdown.querySelector('.editorDropdownIcon');
-            this._populateDropdownPanel(group.key, panel, iconCanvas);
-        }
-    }
-
-    _populateDropdownPanel(groupKey, panel, iconCanvas) {
-        const count = TileIndex.getGroupTileCount(groupKey);
-        panel.innerHTML = '';
-
-        for (let id = 0; id < count; id++) {
-            const tileCanvas = document.createElement('canvas');
-            tileCanvas.width = 28;
-            tileCanvas.height = 28;
-
-            const offCanvas = document.createElement('canvas');
-            offCanvas.width = 28;
-            offCanvas.height = 28;
-            const offCtx = offCanvas.getContext('2d');
-
-            this.renderer.exportTileSprite(offCtx, 28, 28, [groupKey, id, { rotation: 0 }]);
-            tileCanvas.getContext('2d').drawImage(offCanvas, 0, 0);
-
-            tileCanvas.addEventListener('click', (e) => {
-                this.palette.selectTile(groupKey, id);
-                this._lastSelectedPerGroup[groupKey] = id;
-                this._updateDropdownIcons();
-                this._updateDropdownSelectionHighlights();
-                this._closeAllDropdowns();
-                this._updatePreviewForTool();
-            });
-
-            panel.appendChild(tileCanvas);
-        }
-    }
-
-    _refreshDropdownPanel(groupKey, panel) {
-        const canvases = panel.querySelectorAll('canvas');
-        for (let i = 0; i < canvases.length; i++) {
-            canvases[i].classList.toggle('selected',
-                this.palette.selectedGroup === groupKey && this.palette.selectedTileId === i);
-        }
-    }
-
-    _updateDropdownIcons() {
-        for (const group of DROPDOWN_GROUPS) {
-            const dropdown = document.getElementById(group.elementId);
-            if (!dropdown) continue;
-
-            const iconCanvas = dropdown.querySelector('.editorDropdownIcon');
-            const ctx = iconCanvas.getContext('2d');
-            ctx.clearRect(0, 0, iconCanvas.width, iconCanvas.height);
-
-            const lastId = this._lastSelectedPerGroup[group.key];
-            if (lastId >= 0) {
-                this.renderer.exportTileSprite(ctx, iconCanvas.width, iconCanvas.height,
-                    [group.key, lastId, { rotation: 0 }]);
-            }
-        }
-    }
-
-    _updateDropdownSelectionHighlights() {
-        for (const group of DROPDOWN_GROUPS) {
-            const dropdown = document.getElementById(group.elementId);
-            if (!dropdown) continue;
-            const panelCanvases = dropdown.querySelectorAll('.editorDropdownPanel canvas');
-            for (let i = 0; i < panelCanvases.length; i++) {
-                const isSelected = this.palette.selectedGroup === group.key
-                    && this.palette.selectedTileId === i;
-                panelCanvases[i].classList.toggle('selected', isSelected);
-            }
-        }
-    }
-
-    _updatePreviewForTool() {
-        if (this.currentTool === TOOL_PAN) {
-            this.tilePreview.hide(true);
-            return;
-        }
-
-        this.tilePreview.hide(false);
-
-        if (this.currentTool === TOOL_ERASE) {
-            this.tilePreview.setState('remove');
-        } else if (this.currentTool === TOOL_DRAW) {
-            this.tilePreview.setTile(this.palette.getCurrentTileData());
-        }
-    }
-
     update() {
-        if (Director.isPause() || !Director.inEditor()) {
-            return;
-        }
+        if (Director.isPause() || !Director.inEditor()) return;
+        if (this.ui.currentDialog) return;
 
         const mousePos = InputManager.getMousePosition();
         const gridPos = this._screenToGrid(mousePos);
@@ -253,7 +69,7 @@ export class Editor {
         if (gridChanged) {
             this.currentGridPos.set(gridPos.x, gridPos.y);
             if (this.currentTool !== TOOL_PAN) {
-                this._updatePreviewPosition(gridPos);
+                this.ui.updatePreviewPosition(gridPos);
             }
         }
 
@@ -277,6 +93,7 @@ export class Editor {
                 this._commitRectangle();
                 this.isDrawingRect = false;
                 this.rectMode = null;
+                this._autoSave();
             }
             return;
         }
@@ -324,6 +141,7 @@ export class Editor {
 
         if (this._isStroking && !(placeAction?.pressed || eraseAction?.pressed)) {
             this._isStroking = false;
+            this._autoSave();
         }
 
         this._handleKeyboard();
@@ -334,14 +152,6 @@ export class Editor {
             .screenToWordPosition(screenPos)
             .scale(1 / TILE_SIZE)
             .floor();
-    }
-
-    _updatePreviewPosition(gridPos) {
-        // `.add()` mutates the object, so we want to clone it.
-        const centerWorld = gridPos.clone().add(0.5, 0.5).scale(TILE_SIZE);
-        const screenPos = this.renderer.wordToScreenPosition(centerWorld);
-        this.tilePreview.div.style.left = screenPos.x + 'px';
-        this.tilePreview.div.style.top = screenPos.y + 'px';
     }
 
     _startRectangle(gridPos, mode) {
@@ -408,7 +218,7 @@ export class Editor {
     _handleKeyboard() {
         if (InputManager.getAction('rotate')?.justPressed) {
             this.palette.rotate();
-            this._updatePreviewForTool();
+            this.ui.updatePreviewForTool();
         }
 
         if (InputManager.getAction('undo')?.justPressed)
@@ -416,11 +226,6 @@ export class Editor {
 
         if (InputManager.getAction('redo')?.justPressed)
             this.redo();
-    }
-
-    _initUndoRedo() {
-        document.getElementById('editorUndo').addEventListener('click', () => this.undo());
-        document.getElementById('editorRedo').addEventListener('click', () => this.redo());
     }
 
     undo() {
@@ -446,24 +251,128 @@ export class Editor {
         return this.world.export();
     }
 
+    showEditorUI() {
+        this.ui.showEditorUI();
+        this._autoLoadOrPrompt();
+    }
+
+    hideEditorUI() {
+        this.ui.hideEditorUI();
+    }
+
     hidePreview() {
-        this.tilePreview.hide(true);
+        this.ui.hidePreview();
     }
 
-    showBars() {
-        document.getElementById('editorTopBar').hidden = false;
-        document.getElementById('editorBottomBar').hidden = false;
-        if (!this._dropdownsPopulated) {
-            this._dropdownsPopulated = true;
-            this._populateAllDropdownPanels();
-            this._updateDropdownIcons();
+    _autoSave() {
+        const data = this.world.export();
+        setSaveItem('currentLevel', data);
+    }
+
+    _doSave() {
+        const data = this.world.export();
+        setSaveItem('currentLevel', data);
+        const filename = this.world.levelName + '.json';
+        downloadJsonFile(filename, data);
+        this.markSaved();
+    }
+
+    _doSaveAs() {
+        this.ui.showNamePrompt('Save As', this.world.levelName, (name) => {
+            if (!name) return;
+            this.world.levelName = name;
+            const data = this.world.export();
+            setSaveItem('currentLevel', data);
+            downloadJsonFile(name + '.json', data);
+            this.markSaved();
+            this.ui.updateLevelNameLabel();
+        });
+    }
+
+    _doLoad() {
+        if (this.world.isDirty()) {
+            this.ui.showUnsavedWarning((action) => {
+                if (action === 'save') {
+                    this._doSave();
+                    this._openFilePicker();
+                } else if (action === 'discard') {
+                    this._openFilePicker();
+                }
+            });
+        } else {
+            this._openFilePicker();
         }
-        this._updatePreviewForTool();
     }
 
-    hideBars() {
-        document.getElementById('editorTopBar').hidden = true;
-        document.getElementById('editorBottomBar').hidden = true;
+    _openFilePicker() {
+        loadLevelFromFile((data) => {
+            if (!data || !data.data) return;
+            this.world.import(data);
+            this.undoManager.clear();
+            this._savePointIndex = this.undoManager.getIndex();
+            this.world.markClean();
+            setSaveItem('currentLevel', data);
+            this.ui.updateLevelNameLabel();
+        });
+    }
+
+    _doNew() {
+        if (this.world.isDirty()) {
+            this.ui.showUnsavedWarning((action) => {
+                if (action === 'save') {
+                    this._doSave();
+                    this._showNewLevelPrompt();
+                } else if (action === 'discard') {
+                    this._showNewLevelPrompt();
+                }
+            });
+        } else {
+            this._showNewLevelPrompt();
+        }
+    }
+
+    _showNewLevelPrompt() {
+        this.ui.showNamePrompt('New Level', '', (name) => {
+            if (!name) return;
+            this._createEmptyLevel(name);
+            const data = this.world.export();
+            setSaveItem('currentLevel', data);
+            this.ui.updateLevelNameLabel();
+        });
+    }
+
+    _createEmptyLevel(name) {
+        this.world.level = [];
+        this.world.levelName = name;
+        this.world.backgroundColor = '#555555';
+        this.world.markClean();
+        this.undoManager.clear();
+        this._savePointIndex = this.undoManager.getIndex();
+    }
+
+    _autoLoadOrPrompt() {
+        if (hasSaveItem('currentLevel')) {
+            const data = getSaveItem('currentLevel');
+            if (data && data.data) {
+                this.world.import(data);
+                this.undoManager.clear();
+                this._savePointIndex = this.undoManager.getIndex();
+                this.world.markClean();
+                this.ui.updateLevelNameLabel();
+                return;
+            }
+        }
+        this.ui.showNamePrompt('New Level', '', (name) => {
+            if (!name) {
+                this._createEmptyLevel('Untitled');
+                this.ui.updateLevelNameLabel();
+                return;
+            }
+            this._createEmptyLevel(name);
+            const data = this.world.export();
+            setSaveItem('currentLevel', data);
+            this.ui.updateLevelNameLabel();
+        });
     }
 
     renderOverlay() {
