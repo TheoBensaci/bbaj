@@ -55,7 +55,14 @@ export class MovingPlatform extends MovingTile {
     }
 
     static createTile(param) {
-        return new MovingPlatform(param.deltaTraget?param.deltaTraget:new Vector(TILE_SIZE * 10,0));
+        // needed for inspector settings
+        const tx = param.targetX ?? 0;
+        const ty = param.targetY ?? 0;
+        const attackSpeed = param.attackSpeed ?? 6000;
+        const attackAcc = param.attackAcc ?? 2000;
+        const recoverSpeed = param.recoverSpeed ?? 100;
+        const recoverAcc = param.recoverAcc ?? 100;
+        return new MovingPlatform(new Vector(tx, ty), attackSpeed, attackAcc, recoverSpeed, recoverAcc);
     }
 
     postCreate(game) {
@@ -63,7 +70,7 @@ export class MovingPlatform extends MovingTile {
         this.activeMoving();
 
         this.originePos.set(this.position);
-        this.targetPos=Vector.add(this.originePos,this.deltaTargetPos);
+        this.attackTarget = Vector.add(this.originePos, this.deltaTargetPos);
     }
 
     onReset() {
@@ -81,7 +88,7 @@ export class MovingPlatform extends MovingTile {
 
     update(t) {
         if(this.state===1 || this.state === 3){
-            const target = (this.state===1)?this.targetPos:this.originePos;
+            const target = (this.state===3)?this.originePos:this.attackTarget;
             const dir = Vector.sub(target,this.position).normalize();
             const speed = (this.state===1)?this.attackSpeed:this.recoverSpeed;
 
@@ -112,7 +119,6 @@ export class MovingPlatform extends MovingTile {
         }
     }
 
-
     static #getFaceIndex(state){
         if(state===1 || state==2)return 0;
         if(state===3)return 2;
@@ -131,7 +137,13 @@ export class MovingPlatform extends MovingTile {
     }
 
     static setWrapperState(tileWrapper, context, x, y) {
-        const b = new MovingPlatform(new Vector(0,0));
+        const b = new MovingPlatform(
+            new Vector(tileWrapper.tileParams.targetX ?? 0, tileWrapper.tileParams.targetY ?? 0),
+            tileWrapper.tileParams.attackSpeed ?? 6000,
+            tileWrapper.tileParams.attackAcc ?? 2000,
+            tileWrapper.tileParams.recoverSpeed ?? 100,
+            tileWrapper.tileParams.recoverAcc ?? 100
+        );
         b.setOriginePosition(new Vector(x, y));
         tileWrapper.shape = b.getCollider()[0];
     }

@@ -50,10 +50,61 @@
     mask-image: url("../ressource/plus.svg");
 }
 
-.iconSave{
-    mask-image: url("../ressource/save.svg");
-}
-
 .iconJoin{
     mask-image: url("../ressource/join.svg");
+}
+
+/* editor icons - most of them from flaticons.com / Uicons */
+
+.iconUndo {
+    mask-image: url("../ressource/undo.svg");
+}
+
+.iconRedo {
+    mask-image: url("../ressource/redo.svg");
+}
+
+.iconNew {
+    mask-image: url("../ressource/add-document.svg");
+}
+
+.iconSave {
+    mask-image: url("../ressource/disk.svg");
+}
+
+.iconSaveAs {
+    mask-image: url("../ressource/floppy-disk-pen.svg");
+}
+
+.iconLoad {
+    mask-image: url("../ressource/file-upload.svg");
+}
+
+.iconUpload {
+    mask-image: url("../ressource/cloud-upload-alt.svg");
+}
+
+.iconTest {
+    mask-image: url("../ressource/play.svg");
+}
+
+.iconDraw {
+    mask-image: url("../ressource/paint.svg");
+}
+
+.iconErase {
+    mask-image: url("../ressource/eraser.svg");
+}
+
+/* TODO(tbi): create pan icon */
+.iconPan {
+    mask-image: url("../ressource/square-x.svg");
+}
+
+.iconRect {
+    mask-image: url("../ressource/rectangle-horizontal.svg");
+}
+
+.iconSelect {
+    mask-image: url("../ressource/location-arrow.svg");
 }

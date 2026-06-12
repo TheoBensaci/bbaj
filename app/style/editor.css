@@ -1,0 +1,335 @@
+#editorTopBar {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate(-50%, 0);
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    background-color: #19191a;
+    border: 2px solid aliceblue;
+    border-top: none;
+    border-radius: 0 0 3px 3px;
+    padding: 4px 10px;
+}
+
+#editorTopBar .bnt,
+#editorBottomBar .bnt {
+    padding: 4px 6px;
+    font-size: 9px;
+}
+
+.editorBtnLabel {
+    display: none;
+    white-space: nowrap;
+}
+
+#editorTopBar .bnt:enabled:hover .editorBtnLabel,
+#editorBottomBar .bnt:enabled:hover .editorBtnLabel {
+    display: inline;
+}
+
+#editorTopBar .bnt:enabled:hover,
+#editorBottomBar .bnt:enabled:hover {
+    color: var(--color_2);
+}
+
+#editorTopBar .bntIcon,
+#editorBottomBar .bntIcon {
+    width: 14px;
+    height: 14px;
+    margin-right: 0;
+    background-color: #fff;
+}
+
+#editorTopBar .bnt:enabled:hover .bntIcon,
+#editorBottomBar .bnt:enabled:hover .bntIcon {
+    width: 14px;
+    margin-right: 4px;
+    background-color: var(--color_2);
+}
+
+#editorTopBar .bnt:disabled .bntIcon,
+#editorBottomBar .bnt:disabled .bntIcon {
+    background-color: #555;
+}
+
+.editorSeparator {
+    display: block;
+    width: 1px;
+    height: 18px;
+    background-color: #444;
+    margin: 0 4px;
+}
+
+#editorLevelName {
+    color: #aaa;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 0 8px;
+    user-select: none;
+    white-space: nowrap;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#editorTopBar .editorToolBtn.active,
+#editorBottomBar .editorToolBtn.active {
+    --color_2: #00ff99;
+}
+
+#editorTopBar #editorErase.active,
+#editorBottomBar #editorErase.active {
+    --color_2: #ff3355;
+}
+
+#editorTopBar #editorErase.active .bntIcon,
+#editorBottomBar #editorErase.active .bntIcon {
+    background-color: #ff3355;
+}
+
+#editorTopBar #editorPan.active,
+#editorBottomBar #editorPan.active {
+    --color_2: #d55ff6;
+}
+
+#editorTopBar #editorPan.active .bntIcon,
+#editorBottomBar #editorPan.active .bntIcon {
+    background-color: #d55ff6;
+}
+
+#editorTopBar .editorToolBtn.active .bntIcon,
+#editorBottomBar .editorToolBtn.active .bntIcon {
+    background-color: #00ff99;
+}
+
+#editorTopBar .editorRectOn,
+#editorBottomBar .editorRectOn {
+    --color_2: #ffbb00;
+}
+
+#editorTopBar .editorRectOn .bntIcon,
+#editorBottomBar .editorRectOn .bntIcon {
+    background-color: #ffbb00;
+}
+
+#editorTopBar .editorRectOff,
+#editorBottomBar .editorRectOff {
+    --color_2: #555;
+}
+
+#editorTopBar .editorRectOff .bntIcon,
+#editorBottomBar .editorRectOff .bntIcon {
+    background-color: #555;
+}
+
+#editorBottomBar {
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translate(-50%, 0);
+    z-index: 1;
+    display: flex;
+    align-items: flex-end;
+    gap: 0;
+    background-color: #19191a;
+    border: 2px solid aliceblue;
+    border-bottom: none;
+    border-radius: 6px 6px 0 0;
+    padding: 4px 8px 0px 8px;
+}
+
+#editorTopBar[hidden],
+#editorBottomBar[hidden] {
+    display: none;
+}
+
+.editorDropdown {
+    position: relative;
+}
+
+.editorDropdownIcon {
+    width: 14px;
+    height: 14px;
+    image-rendering: pixelated;
+    flex-shrink: 0;
+}
+
+.editorDropdownPanel {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translate(-50%, 0);
+    background-color: #19191a;
+    border: 2px solid #333;
+    border-radius: 4px;
+    padding: 4px;
+    margin-bottom: 2px;
+    gap: 2px;
+    flex-wrap: wrap;
+    max-width: 200px;
+    z-index: 10;
+}
+
+.editorDropdown.open .editorDropdownPanel {
+    display: flex;
+}
+
+.editorDropdownPanel canvas {
+    width: 28px;
+    height: 28px;
+    border: 1px solid #555;
+    border-radius: 2px;
+    cursor: pointer;
+    image-rendering: pixelated;
+}
+
+.editorDropdownPanel canvas:hover {
+    border-color: #00ff99;
+    background-color: #00000044;
+}
+
+.editorDropdownPanel canvas.selected {
+    border-color: #00ff99;
+    background-color: #00ff9922;
+}
+
+/* Editor Dialogs */
+#editorDialogName,
+#editorDialogWarning,
+#editorDialogConfirm {
+    z-index: 2;
+}
+
+.editorDialog {
+    background-color: #222;
+    border: 2px solid #555;
+    border-radius: 6px;
+    padding: 20px 30px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+    min-width: 280px;
+    max-width: 400px;
+}
+
+.editorDialogTitle {
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.editorDialogMessage {
+    color: #ccc;
+    font-size: 11px;
+    text-align: center;
+    line-height: 1.4;
+}
+
+.editorDialogButtons {
+    display: flex;
+    gap: 8px;
+}
+
+.editorDialog .textInput {
+    width: 200px;
+}
+
+.editorDialogBtnSave {
+    --color_2: #00ff99;
+}
+
+.editorDialogBtnDiscard {
+    --color_2: #ff3355;
+}
+
+/* Select tool active state */
+#editorTopBar #editorSelect.active,
+#editorBottomBar #editorSelect.active {
+    --color_2: #55ccff;
+}
+
+#editorTopBar #editorSelect.active .bntIcon,
+#editorBottomBar #editorSelect.active .bntIcon {
+    background-color: #55ccff;
+}
+
+/* Inspector panel */
+.editorInspector {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 200px;
+    background-color: #1a1a1c;
+    border-left: 2px solid #444;
+    z-index: 2;
+    overflow-y: auto;
+    transform: translateX(100%);
+    transition: transform 0.2s ease;
+    padding: 12px;
+    box-sizing: border-box;
+}
+
+.editorInspector:not([hidden]) {
+    transform: translateX(0);
+}
+
+.editorInspectorHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #fff;
+    font-size: 12px;
+    font-weight: bold;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #444;
+}
+
+.editorInspectorClose {
+    cursor: pointer;
+    color: #888;
+    font-size: 16px;
+    line-height: 1;
+    padding: 0 4px;
+    user-select: none;
+}
+
+.editorInspectorClose:hover {
+    color: #ff3355;
+}
+
+.editorInspectorFields {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.editorInspectorFields label {
+    color: #aaa;
+    font-size: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.editorInspectorFields input {
+    background-color: #111;
+    border: 1px solid #444;
+    color: #fff;
+    padding: 4px 6px;
+    font-size: 10px;
+    border-radius: 3px;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.editorInspectorFields input:focus {
+    border-color: #55ccff;
+    outline: none;
+}

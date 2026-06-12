@@ -19,9 +19,10 @@ export class Director {
     // instance of the director
     static #inst = null;
 
-    constructor(gameInstance, editorInstance, renderInstance,networkInstance) {
+    constructor(gameInstance, editorWorld, renderInstance, editorTool, networkInstance) {
         this.game = gameInstance;
-        this.editor = editorInstance;
+        this.editorWorld = editorWorld;
+        this.editorTool = editorTool;
         this.render = renderInstance;
         this.network = networkInstance;
         this.lastSceen = '';
@@ -60,14 +61,10 @@ export class Director {
             },
             'editor': {
                 in: (syncCam = true) => {
-                    // TODO add settings to load a new level or contiune the last one
-                    this.render.world = this.editor.world;
+                    this.render.world = this.editorWorld;
 
-                    this.editor.tilePreview.hide(false);
+                    this.editorWorld.setCameraPosition(syncCam ? this.game.cameraPosition : new Vector(0,0));
 
-                    this.editor.world.setCameraPosition(syncCam?this.game.cameraPosition:new Vector(0,0));
-
-                    this.render.uiManager.clear();
                     this.render.setRenderJob({
                         background: true,
                         level: true,
@@ -75,12 +72,16 @@ export class Director {
                         debug: true,
                         grid: true,
                     });
+
+                    this.editorTool.showEditorUI();
+                    this.render.uiManager.clear();
                     this.setBackgroundColor('#333333');
                     this.render.pause = false;
                     this.game.pause = true;
                 },
                 out: () => {
-                    this.editor.tilePreview.hide(true);
+                    this.editorTool.hideEditorUI();
+                    this.editorTool.hidePreview();
                 },
                 globalInput:true
             },
@@ -126,12 +127,13 @@ export class Director {
     /**
      * init the director
      * @param {Game} gameInstance
-     * @param {Editor} editorInstance
+     * @param {EditorWorld} editorWorld
      * @param {Renderer} renderInstance
+     * @param {Editor} editorTool
      * @param {NetworkSystem} networkInstance
      */
-    static init(gameInstance, editorInstance, renderInstance, networkInstance) {
-        this.#inst = new Director(gameInstance, editorInstance, renderInstance,networkInstance);
+    static init(gameInstance, editorWorld, renderInstance, editorTool, networkInstance) {
+        this.#inst = new Director(gameInstance, editorWorld, renderInstance, editorTool, networkInstance);
     }
 
     /**
@@ -260,7 +262,7 @@ export class Director {
      */
     static importLevel(levelData) {
         // load level
-        this.#inst.editor.import(levelData);
+        this.#inst.editorWorld.import(levelData);
     }
 
     /**
@@ -340,6 +342,10 @@ export class Director {
 
         // check if we are not in the input settings screen
         if(this.#inst.render.uiManager.getScreenState("keyChange"))return;
+
+        // skip global input when an editor dialog is open
+        if (this.#inst.editorTool.ui.currentDialog) return;
+
         // check for special input
         if(InputManager.getContext("other").getAction("pause").justPressed && !this.onEndScreen()){
             Director.togglePause(!Director.onPause());
@@ -382,8 +388,8 @@ export class Director {
         if(Director.getEditorQuickSwitch() && !this.onPause()){
             if (InputManager.getAction('toggleMode')?.justPressed) {
                 if (Director.inEditor()) {
-                    this.#inst.editor.hidePreview();
-                    const data = this.#inst.editor.export();
+                    this.#inst.editorTool.hidePreview();
+                    const data = this.#inst.editorTool.export();
                     Director.loadLevel(data);
                 } else {
                     Director.switchSceen('editor');

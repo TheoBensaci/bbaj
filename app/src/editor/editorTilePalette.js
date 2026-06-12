@@ -1,17 +1,12 @@
-/**
- * @ Autheur: Theo Bensaci
- * @ Date: 14:17 29.06.2026
- * @ Description: Manages the currently selected tile, rotation, and group for the editor.
- */
-
 export class EditorTilePalette {
     constructor() {
-        this.selectedTileId = -1; // -1 = eraser
+        this.selectedTileId = 0;
+        this.selectedGroup = 'terrain';
         this.rotation = 0;
-        this.group = 'main';
     }
 
-    selectTile(id) {
+    selectTile(group, id) {
+        this.selectedGroup = group;
         this.selectedTileId = id;
     }
 
@@ -20,9 +15,9 @@ export class EditorTilePalette {
     }
 
     getCurrentTileData() {
-        if (this.selectedTileId === -1) {
+        if (this.selectedTileId < 0) {
             return null;
         }
-        return [this.group, this.selectedTileId, { rotation: this.rotation }];
+        return [this.selectedGroup, this.selectedTileId, { rotation: this.rotation }];
     }
 }

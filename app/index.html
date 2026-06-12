@@ -49,6 +49,55 @@
                     </div>
                 </div>
 
+                <div id="editorTopBar" hidden>
+                    <button class="bnt editorToolBtn" id="editorUndo"><div class="bntIcon iconUndo"></div><span class="editorBtnLabel">Undo</span></button>
+                    <button class="bnt editorToolBtn" id="editorRedo"><div class="bntIcon iconRedo"></div><span class="editorBtnLabel">Redo</span></button>
+                    <span class="editorSeparator"></span>
+                    <button class="bnt" id="editorNew"><div class="bntIcon iconNew"></div><span class="editorBtnLabel">New</span></button>
+                    <button class="bnt" id="editorLoad"><div class="bntIcon iconLoad"></div><span class="editorBtnLabel">Load</span></button>
+                    <button class="bnt" id="editorSave"><div class="bntIcon iconSave"></div><span class="editorBtnLabel">Save</span></button>
+                    <button class="bnt" id="editorSaveAs"><div class="bntIcon iconSaveAs"></div><span class="editorBtnLabel">Save As</span></button>
+                    <button class="bnt" id="editorUpload"><div class="bntIcon iconUpload"></div><span class="editorBtnLabel">Upload</span></button>
+                    <span class="editorSeparator"></span>
+                    <button class="bnt editorToggleBtn editorRectOff" id="editorRect"><div class="bntIcon iconRect"></div><span class="editorBtnLabel">Rect</span></button>
+                    <button class="bnt editorToolBtn active" id="editorDraw"><div class="bntIcon iconDraw"></div><span class="editorBtnLabel">Draw</span></button>
+                    <button class="bnt editorToolBtn" id="editorErase"><div class="bntIcon iconErase"></div><span class="editorBtnLabel">Erase</span></button>
+                    <button class="bnt editorToolBtn" id="editorPan"><div class="bntIcon iconPan"></div><span class="editorBtnLabel">Pan</span></button>
+                    <button class="bnt editorToolBtn" id="editorSelect"><div class="bntIcon iconSelect"></div><span class="editorBtnLabel">Select</span></button>
+                    <span class="editorSeparator"></span>
+                    <label id="editorLevelName">Untitled</label>
+                    <button class="bnt" id="editorTest"><div class="bntIcon iconTest"></div><span class="editorBtnLabel">Test</span></button>
+                </div>
+
+                <div id="editorBottomBar" hidden>
+                    <div class="editorDropdown" id="editorDropdownTerrain">
+                        <button class="bnt editorDropdownBtn">
+                            <canvas class="editorDropdownIcon" width="20" height="20"></canvas><span class="editorBtnLabel">Terrain</span>
+                        </button>
+                        <div class="editorDropdownPanel"></div>
+                    </div>
+                    <div class="editorDropdown" id="editorDropdownHazards">
+                        <button class="bnt editorDropdownBtn">
+                            <canvas class="editorDropdownIcon" width="20" height="20"></canvas><span class="editorBtnLabel">Hazards</span>
+                        </button>
+                        <div class="editorDropdownPanel"></div>
+                    </div>
+                    <div class="editorDropdown" id="editorDropdownMechanics">
+                        <button class="bnt editorDropdownBtn">
+                            <canvas class="editorDropdownIcon" width="20" height="20"></canvas><span class="editorBtnLabel">Mechanics</span>
+                        </button>
+                        <div class="editorDropdownPanel"></div>
+                    </div>
+                    <div class="editorDropdown" id="editorDropdownLogic">
+                        <button class="bnt editorDropdownBtn">
+                            <canvas class="editorDropdownIcon" width="20" height="20"></canvas><span class="editorBtnLabel">Logic</span>
+                        </button>
+                        <div class="editorDropdownPanel"></div>
+                    </div>
+                </div>
+
+                <div id="editorInspector" class="editorInspector" hidden></div>
+
                 <div class="uiSceen" id="pauseMenu">
                     <div class="menuTitle">Pause</div>
                     <button id = "pauseMainMenu" class="bnt"><div class="bntIcon iconMain"></div>Main Menu</button>
@@ -146,6 +195,38 @@
                 </div>
 
                 <div id = "debugLabel">
+                </div>
+
+                <div class="uiSceen" id="editorDialogName" hidden>
+                    <div class="editorDialog">
+                        <div class="editorDialogTitle" id="editorDialogNameTitle">New Level</div>
+                        <input id="editorDialogNameInput" type="text" class="textInput" maxlength="30" placeholder="Level Name">
+                        <div class="editorDialogButtons">
+                            <button id="editorDialogNameConfirm" class="bnt">Confirm</button>
+                            <button id="editorDialogNameCancel" class="bnt">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="uiSceen" id="editorDialogWarning" hidden>
+                    <div class="editorDialog">
+                        <div class="editorDialogMessage">You have unsaved changes. What would you like to do?</div>
+                        <div class="editorDialogButtons">
+                            <button id="editorDialogWarningSave" class="bnt editorDialogBtnSave">Save first</button>
+                            <button id="editorDialogWarningDiscard" class="bnt editorDialogBtnDiscard">Discard</button>
+                            <button id="editorDialogWarningCancel" class="bnt">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="uiSceen" id="editorDialogConfirm" hidden>
+                    <div class="editorDialog">
+                        <div class="editorDialogMessage" id="editorDialogConfirmMsg"></div>
+                        <div class="editorDialogButtons">
+                            <button id="editorDialogConfirmYes" class="bnt">Yes</button>
+                            <button id="editorDialogConfirmNo" class="bnt">Cancel</button>
+                        </div>
+                    </div>
                 </div>
 
                 <div id="transition" hidden>

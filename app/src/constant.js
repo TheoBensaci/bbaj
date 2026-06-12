@@ -1,14 +1,3 @@
-import { FallingTile } from "./game/tile/level/fallingTile.js";
-import { FinishTile } from "./game/tile/level/finishTile.js";
-import { GroundTile } from "./game/tile/level/groundTile.js";
-import { JumpPadTile } from "./game/tile/level/jumpPadTile.js";
-import { MovingPlatform } from "./game/tile/level/movingPlatform.js";
-import { OneWayPlatformTile } from "./game/tile/level/oneWayPlatformTile.js";
-import { Slope } from "./game/tile/level/slope.js";
-import { SpikeTile, TriggerSpike } from "./game/tile/level/spikeTile.js";
-import { PlayerCheckPointTile, PlayerSpawnTile } from "./game/tile/other/playerSpawnTile.js";
-import { TileIndex } from "./game/tileSystem/tileIndexer.js";
-
 export const GAME_UPDATE_INTERVAL = 10;
 export const SERVER_HTTP_PROTO = window.location.protocol;
 export const SERVER_ADDRESS = window.location.hostname;
@@ -54,20 +43,14 @@ export const EDITOR_KEYS = [
     ['pan', [], [1]],
     ['panModifier', ['Space']],
     ['rotate', ['KeyR']],
-    ['exportLevel', ['Minus']],
-    ['importLevel', ['Comma']],
-    ['selectEraser', ['Digit0']],
-    ['selectTile0', ['Digit1']],
-    ['selectTile1', ['Digit2']],
-    ['selectTile2', ['Digit3']],
-    ['selectTile3', ['Digit4']],
-    ['selectTile4', ['Digit5']],
-    ['selectTile5', ['Digit6']],
-    ['selectTile6', ['Digit7']],
-    ['selectTile7', ['Digit8']],
-    ['selectTile8', ['Digit9']],
     ['rect', ['ControlLeft', 'ControlRight']],
-    ['toggleMode', ['Period']]
+    ['undo', ['KeyZ']],
+    ['redo', ['KeyY']],
+    ['toggleMode', ['Period']],
+    ['drawTool', ['KeyB']],
+    ['eraseTool', ['KeyE']],
+    ['selectTool', ['KeyS']],
+    ['rectToggle', ['KeyV']],
 ]
 
 export const PERLOADED_TEXTURE=[
@@ -85,17 +68,3 @@ export const PERLOADED_TEXTURE=[
     "./ressource/fallingTile.png",
     "./ressource/fallingTileReload.png"
 ];
-
-// register all tile
-TileIndex.createGroup("main");
-TileIndex.registerTile("main",GroundTile);
-TileIndex.registerTile("main",JumpPadTile);
-TileIndex.registerTile("main",Slope);
-TileIndex.registerTile("main",MovingPlatform);
-TileIndex.registerTile("main",SpikeTile);
-TileIndex.registerTile("main",TriggerSpike);
-TileIndex.registerTile("main",OneWayPlatformTile);
-TileIndex.registerTile("main",PlayerCheckPointTile);
-TileIndex.registerTile("main",PlayerSpawnTile);
-TileIndex.registerTile("main",FinishTile);
-TileIndex.registerTile("main",FallingTile);

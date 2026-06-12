@@ -8,6 +8,19 @@ export class EditorWorld extends World {
         this.level = [];
         this.backgroundColor="#555555";
         this.levelName="none";
+        this._dirty = false;
+    }
+
+    isDirty() {
+        return this._dirty;
+    }
+
+    markClean() {
+        this._dirty = false;
+    }
+
+    markDirty() {
+        this._dirty = true;
     }
 
     /**
@@ -43,11 +56,13 @@ export class EditorWorld extends World {
             }
         }
         if (params === null) {
+            if (this.level[y][x] === null) return;
             this.level[y][x] = null;
         } else {
             this.level[y][x] = new TileEditorWrapper(x, y, params);
             this.level[y][x].setState(this);
         }
+        this._dirty = true;
 
         // update surround tile
         const tiles = this.getSuroundTiles(x * TILE_SIZE, y * TILE_SIZE, 2);
@@ -62,6 +77,22 @@ export class EditorWorld extends World {
         if (y < 0 || this.level[y] === undefined || x < 0 || x >= this.level[y].length) return null;
         if (this.level[y][x] === undefined) return null;
         return this.level[y][x];
+    }
+
+    updateTileParams(x, y, newParams) {
+        const tile = this.getTile(x, y);
+        if (!tile) return;
+        tile.tileParams = newParams;
+        tile.data[2] = newParams;
+        tile.setState(this);
+        this.markDirty();
+
+        const tiles = this.getSuroundTiles(x * TILE_SIZE, y * TILE_SIZE, 2);
+        for (const t of tiles) {
+            if (t !== null) {
+                t.setState(this);
+            }
+        }
     }
 
     isTileContactCompatible(tile, tileClass) {
