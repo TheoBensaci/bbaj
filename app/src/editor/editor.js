@@ -350,6 +350,31 @@ export class Editor {
         this._savePointIndex = this.undoManager.getIndex();
     }
 
+    _doTest() {
+        const data = this.world.export();
+        setSaveItem('currentLevel', data);
+        Director.loadLevel(data);
+    }
+
+    _doUpload() {
+        const data = this.world.export();
+        fetch('/publishMap', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ map: data }),
+        })
+            .then(res => {
+                if (!res.ok) throw new Error(`Server returned ${res.status}`);
+                return res.json();
+            })
+            .then(() => {
+                this.ui.showConfirmDialog('Level uploaded successfully.', () => {});
+            })
+            .catch(err => {
+                this.ui.showConfirmDialog('Upload failed: ' + err.message, () => {});
+            });
+    }
+
     _autoLoadOrPrompt() {
         if (hasSaveItem('currentLevel')) {
             const data = getSaveItem('currentLevel');

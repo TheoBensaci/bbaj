@@ -239,6 +239,8 @@ export class EditorUi {
         document.getElementById('editorSaveAs').addEventListener('click', () => this.editor._doSaveAs());
         document.getElementById('editorLoad').addEventListener('click', () => this.editor._doLoad());
         document.getElementById('editorNew').addEventListener('click', () => this.editor._doNew());
+        document.getElementById('editorTest').addEventListener('click', () => this.editor._doTest());
+        document.getElementById('editorUpload').addEventListener('click', () => this.editor._doUpload());
     }
 
     showNamePrompt(title, defaultName, callback) {
