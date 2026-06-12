@@ -24,6 +24,7 @@ import { JumpPadTile } from './game/tile/level/jumpPadTile.js';
 import { MovingPlatform } from './game/tile/level/movingPlatform.js';
 import { PlayerCheckPointTile, PlayerSpawnTile } from './game/tile/other/playerSpawnTile.js';
 import { FinishTile } from './game/tile/level/finishTile.js';
+import { FallingTile } from './game/tile/level/fallingTile.js';
 
 function registerTiles() {
     TileIndex.createGroup(TILE_GROUP.TERRAIN);
@@ -34,9 +35,9 @@ function registerTiles() {
     TileIndex.createGroup(TILE_GROUP.HAZARDS);
     TileIndex.registerTile(TILE_GROUP.HAZARDS, SpikeTile);
     TileIndex.registerTile(TILE_GROUP.HAZARDS, TriggerSpike);
+    TileIndex.registerTile(TILE_GROUP.HAZARDS, FallingTile);
 
     TileIndex.createGroup(TILE_GROUP.MECHANICS);
-    TileIndex.registerTile(TILE_GROUP.MECHANICS, JumpPadTile);
     TileIndex.registerTile(TILE_GROUP.MECHANICS, MovingPlatform);
 
     TileIndex.createGroup(TILE_GROUP.LOGIC);

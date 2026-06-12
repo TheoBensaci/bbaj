@@ -33,7 +33,6 @@ export class FallingTile extends ActiveTile {
         this.timer = 0;
         this.onReload = false;
         this.active = false;
-        this.connected=connected;
 
         this.animationSystem=new AnimationSystem({
             scale:new Vector(1,1),
@@ -76,31 +75,49 @@ export class FallingTile extends ActiveTile {
                 scale:new Vector(t,t),
                 spritePath:"./ressource/fallingTileReload.png"
             };
-        },0.25,0,false,()=>{
+        },0.25,0,false);
 
-        });
+        this.animationSystem.addState("spawn",(t)=>{
+            return {
+                offset:new Vector(0,0),
+                scale:new Vector(t,t),
+                spritePath:"./ressource/fallingTile.png"
+            };
+        },0.25,0,false);
 
         this.animationSystem.setState("idle");
+    }
+
+
+    activeFallingTile(){
+        if(this.onReload || this.active)return;
+        this.animationSystem.setState("active");
+        this.active=true;
+        this.notifyChange();
+        this.setActive();
+        this.timer=FALLING_SHAPE_DESTROY_TIME;
     }
 
 
     onTriggerEnter(player){
 
         if(!this.active && !this.onReload){
-            this.animationSystem.setState("active");
-            this.active=true;
-            this.setActive();
-            this.timer=FALLING_SHAPE_DESTROY_TIME;
+            this.activeFallingTile();
         }
     }
 
     onTriggerEnd(player){
         if(this.active && !this.onReload){
+            this.fall();
         }
     }
 
+    onReset(){
+        this.reload();
+    }
+
     fall(){
-        console.log("fall");
+        if(this.onReload || !this.active)return;
         this.active=false;
         this.timer=FALLING_SHAPE_RELOAD_TIME
         this.onReload=true;
@@ -129,7 +146,7 @@ export class FallingTile extends ActiveTile {
     }
 
     static createTile(param) {
-        return new FallingTile(param.connected);
+        return new FallingTile(false);
     }
 
     static editorRender(tileWrapper, x, y, context) {
@@ -141,6 +158,21 @@ export class FallingTile extends ActiveTile {
     static setWrapperState(tileWrapper, context, x, y) {
     }
 
+    getCollider(){
+        if(this.onReload){
+            return [];
+        }
+        return super.getCollider();
+    }
+
+
+    reload(){
+        this.active=false;
+        this.onReload=false;
+        this.unsetActive();
+        this.animationSystem.setState("spawn");
+    }
+
 
     update(t){
         if(this.onReload){
@@ -148,8 +180,7 @@ export class FallingTile extends ActiveTile {
                 this.timer-=t;
             }
             else{
-                this.onReload=false;
-                this.unsetActive();
+                this.reload();
             }
         }
 

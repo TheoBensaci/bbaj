@@ -106,7 +106,7 @@ document.getElementById('localCampaign').onclick = () => {
         if(data===null)return;
         Director.loadLevel(data);
         Director.setEditorQuickSwitch(false);
-    },"./ressource/levels/testMovingPlat.json")
+    },"./ressource/levels/testLevelFinish.json")
 };
 
 document.getElementById('localImport').onclick = () => {

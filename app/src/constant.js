@@ -66,5 +66,7 @@ export const PERLOADED_TEXTURE=[
     "./ressource/checkPoint.png",
     "./ressource/faces.png",
     "./ressource/fallingTile.png",
-    "./ressource/fallingTileReload.png"
+    "./ressource/fallingTileReload.png",
+    "./ressource/finishOn.png",
+    "./ressource/finishOff.png"
 ];

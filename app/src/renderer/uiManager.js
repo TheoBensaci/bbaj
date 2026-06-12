@@ -34,6 +34,7 @@ export class UiManager{
         for (const iterator of this.sceen) {
             if (iterator.id === id) {
                 this.#toggleScreen(iterator,state);
+                document.activeElement.blur();
             }
         }
     }
