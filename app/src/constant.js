@@ -86,16 +86,22 @@ export const PERLOADED_TEXTURE=[
     "./ressource/fallingTileReload.png"
 ];
 
-// register all tile
-TileIndex.createGroup("main");
-TileIndex.registerTile("main",GroundTile);
-TileIndex.registerTile("main",JumpPadTile);
-TileIndex.registerTile("main",Slope);
-TileIndex.registerTile("main",MovingPlatform);
-TileIndex.registerTile("main",SpikeTile);
-TileIndex.registerTile("main",TriggerSpike);
-TileIndex.registerTile("main",OneWayPlatformTile);
-TileIndex.registerTile("main",PlayerCheckPointTile);
-TileIndex.registerTile("main",PlayerSpawnTile);
-TileIndex.registerTile("main",FinishTile);
-TileIndex.registerTile("main",FallingTile);
+// register all tiles into semantic groups
+TileIndex.createGroup("terrain");
+TileIndex.registerTile("terrain", GroundTile);
+TileIndex.registerTile("terrain", Slope);
+TileIndex.registerTile("terrain", OneWayPlatformTile);
+
+TileIndex.createGroup("hazards");
+TileIndex.registerTile("hazards", SpikeTile);
+TileIndex.registerTile("hazards", TriggerSpike);
+
+TileIndex.createGroup("mechanics");
+TileIndex.registerTile("mechanics", JumpPadTile);
+TileIndex.registerTile("mechanics", MovingPlatform);
+TileIndex.registerTile("mechanics", FallingTile);
+
+TileIndex.createGroup("logic");
+TileIndex.registerTile("logic", PlayerCheckPointTile);
+TileIndex.registerTile("logic", PlayerSpawnTile);
+TileIndex.registerTile("logic", FinishTile);

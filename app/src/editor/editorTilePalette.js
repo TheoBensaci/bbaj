@@ -8,7 +8,7 @@ export class EditorTilePalette {
     constructor() {
         this.selectedTileId = -1; // -1 = eraser
         this.rotation = 0;
-        this.group = 'main';
+        this.group = 'terrain';
     }
 
     selectTile(id) {
