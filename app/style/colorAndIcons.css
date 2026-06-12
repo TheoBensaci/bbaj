@@ -50,19 +50,14 @@
     mask-image: url("../ressource/plus.svg");
 }
 
-.iconSave{
-    mask-image: url("../ressource/save.svg");
-}
-
 .iconJoin{
     mask-image: url("../ressource/join.svg");
 }
 
 /* editor icons - most of them from flaticons.com / Uicons */
 
-/* TODO(sss): find icon */
 .iconUndo {
-    mask-image: url("../ressource/back.svg");
+    mask-image: url("../ressource/undo.svg");
 }
 
 .iconRedo {
@@ -106,7 +101,6 @@
     mask-image: url("../ressource/play.svg");
 }
 
-/* TODO: find icon */
 .iconRect {
-    mask-image: url("../ressource/play.svg");
+    mask-image: url("../ressource/rectangle-horizontal.svg");
 }

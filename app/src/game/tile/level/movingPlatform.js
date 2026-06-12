@@ -131,7 +131,7 @@ export class MovingPlatform extends MovingTile {
     }
 
     static setWrapperState(tileWrapper, context, x, y) {
-        const b = new MovingPlatform(new Vector(0,0));
+        const b = new MovingPlatform(new Vector(0, 0));
         b.setOriginePosition(new Vector(x, y));
         tileWrapper.shape = b.getCollider()[0];
     }

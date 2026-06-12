@@ -1,14 +1,3 @@
-import { FallingTile } from "./game/tile/level/fallingTile.js";
-import { FinishTile } from "./game/tile/level/finishTile.js";
-import { GroundTile } from "./game/tile/level/groundTile.js";
-import { JumpPadTile } from "./game/tile/level/jumpPadTile.js";
-import { MovingPlatform } from "./game/tile/level/movingPlatform.js";
-import { OneWayPlatformTile } from "./game/tile/level/oneWayPlatformTile.js";
-import { Slope } from "./game/tile/level/slope.js";
-import { SpikeTile, TriggerSpike } from "./game/tile/level/spikeTile.js";
-import { PlayerCheckPointTile, PlayerSpawnTile } from "./game/tile/other/playerSpawnTile.js";
-import { TileIndex } from "./game/tileSystem/tileIndexer.js";
-
 export const GAME_UPDATE_INTERVAL = 10;
 export const SERVER_HTTP_PROTO = window.location.protocol;
 export const SERVER_ADDRESS = window.location.hostname;
@@ -73,23 +62,3 @@ export const PERLOADED_TEXTURE=[
     "./ressource/fallingTile.png",
     "./ressource/fallingTileReload.png"
 ];
-
-// register all tiles into semantic groups
-TileIndex.createGroup("terrain");
-TileIndex.registerTile("terrain", GroundTile);
-TileIndex.registerTile("terrain", Slope);
-TileIndex.registerTile("terrain", OneWayPlatformTile);
-
-TileIndex.createGroup("hazards");
-TileIndex.registerTile("hazards", SpikeTile);
-TileIndex.registerTile("hazards", TriggerSpike);
-
-TileIndex.createGroup("mechanics");
-TileIndex.registerTile("mechanics", JumpPadTile);
-TileIndex.registerTile("mechanics", MovingPlatform);
-TileIndex.registerTile("mechanics", FallingTile);
-
-TileIndex.createGroup("logic");
-TileIndex.registerTile("logic", PlayerCheckPointTile);
-TileIndex.registerTile("logic", PlayerSpawnTile);
-TileIndex.registerTile("logic", FinishTile);

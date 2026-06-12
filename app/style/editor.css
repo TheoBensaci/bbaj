@@ -8,7 +8,7 @@
     align-items: center;
     gap: 2px;
     background-color: #19191a;
-    border: 2px solid #333;
+    border: 2px solid aliceblue;
     border-top: none;
     border-radius: 0 0 3px 3px;
     padding: 4px 10px;
@@ -80,6 +80,26 @@
     --color_2: #00ff99;
 }
 
+#editorTopBar #editorErase.active,
+#editorBottomBar #editorErase.active {
+    --color_2: #ff3355;
+}
+
+#editorTopBar #editorErase.active .bntIcon,
+#editorBottomBar #editorErase.active .bntIcon {
+    background-color: #ff3355;
+}
+
+#editorTopBar #editorPan.active,
+#editorBottomBar #editorPan.active {
+    --color_2: #d55ff6;
+}
+
+#editorTopBar #editorPan.active .bntIcon,
+#editorBottomBar #editorPan.active .bntIcon {
+    background-color: #d55ff6;
+}
+
 #editorTopBar .editorToolBtn.active .bntIcon,
 #editorBottomBar .editorToolBtn.active .bntIcon {
     background-color: #00ff99;
@@ -115,7 +135,7 @@
     align-items: flex-end;
     gap: 0;
     background-color: #19191a;
-    border: 2px solid #333;
+    border: 2px solid aliceblue;
     border-bottom: none;
     border-radius: 6px 6px 0 0;
     padding: 4px 8px 0px 8px;
@@ -133,7 +153,6 @@
 .editorDropdownIcon {
     width: 14px;
     height: 14px;
-    border-radius: 2px;
     image-rendering: pixelated;
     flex-shrink: 0;
 }
