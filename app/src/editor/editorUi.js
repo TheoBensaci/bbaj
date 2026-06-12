@@ -15,7 +15,16 @@ const DROPDOWN_GROUPS = TILE_GROUPS.map(key => ({
     elementId: `editorDropdown${key[0].toUpperCase() + key.slice(1)}`,
 }));
 
+/**
+ * UI presentation layer for the level editor.
+ * Owns all DOM event listeners, tile palette dropdowns, tool buttons,
+ * the inspector panel, and the three dialogs.
+ */
 export class EditorUi {
+    /**
+     * @param {Editor} editor: the editor instance
+     * @param {Renderer} renderer: the game renderer (for exporting tile sprites)
+     */
     constructor(editor, renderer) {
         this.editor = editor;
         this.renderer = renderer;
@@ -24,10 +33,14 @@ export class EditorUi {
             document.getElementById('tilePreview'),
             renderer
         );
+
+        // tracks the last-selected tile id per group so dropdown icons stay in sync
         this._lastSelectedPerGroup = {};
         for (const g of DROPDOWN_GROUPS) {
             this._lastSelectedPerGroup[g.key] = 0;
         }
+
+        // currently open dialog id (ex. 'editorDialogName') and its callback
         this.currentDialog = null;
         this._dialogCallback = null;
         this._dropdownsPopulated = false;
@@ -46,6 +59,9 @@ export class EditorUi {
         this._initInspector();
     }
 
+    /**
+     * Wire the tool buttons to editor actions.
+     */
     _initToolButtons() {
         const drawBtn = document.getElementById('editorDraw');
         const eraseBtn = document.getElementById('editorErase');
@@ -67,6 +83,10 @@ export class EditorUi {
         });
     }
 
+    /**
+     * Updates button active CSS classes, rect button state, and tile preview.
+     * @param {string} tool: one of TOOL_DRAW, TOOL_ERASE, TOOL_PAN, TOOL_SELECT
+     */
     onToolChanged(tool) {
         document.getElementById('editorDraw').classList.toggle('active', tool === TOOL_DRAW);
         document.getElementById('editorErase').classList.toggle('active', tool === TOOL_ERASE);
@@ -77,6 +97,10 @@ export class EditorUi {
         this.updatePreviewForTool();
     }
 
+    /**
+     * Sync the rectangle button visual state with the current tool + rectToggle.
+     * Disabled during PAN/SELECT since rectangle fill doesn't apply to those modes.
+     */
     _updateRectButtonState() {
         const rectBtn = document.getElementById('editorRect');
         const isPanSelect = this.editor.currentTool === TOOL_PAN || this.editor.currentTool === TOOL_SELECT;
@@ -86,6 +110,10 @@ export class EditorUi {
         rectBtn.classList.toggle('editorRectOff', !rectActive);
     }
 
+    /**
+     * Wire the dropdown buttons.
+     * Clicking a group button opens its panel and populates it on first open.
+     */
     _initDropdowns() {
         for (const group of DROPDOWN_GROUPS) {
             const dropdown = document.getElementById(group.elementId);
@@ -112,6 +140,9 @@ export class EditorUi {
         });
     }
 
+    /**
+     * Close every tile group dropdown panel.
+     */
     _closeAllDropdowns() {
         for (const group of DROPDOWN_GROUPS) {
             const dropdown = document.getElementById(group.elementId);
@@ -119,6 +150,9 @@ export class EditorUi {
         }
     }
 
+    /**
+     * Populate all dropdown panels with canvases.
+     */
     _populateAllDropdownPanels() {
         for (const group of DROPDOWN_GROUPS) {
             const dropdown = document.getElementById(group.elementId);
@@ -128,6 +162,13 @@ export class EditorUi {
         }
     }
 
+    /**
+     * Fill a dropdown panel with clickable tile canvases.
+     * Each canvas is rendered via renderer.exportTileSprite.
+     * @param {string} groupKey: tile group key
+     * @param {HTMLElement} panel: the panel container to populate
+     * @param {HTMLCanvasElement} iconCanvas: the dropdown button's icon canvas
+     */
     _populateDropdownPanel(groupKey, panel, iconCanvas) {
         const count = TileIndex.getGroupTileCount(groupKey);
         panel.innerHTML = '';
@@ -137,6 +178,7 @@ export class EditorUi {
             tileCanvas.width = 28;
             tileCanvas.height = 28;
 
+            // render tile onto an offscreen canvas first, then copy to the visible one
             const offCanvas = document.createElement('canvas');
             offCanvas.width = 28;
             offCanvas.height = 28;
@@ -158,6 +200,11 @@ export class EditorUi {
         }
     }
 
+    /**
+     * Refresh the selection highlight inside a single dropdown panel.
+     * @param {string} groupKey
+     * @param {HTMLElement} panel
+     */
     _refreshDropdownPanel(groupKey, panel) {
         const canvases = panel.querySelectorAll('canvas');
         for (let i = 0; i < canvases.length; i++) {
@@ -166,6 +213,9 @@ export class EditorUi {
         }
     }
 
+    /**
+     * Redraw the icon on each dropdown button to show the last-selected tile per group.
+     */
     _updateDropdownIcons() {
         for (const group of DROPDOWN_GROUPS) {
             const dropdown = document.getElementById(group.elementId);
@@ -180,6 +230,9 @@ export class EditorUi {
         }
     }
 
+    /**
+     * Highlight the currently selected tile in every dropdown panel.
+     */
     _updateDropdownSelectionHighlights() {
         for (const group of DROPDOWN_GROUPS) {
             const dropdown = document.getElementById(group.elementId);
@@ -192,6 +245,11 @@ export class EditorUi {
         }
     }
 
+    /**
+     * Update the tile preview based on the current tool.
+     * Draw tool shows the selected tile. Erase shows a remove icon.
+     * Pan/Select hide the preview entirely.
+     */
     updatePreviewForTool() {
         if (this.editor.currentTool === TOOL_PAN || this.editor.currentTool === TOOL_SELECT) {
             this.tilePreview.hide(true);
@@ -207,6 +265,10 @@ export class EditorUi {
         }
     }
 
+    /**
+     * Move the tile preview to the given grid position.
+     * @param {Vector} gridPos: grid coordinates
+     */
     updatePreviewPosition(gridPos) {
         // `.add()` mutates the object, so we want to clone it.
         const centerWorld = gridPos.clone().add(0.5, 0.5).scale(TILE_SIZE);
@@ -215,15 +277,24 @@ export class EditorUi {
         this.tilePreview.div.style.top = screenPos.y + 'px';
     }
 
+    /**
+     * Wire the Undo and Redo toolbar buttons.
+     */
     _initUndoRedoButtons() {
         document.getElementById('editorUndo').addEventListener('click', () => this.editor.undo());
         document.getElementById('editorRedo').addEventListener('click', () => this.editor.redo());
     }
 
+    /**
+     * Hide the tile preview.
+     */
     hidePreview() {
         this.tilePreview.hide(true);
     }
 
+    /**
+     * Show the editor bars and populate dropdowns on first call.
+     */
     showEditorUI() {
         document.getElementById('editorTopBar').hidden = false;
         document.getElementById('editorBottomBar').hidden = false;
@@ -235,6 +306,9 @@ export class EditorUi {
         this.updatePreviewForTool();
     }
 
+    /**
+     * Hide the editor UI and clean up inspector + any open dialog.
+     */
     hideEditorUI() {
         document.getElementById('editorTopBar').hidden = true;
         document.getElementById('editorBottomBar').hidden = true;
@@ -243,6 +317,9 @@ export class EditorUi {
         this._dialogCallback = null;
     }
 
+    /**
+     * Wire the file action buttnos.
+     */
     _initFileButtons() {
         document.getElementById('editorSave').addEventListener('click', () => this.editor._doSave());
         document.getElementById('editorSaveAs').addEventListener('click', () => this.editor._doSaveAs());
@@ -252,6 +329,13 @@ export class EditorUi {
         document.getElementById('editorUpload').addEventListener('click', () => this.editor._doUpload());
     }
 
+    /**
+     * Show the name prompt dialog.
+     * Pushes UI state so the dialog stacks on top of existing UI.
+     * @param {string} title: dialog title text
+     * @param {string} defaultName: initial value of the text input
+     * @param {Function} callback: called with (name) on confirm or (null) on cancel
+     */
     showNamePrompt(title, defaultName, callback) {
         const ui = Director.getUIManager();
         ui.toggle('blackBackground', true);
@@ -306,6 +390,10 @@ export class EditorUi {
         inputEl.focus();
     }
 
+    /**
+     * Show the unsaved changes warning dialog (Save / Discard / Cancel).
+     * @param {Function} callback: called with ('save'), ('discard'), or ('cancel')
+     */
     showUnsavedWarning(callback) {
         const ui = Director.getUIManager();
         ui.toggle('blackBackground', true);
@@ -353,6 +441,11 @@ export class EditorUi {
         cancelBtn.addEventListener('click', onCancel);
     }
 
+    /**
+     * Show a confirm dialog with Yes/No buttons.
+     * @param {string} message: text to display
+     * @param {Function} callback: called with (true) or (false)
+     */
     showConfirmDialog(message, callback) {
         const ui = Director.getUIManager();
         ui.toggle('blackBackground', true);
@@ -393,6 +486,9 @@ export class EditorUi {
         noBtn.addEventListener('click', onNo);
     }
 
+    /**
+     * Force dismiss whatever dialog is currently open, calling its callback with 'cancel'.
+     */
     dismissCurrentDialog() {
         if (!this.currentDialog) return;
         const ui = Director.getUIManager();
@@ -404,16 +500,29 @@ export class EditorUi {
         this._dialogCallback = null;
     }
 
+    /**
+     * Update the level name label in the top bar to match acutal level name.
+     */
     updateLevelNameLabel() {
         const label = document.getElementById('editorLevelName');
         label.textContent = this.editor.world.levelName;
     }
 
+    /**
+     * Init UI's inspector local properties.
+     */
     _initInspector() {
         this._inspectorPanel = document.getElementById('editorInspector');
         this._inspectorPos = null;
     }
 
+    /**
+     * Populate and show the inspector panel for a selected tile.
+     * Builds HTML inputs for rotation and any tile specific params (e.g. MovingPlatform).
+     * @param {number} x: grid x position
+     * @param {number} y: grid y position
+     * @param {TileEditorWrapper} tile: the selected tile wrapper
+     */
     _showInspector(x, y, tile) {
         this._inspectorPos = { x, y, group: tile.data[0], id: tile.data[1] };
 
@@ -455,6 +564,9 @@ export class EditorUi {
         this._inspectorPanel.hidden = false;
     }
 
+    /**
+     * Hide and clear the inspector panel.
+     */
     _hideInspector() {
         this._inspectorPanel.hidden = true;
         this._inspectorPanel.innerHTML = '';

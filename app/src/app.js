@@ -139,5 +139,5 @@ function init() {
     InputManager.createContext('main');
     InputManager.createContext('online').loadInputFromSave(ONLINE_KEYS);
 
-    Director.switchSceen('editor');
+    Director.switchSceen('main');
 }
