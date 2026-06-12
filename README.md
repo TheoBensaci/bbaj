@@ -43,3 +43,7 @@ Le serveur démarre sur le port **3000**. Ouvrir `http://localhost:3000` dans un
 ## Auteurs
 
 Theo Bensaci, Maxime Regenass et Santiago Sugrañes
+
+
+## Travail effectué
+Pour le server ainsi que pour les ghosts, Théo et Maxime on peer programming, car on devait s'accorder. Nous le mentionnons car Maxime a moins de commit ce qui peut sembler surprenant.
