@@ -190,6 +190,22 @@ export class Director {
             // if online hide when pause
             if(this.isOnline()){
                 setTabThinking();
+                this.network().getMapTime((data)=>{
+                    if(data===null)return;
+                    tabGenElement(
+                        "Global ranking",
+                        data.times.sort((a,b)=>{
+                            if(a.time === null && b.time ===null)return 0;
+                            if(a.time===null){
+                                return 1;
+                            }
+                            if(b.time===null){
+                                return -1;
+                            }
+                            return a.time-b.time;
+                        })
+                    );
+                });
                 this.#inst.render.uiManager.toggle('tab', true);
             }
 

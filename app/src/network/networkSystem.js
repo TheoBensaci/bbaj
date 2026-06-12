@@ -29,6 +29,9 @@ export class NetworkSystem{
 
         // actual player id on the server
         this.playerId = 0;
+
+        // actual player id on the server
+        this.mapId = "";
     }
 
     /**
@@ -105,6 +108,7 @@ export class NetworkSystem{
                             errorCallback("MAP ERROR");
                             return;
                         }
+                        this.mapId=data.mapID;
                         this.roomId=roomId;
                         Director.loadLevel(d);
                         Director.setEditorQuickSwitch(false);
@@ -237,6 +241,21 @@ export class NetworkSystem{
      */
     getMap(id){
         return "./ressource/levels/testLevelFinish.json";//this.server+":"+this.port+"/map/"+id;
+    }
+
+
+    getMapTime(callback){
+        fetch(this.getHost()+"/map/time/"+this.mapId)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {return callback(data)})
+            .catch(e=>{;
+                callback(null);
+            });
     }
 
     //#endregion

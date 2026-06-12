@@ -98,7 +98,7 @@
 
 /* TODO(tbi): create pan icon */
 .iconPan {
-    mask-image: url("../ressource/square-x.svg");
+    mask-image: url("../ressource/pan.svg");
 }
 
 .iconRect {
