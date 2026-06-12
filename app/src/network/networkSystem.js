@@ -240,7 +240,7 @@ export class NetworkSystem{
      * @returns {String} path
      */
     getMap(id){
-        return "./ressource/levels/testLevelFinish.json";//this.server+":"+this.port+"/map/"+id;
+        return this.getHost()+"/map/"+id;
     }
 
 
