@@ -73,8 +73,8 @@ export class Director {
                         grid: true,
                     });
 
-                    this.editorTool.showEditorUI();
                     this.render.uiManager.clear();
+                    this.editorTool.showEditorUI();
                     this.setBackgroundColor('#333333');
                     this.render.pause = false;
                     this.game.pause = true;

@@ -6,27 +6,37 @@ export class EditorWorld extends World {
     constructor() {
         super();
         this.level = [];
-        this.backgroundColor="#555555";
-        this.levelName="none";
+        this.backgroundColor = "#555555";
+        this.levelName = "none";
         this._dirty = false;
     }
 
+    /**
+     * Whether the level has unsaved changes.
+     * @returns {boolean}
+     */
     isDirty() {
         return this._dirty;
     }
 
+    /**
+     * Mark the level as saved.
+     */
     markClean() {
         this._dirty = false;
     }
 
+    /**
+     * Mark the level as having unsaved changes.
+     */
     markDirty() {
         this._dirty = true;
     }
 
     /**
      * Check if a grid position is within the world boundaries
-     * @param {number} x grid level position
-     * @param {number} y grid level position
+     * @param {number} x grid position
+     * @param {number} y grid position
      * @returns {boolean}
      */
     isInBounds(x, y) {
@@ -34,13 +44,16 @@ export class EditorWorld extends World {
     }
 
     /**
-     * Set the tile x and y (grid level pos) to a set tile
-     * @param {number} x x grid level position
-     * @param {number} y x grid level position
-     * @param {object} params tile parameter => [group-id,tile-id,{params}];
+     * Set the tile x and y (grid pos) to a set tile.
+     * Also refreshes surrounding tiles so state stays correct.
+     * @param {number} x: x grid level position
+     * @param {number} y: y grid level position
+     * @param {Array|null} params: tile parameter => [group-id, tile-id, {params}] OR null to erase
      */
     setTile(x, y, params) {
         if (!this.isInBounds(x, y)) return;
+
+        // grow rows downward if y is beyond current level height
         if (this.level.length <= y) {
             if (params === null) return;
             const l = this.level.length - 1;
@@ -48,6 +61,7 @@ export class EditorWorld extends World {
                 this.level.push([]);
             }
         }
+        // grow columns rightward if x is beyond current row width
         if (this.level[y].length <= x) {
             if (params === null) return;
             const l = this.level[y].length - 1;
@@ -64,7 +78,7 @@ export class EditorWorld extends World {
         }
         this._dirty = true;
 
-        // update surround tile
+        // refresh surround tiles, some of the  tile state can depend on neighbors
         const tiles = this.getSuroundTiles(x * TILE_SIZE, y * TILE_SIZE, 2);
         for (const tile of tiles) {
             if (tile !== null) {
@@ -73,12 +87,24 @@ export class EditorWorld extends World {
         }
     }
 
+    /**
+     * Get the tile at grid position, or null if out of bounds / empty.
+     * @param {number} x
+     * @param {number} y
+     * @returns {TileEditorWrapper|null}
+     */
     getTile(x, y) {
         if (y < 0 || this.level[y] === undefined || x < 0 || x >= this.level[y].length) return null;
         if (this.level[y][x] === undefined) return null;
         return this.level[y][x];
     }
 
+    /**
+     * Update a tile's params and refresh its state + neighbors.
+     * @param {number} x: grid x
+     * @param {number} y: grid y
+     * @param {object} newParams: key/value pairs to merge in tileParams
+     */
     updateTileParams(x, y, newParams) {
         const tile = this.getTile(x, y);
         if (!tile) return;
@@ -95,14 +121,20 @@ export class EditorWorld extends World {
         }
     }
 
+    /**
+     * Check if a given tile is of a specific tile class (used for contact checks).
+     * @param {TileEditorWrapper|null} tile
+     * @param {Function} tileClass: constructor reference (e.g. MovingPlatform)
+     * @returns {boolean}
+     */
     isTileContactCompatible(tile, tileClass) {
         return tile !== null && tile.tileClass === tileClass;
     }
 
     /**
      * Move the camera by a set amount
-     * @param {*} x amount x
-     * @param {*} y amount y
+     * @param {number} x: amount x
+     * @param {number} y: amount y
      */
     moveCamera(x, y) {
         const buffer = this.cameraPosition.clone();
@@ -112,8 +144,8 @@ export class EditorWorld extends World {
     }
 
     /**
-     * Export the actual level into a array of tile data
-     * @returns
+     * Export the current level into a serializable data structure.
+     * @returns {{data: Array, backgroundColor: string, name: string}}
      */
     export() {
         const result = [];
@@ -128,12 +160,12 @@ export class EditorWorld extends World {
             }
             result.push(buffer);
         }
-        return {data:result,backgroundColor:this.backgroundColor,name:this.levelName};
+        return { data: result, backgroundColor: this.backgroundColor, name: this.levelName };
     }
 
     /**
-     * Import a level into the editor
-     * @param {*} levelData Map of tile params (same format as the export function)
+     * Import a level into the editor (reverse of export).
+     * @param {object} levelData: {data, backgroundColor, name}
      */
     import(levelData) {
         const result = [];
@@ -158,7 +190,7 @@ export class EditorWorld extends World {
             }
         }
         console.log(levelData);
-        this.backgroundColor=levelData.backgroundColor;
-        this.levelName=levelData.name;
+        this.backgroundColor = levelData.backgroundColor;
+        this.levelName = levelData.name;
     }
 }

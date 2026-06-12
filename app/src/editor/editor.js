@@ -18,6 +18,11 @@ const TOOL_SELECT = 'select';
  * Handles tile placement, erasing, panning, rotation, export, import, and playtest.
  */
 export class Editor {
+    /**
+     * @param {HTMLElement} canvasContainer: the DOM container for the game canvas
+     * @param {EditorWorld} editorWorld: the world model for the editor
+     * @param {Renderer} renderer: the game renderer
+     */
     constructor(canvasContainer, editorWorld, renderer) {
         this.world = editorWorld;
         this.renderer = renderer;
@@ -30,21 +35,31 @@ export class Editor {
         this.rectToggle = false;
         this.selectedGridPos = null;
 
+        // rectangle drawing state (click-drag to fill area)
         this.isDrawingRect = false;
         this.rectStart = new Vector(-1, -1);
         this.rectEnd = new Vector(-1, -1);
         this.rectMode = null;
 
         // --- undo / redo ---
+        // Stroke-group batching: all tile operations performed while the mouse button
+        // is held down share a groupId so they undo/redo as a single action.
         this.undoManager = new UndoManager();
         this.undoManager.setCallback(() => this._afterUndoRedo());
         this._strokeGroupId = null;
         this._isStroking = false;
+
+        // save-point: undo index considered "saved". When we undo past this point,
+        // the world is marked as dirty again.
         this._savePointIndex = -1;
 
         this.ui = new EditorUi(this, renderer);
     }
 
+    /**
+     * Switch the active tool, deselecting any selected tile first.
+     * @param {string} tool: one of TOOL_DRAW, TOOL_ERASE, TOOL_PAN, TOOL_SELECT
+     */
     _setActiveTool(tool) {
         if (this.currentTool !== tool) {
             if (this.selectedGridPos) this.deselectTile();
@@ -53,11 +68,21 @@ export class Editor {
         this.ui.onToolChanged(tool);
     }
 
+    /**
+     * Whether rectangle mode is currently active.
+     * True when rectToggle is on AND not in pan/select mode, or when the
+     * rect modifier key is held.
+     * @returns {boolean}
+     */
     _isRectActive() {
         const rectModifier = InputManager.getAction('rect')?.pressed;
         return this.currentTool !== TOOL_PAN && this.currentTool !== TOOL_SELECT && (this.rectToggle || rectModifier);
     }
 
+    /**
+     * Per-frame update. Reads input, handles panning, tile placement/erasure (single + rectangle),
+     * stroke grouping, and keyboard shortcuts. Early-exits if paused, not in editor, or a dialog is open.
+     */
     update() {
         if (Director.isPause() || !Director.inEditor()) return;
         if (this.ui.currentDialog) return;
@@ -67,6 +92,7 @@ export class Editor {
         const mousePos = InputManager.getMousePosition();
         const gridPos = this._screenToGrid(mousePos);
 
+        // panning triggers: middle mouse button, or modifier+left, or PAN tool + left click
         const panModifier = InputManager.getAction('panModifier');
         const panning = InputManager.isMouseButtonPressed(1) ||
             (panModifier?.pressed && InputManager.isMouseButtonPressed(0)) ||
@@ -83,8 +109,10 @@ export class Editor {
         const wasPanning = this.isPanning;
         this.isPanning = panning;
 
-        // === Rectangle Drawin In Progress ===
-        // ====================================
+        // === Rectangle Drawing In Progress ===
+        // while the mouse is held in rect mode, keep extending the rect area.
+        // on release, commit the entire rectangle of tiles at once.
+        // =======================================
         if (this.isDrawingRect) {
             this.rectEnd.set(gridPos.x, gridPos.y);
 
@@ -106,6 +134,7 @@ export class Editor {
         }
 
         // === Camera Panning ===
+        // pan overrides all tile editing. just move the camera.
         // ======================
         if (panning) {
             const delta = InputManager.getMouseDelta();
@@ -113,8 +142,8 @@ export class Editor {
             return;
         }
 
-        // === Tile Editing ===
-        // ====================
+        // === Tile Editing (Place / Erase) ===
+        // ====================================
         const rectActive = this._isRectActive();
         const placeAction = InputManager.getAction('place');
         const eraseAction = InputManager.getAction('erase');
@@ -146,11 +175,13 @@ export class Editor {
             }
         }
 
+        // end of stroke: auto-save when mouse button is released
         if (this._isStroking && !(placeAction?.pressed || eraseAction?.pressed)) {
             this._isStroking = false;
             this._autoSave();
         }
 
+        // select tool: left-click picks a tile for inspection
         if (this.currentTool === TOOL_SELECT && placeAction?.justPressed) {
             const tile = this.world.getTile(gridPos.x, gridPos.y);
             if (tile) {
@@ -163,6 +194,11 @@ export class Editor {
         this._handleKeyboard();
     }
 
+    /**
+     * Convert a screen-space position to a grid coordinate.
+     * @param {Vector} screenPos: mouse position in screen pixels
+     * @returns {Vector} grid position (floored)
+     */
     _screenToGrid(screenPos) {
         return this.renderer
             .screenToWordPosition(screenPos)
@@ -170,6 +206,11 @@ export class Editor {
             .floor();
     }
 
+    /**
+     * Begin a rectangle-drawing operation. Sets initial rect and stroke group.
+     * @param {Vector} gridPos: starting grid cell
+     * @param {string} mode: 'place' or 'erase'
+     */
     _startRectangle(gridPos, mode) {
         this.isDrawingRect = true;
         this.rectMode = mode;
@@ -178,6 +219,10 @@ export class Editor {
         this._strokeGroupId = Symbol('rect');
     }
 
+    /**
+     * Commit the current rectangle: place or erase every tile between rectStart and rectEnd.
+     * All changes share the same stroke group for undo/redo.
+     */
     _commitRectangle() {
         const minX = Math.min(this.rectStart.x, this.rectEnd.x);
         const maxX = Math.max(this.rectStart.x, this.rectEnd.x);
@@ -202,6 +247,10 @@ export class Editor {
         }
     }
 
+    /**
+     * Place a single tile at gridPos. Skips if identical tile already exists.
+     * @param {Vector} gridPos
+     */
     _placeTile(gridPos) {
         const oldTile = this.world.getTile(gridPos.x, gridPos.y);
         const oldTileData = oldTile ? oldTile.data : null;
@@ -212,6 +261,10 @@ export class Editor {
         this._recordTileChange(gridPos.x, gridPos.y, oldTileData, data);
     }
 
+    /**
+     * Erase the tile at gridPos. Deselects if the erased tile was selected.
+     * @param {Vector} gridPos
+     */
     _eraseTile(gridPos) {
         const oldTile = this.world.getTile(gridPos.x, gridPos.y);
         if (!oldTile) return;
@@ -222,6 +275,14 @@ export class Editor {
         this._recordTileChange(gridPos.x, gridPos.y, oldTile.data, null);
     }
 
+    /**
+     * Register a tile change with the undo manager. Uses the current stroke group
+     * so that all changes in a single mouse drag undo/redo together.
+     * @param {number} x: grid x position
+     * @param {number} y: grid y position
+     * @param {Array|null} oldData: previous tile data (null if empty)
+     * @param {Array|null} newData: new tile data (null if erased)
+     */
     _recordTileChange(x, y, oldData, newData) {
         this.undoManager.add({
             undo: () => {
@@ -234,17 +295,33 @@ export class Editor {
         });
     }
 
+    /**
+     * Select a tile for the inspector panel.
+     * @param {number} x: grid x position
+     * @param {number} y: grid y position
+     * @param {TileEditorWrapper} tile: the selected tile
+     */
     selectTile(x, y, tile) {
         this.selectedGridPos = { x, y };
         this.ui._showInspector(x, y, tile);
     }
 
+    /**
+     * Deselect the currently inspected tile and hide the inspector.
+     */
     deselectTile() {
         if (!this.selectedGridPos) return;
         this.selectedGridPos = null;
         this.ui._hideInspector();
     }
 
+    /**
+     * Change a property of the selected tile (called by inspector inputs).
+     * @param {number} x: grid x position
+     * @param {number} y: grid y position
+     * @param {string} propKey: property name (e.g. 'rotation', 'targetX')
+     * @param {number} value: new value
+     */
     updateTileProperty(x, y, propKey, value) {
         const tile = this.world.getTile(x, y);
         if (!tile) return;
@@ -252,6 +329,10 @@ export class Editor {
         this.world.updateTileParams(x, y, newParams);
     }
 
+    /**
+     * Process keyboard shortcuts: rotate, tool switching, rect toggle, undo/redo.
+     * Skipped when the inspector input fields are focused.
+     */
     _handleKeyboard() {
         if (document.activeElement?.closest('#editorInspector')) return;
 
@@ -283,48 +364,80 @@ export class Editor {
             this.redo();
     }
 
+    /**
+     * Undo the last operation (or stroke group).
+     */
     undo() {
         this.undoManager.undo();
     }
 
+    /**
+     * Redo the last undone operation (or stroke group).
+     */
     redo() {
         this.undoManager.redo();
     }
 
+    /**
+     * Called after every undo/redo. If we've undone past the last save point,
+     * the world is marked dirty again.
+     */
     _afterUndoRedo() {
         if (this.undoManager.getIndex() <= this._savePointIndex) {
             this.world.markClean();
         }
     }
 
+    /**
+     * Record the current undo position as the "saved" state.
+     */
     markSaved() {
         this._savePointIndex = this.undoManager.getIndex();
         this.world.markClean();
     }
 
+    /**
+     * Export the current level data for saving/testing/uploading.
+     * @returns {{data: Array, backgroundColor: string, name: string}}
+     */
     export() {
         return this.world.export();
     }
 
+    /**
+     * Show the editor UI and either restore the last session or prompt for a new level.
+     */
     showEditorUI() {
         this.ui.showEditorUI();
         this._autoLoadOrPrompt();
     }
 
+    /**
+     * Hide the editor UI.
+     */
     hideEditorUI() {
         this.deselectTile();
         this.ui.hideEditorUI();
     }
 
+    /**
+     * Hide the tile preview.
+     */
     hidePreview() {
         this.ui.hidePreview();
     }
 
+    /**
+     * Auto-save the current level to localStorage.
+     */
     _autoSave() {
         const data = this.world.export();
         setSaveItem('currentLevel', data);
     }
 
+    /**
+     * Save the level to a downloadable JSON file and mark as clean.
+     */
     _doSave() {
         const data = this.world.export();
         setSaveItem('currentLevel', data);
@@ -333,6 +446,9 @@ export class Editor {
         this.markSaved();
     }
 
+    /**
+     * Save As: prompt for a new name, then save and download.
+     */
     _doSaveAs() {
         this.ui.showNamePrompt('Save As', this.world.levelName, (name) => {
             if (!name) return;
@@ -345,6 +461,9 @@ export class Editor {
         });
     }
 
+    /**
+     * Load a level from a file. Prompts unsaved warning if the current level is dirty.
+     */
     _doLoad() {
         if (this.world.isDirty()) {
             this.ui.showUnsavedWarning((action) => {
@@ -360,6 +479,9 @@ export class Editor {
         }
     }
 
+    /**
+     * Open the browser file picker, parse the selected JSON, and import the level.
+     */
     _openFilePicker() {
         loadLevelFromFile((data) => {
             if (!data || !data.data) return;
@@ -372,6 +494,9 @@ export class Editor {
         });
     }
 
+    /**
+     * Create a new empty level. Warns if current level has unsaved changes.
+     */
     _doNew() {
         if (this.world.isDirty()) {
             this.ui.showUnsavedWarning((action) => {
@@ -387,6 +512,9 @@ export class Editor {
         }
     }
 
+    /**
+     * Show the name prompt for a new level.
+     */
     _showNewLevelPrompt() {
         this.ui.showNamePrompt('New Level', '', (name) => {
             if (!name) return;
@@ -397,6 +525,10 @@ export class Editor {
         });
     }
 
+    /**
+     * Reset the world to a blank level with the given name.
+     * @param {string} name: level name
+     */
     _createEmptyLevel(name) {
         this.world.level = [];
         this.world.levelName = name;
@@ -406,12 +538,19 @@ export class Editor {
         this._savePointIndex = this.undoManager.getIndex();
     }
 
+    /**
+     * Test the level: auto-save, then load it into the game mode.
+     */
     _doTest() {
         const data = this.world.export();
         setSaveItem('currentLevel', data);
         Director.loadLevel(data);
     }
 
+    /**
+     * Upload the level to the server via POST /publishMap.
+     * Shows a confirm dialog with the result.
+     */
     _doUpload() {
         const data = this.world.export();
         fetch('/publishMap', {
@@ -431,6 +570,10 @@ export class Editor {
             });
     }
 
+    /**
+     * When the editor UI opens: try to restore last session from localStorage
+     * or prompt for a new level name.
+     */
     _autoLoadOrPrompt() {
         if (hasSaveItem('currentLevel')) {
             const data = getSaveItem('currentLevel');
@@ -456,6 +599,10 @@ export class Editor {
         });
     }
 
+    /**
+     * Render the editor overlay: selected-tile highlight border, and
+     * in-progress rectangle fill preview.
+     */
     renderOverlay() {
         const context = this.renderer.contextEditorOverlay;
 
