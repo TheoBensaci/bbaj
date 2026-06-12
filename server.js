@@ -17,12 +17,10 @@ function generateRoomId(){
 }
 
 //Connexion db
-// TODO reable data base
-/*
 const client = new MongoClient("mongodb://localhost:27017");
 await client.connect();
 let db = client.db("baj");
-console.log("MongoDB connecté");*/
+console.log("MongoDB connecté");
 
 
 // Serve the public directory
@@ -49,47 +47,45 @@ app.post('/publishMap', async (req, res) => {
 
 //Retourne tous les ids
 app.get("/maps", async (req, res) => {
-    // TODO reable data base
-    //const maps = await db.collection("map").find().toArray();
-    //const result = maps.map(r => r._id);
-
-    const result=[
-        {
-            id:1,
-            name:"map name 1"
-        },
-        {
-            id:2,
-            name:"map name 2"
-        },
-        {
-            id:3,
-            name:"map name 3"
-        },
-        {
-            id:4,
-            name:"map name 4"
-        },
-
-        {
-            id:5,
-            name:"map name 5"
-        },
-        {
-            id:6,
-            name:"map name 6"
-        }
-    ]
+    const maps = await db.collection("map").find().toArray();
+    const result = maps.map(r => {return {
+        id:r._id,
+        name : r.map.name
+    }});
 
     res.json(result);
 });
 
+//Retourne la map en fonction de son id
+function getMapById(id) {
+    return db.collection("map").findOne({
+        _id: new ObjectId(id)
+    });
+}
+
+//Set le nouveau temps
+async function setTimeDb(id, newTime) {
+    return await db.collection("map").updateOne(
+        { _id: new ObjectId(id) },
+        {
+            $set: {
+                time: newTime
+            }
+        }
+    );
+}
+
+//Get les temps d'une map
+async function getTimeDb(id) {
+    const map = await getMapById(id);
+    return map.time;
+}
+
+
 //Retourne une map par rapport à son id (JSON)
 app.get("/map/:id", async (req, res) => {
     try {
-        const map = await db.collection("map").findOne({
-            _id: new ObjectId(req.params.id)
-        });
+        const map = await getMapById(req.params.id);
 
         if (!map) {
             return res.status(404).json({ error: "map introuvable" });
@@ -101,18 +97,42 @@ app.get("/map/:id", async (req, res) => {
     }
 });
 
-// TODO get pour avoir le temp d'une map
+//Retourne les 5 meilleurs temps enregistré dans la db pour une map
+app.get("/map/time/:id", async (req, res) => {
+    try {
+        const times = await getTimeDb(req.params.id);
+
+        if (!times){
+            return res.status(404).json({ error: "map introuvable" });
+        }
+
+        res.json(times);
+    } catch{
+        res.status(500).json({ error: "id invalide" });
+    }
+});
 
 
 //Creation d'une room
-app.post('/createRoom', (req, res) => {
+app.post('/createRoom', async (req, res) => {
     const mapId = req.body.mapId;
 
     if (!mapId) {
-        return res.status(400).json({ error: "levelId manquant" });
+        return res.status(400).json({ error: "map id manquant" });
     }
 
-    // check if the map id is valide
+    try {
+        const map = await getMapById(mapId);
+
+        if (!map) {
+            return res.status(404).json({ error: "map introuvable" });
+        }
+
+    } catch (err) {
+        return res.status(404).json({ error: "map introuvable" });
+    }
+
+    // Genere un id pour une room
     const roomId = generateRoomId();
 
     const room ={
@@ -141,7 +161,7 @@ app.post('/createRoom', (req, res) => {
     },INTERVAL);
 
 
-    console.log(`create room "${roomId}" with map ${mapId}`);
+    console.log(`create room "${roomId}"`);
 
 
     rooms[roomId] = room;
@@ -178,7 +198,7 @@ app.ws('/', (ws) => {
     ws.room = null;
     ws.id = idSocket++;
 
-    ws.on('message', (msg) => {
+    ws.on('message', async (msg) => {
         const data = JSON.parse(msg);
 
         switch(data.type){
@@ -201,16 +221,16 @@ app.ws('/', (ws) => {
                     return;
                 }
 
-                let ok = true;
+                let usernameNotExist = true;
 
                 rooms[data.roomId].foreachPlayer(pl=>{
-                    if(ok && pl.username===data.username){
-                        ok=false;
+                    if(usernameNotExist && pl.username===data.username){
+                        usernameNotExist=false;
                         return
                     }
                 });
 
-                if(!ok){
+                if(!usernameNotExist){
                     ws.send(JSON.stringify({
                         type: "error",
                         message: "Username all ready use"
@@ -245,8 +265,6 @@ app.ws('/', (ws) => {
             case 'playerData':
                 if (!data.data) return; //Aucune data
 
-                //console.log("ws send data : id->"+ws.id);
-
                 //Enregistrement des données sur la position, vélocity, etc
                 rooms[ws.room].players[ws.id].data = data.data;
             break;
@@ -260,10 +278,34 @@ app.ws('/', (ws) => {
                 const lastTime = rooms[ws.room].times[pl.username].time;
                 rooms[ws.room].times[pl.username].time = Math.min(lastTime,data.time);
 
-                // TODO check si le temps est top 5, si oui, place it
+                //get le tableau des meilleurs temps de la map [{idroom: id, username: name, time: time},{etc}]
+                let times = [];
+
+                //On set la taleau s'il y en avait aucun dans la db
+                if (getTimeDb(rooms[ws.room].mapId) != undefined){
+                    times = await getTimeDb(rooms[ws.room].mapId);
+                    console.log(times);
+                } else {
+                    for (let i = 0; i < 5; i++){
+                        times.push({idroom: ws.room, username: "null", time: Infinity});
+                    }
+                }
+
+                let maxIndex = 0;
+
+                //Cherche le temps le plus grand dans la db
+                for (let i = 1; i < times.length; i++) {
+                    if (times[i].time > times[maxIndex].time) {
+                        maxIndex = i;
+                    }
+                }
+
+                //Si le nouveau temps et plus petit que le plus grand temps remplace
+                if (rooms[ws.room].times[pl.username].time < times[maxIndex].time) {
+                    times[maxIndex] = {idroom: ws.room, username:  pl.username, time: rooms[ws.room].times[pl.username].time};
+                    setTimeDb(rooms[ws.room].mapId, times);
+                }
             break;
-
-
         }
     });
 
@@ -302,8 +344,7 @@ const server = app.listen(3000, () => {
 //Quand on ferme le server, on ferme la connexion db
 async function shutdown() {
     server.close(async () => {
-        // TODO reable data base
-        //await client.close();
+        await client.close();
         process.exit(0);
     });
 }
