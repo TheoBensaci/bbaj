@@ -112,7 +112,7 @@ export class NetworkSystem{
                         this.roomId=roomId;
                         Director.loadLevel(d);
                         Director.setEditorQuickSwitch(false);
-                    },this.getMap(data.mapId));
+                    },this.getMap(data.mapID));
                 break;
                 case 'state' :  // when recieve a state
                     this.updateGhost(data.data);
