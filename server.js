@@ -293,17 +293,23 @@ app.ws('/', (ws) => {
 
                 let maxIndex = 0;
 
+
+
                 //Cherche le temps le plus grand dans la db
-                for (let i = 1; i < times.length; i++) {
-                    if (times[i].time > times[maxIndex].time) {
-                        maxIndex = i;
+                if(times){
+                    for (let i = 1; i < times.length; i++) {
+                        if (times[i].time > times[maxIndex].time) {
+                            maxIndex = i;
+                        }
+                    }
+                    //Si le nouveau temps et plus petit que le plus grand temps remplace
+                    if (rooms[ws.room].times[pl.username].time < times[maxIndex].time) {
+                        times[maxIndex] = {idroom: ws.room, username:  pl.username, time: rooms[ws.room].times[pl.username].time};
+                        setTimeDb(rooms[ws.room].mapId, times);
                     }
                 }
-
-                //Si le nouveau temps et plus petit que le plus grand temps remplace
-                if (rooms[ws.room].times[pl.username].time < times[maxIndex].time) {
-                    times[maxIndex] = {idroom: ws.room, username:  pl.username, time: rooms[ws.room].times[pl.username].time};
-                    setTimeDb(rooms[ws.room].mapId, times);
+                else{
+                    setTimeDb(rooms[ws.room].mapId, [{idroom: ws.room, username:  pl.username, time: rooms[ws.room].times[pl.username].time}]);
                 }
             break;
         }

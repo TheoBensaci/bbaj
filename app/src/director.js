@@ -194,7 +194,7 @@ export class Director {
                     if(data===null)return;
                     tabGenElement(
                         "Global ranking",
-                        data.times.sort((a,b)=>{
+                        data.sort((a,b)=>{
                             if(a.time === null && b.time ===null)return 0;
                             if(a.time===null){
                                 return 1;
