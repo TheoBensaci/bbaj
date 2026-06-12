@@ -11,6 +11,7 @@ import { getSaveItem, setSaveItem, hasSaveItem } from '../utils/saveManager.js';
 const TOOL_DRAW = 'draw';
 const TOOL_ERASE = 'erase';
 const TOOL_PAN = 'pan';
+const TOOL_SELECT = 'select';
 
 /**
  * @description: Main level editor orchestrator.
@@ -27,6 +28,7 @@ export class Editor {
 
         this.currentTool = TOOL_DRAW;
         this.rectToggle = false;
+        this.selectedGridPos = null;
 
         this.isDrawingRect = false;
         this.rectStart = new Vector(-1, -1);
@@ -44,18 +46,23 @@ export class Editor {
     }
 
     _setActiveTool(tool) {
+        if (this.currentTool !== tool) {
+            if (this.selectedGridPos) this.deselectTile();
+        }
         this.currentTool = tool;
         this.ui.onToolChanged(tool);
     }
 
     _isRectActive() {
         const rectModifier = InputManager.getAction('rect')?.pressed;
-        return this.currentTool !== TOOL_PAN && (this.rectToggle || rectModifier);
+        return this.currentTool !== TOOL_PAN && this.currentTool !== TOOL_SELECT && (this.rectToggle || rectModifier);
     }
 
     update() {
         if (Director.isPause() || !Director.inEditor()) return;
         if (this.ui.currentDialog) return;
+
+        this.ui._updateRectButtonState();
 
         const mousePos = InputManager.getMousePosition();
         const gridPos = this._screenToGrid(mousePos);
@@ -144,6 +151,15 @@ export class Editor {
             this._autoSave();
         }
 
+        if (this.currentTool === TOOL_SELECT && placeAction?.justPressed) {
+            const tile = this.world.getTile(gridPos.x, gridPos.y);
+            if (tile) {
+                this.selectTile(gridPos.x, gridPos.y, tile);
+            } else {
+                this.deselectTile();
+            }
+        }
+
         this._handleKeyboard();
     }
 
@@ -199,6 +215,9 @@ export class Editor {
     _eraseTile(gridPos) {
         const oldTile = this.world.getTile(gridPos.x, gridPos.y);
         if (!oldTile) return;
+        if (this.selectedGridPos && this.selectedGridPos.x === gridPos.x && this.selectedGridPos.y === gridPos.y) {
+            this.deselectTile();
+        }
         this.world.setTile(gridPos.x, gridPos.y, null);
         this._recordTileChange(gridPos.x, gridPos.y, oldTile.data, null);
     }
@@ -215,10 +234,46 @@ export class Editor {
         });
     }
 
+    selectTile(x, y, tile) {
+        this.selectedGridPos = { x, y };
+        this.ui._showInspector(x, y, tile);
+    }
+
+    deselectTile() {
+        if (!this.selectedGridPos) return;
+        this.selectedGridPos = null;
+        this.ui._hideInspector();
+    }
+
+    updateTileProperty(x, y, propKey, value) {
+        const tile = this.world.getTile(x, y);
+        if (!tile) return;
+        const newParams = { ...tile.tileParams, [propKey]: value };
+        this.world.updateTileParams(x, y, newParams);
+    }
+
     _handleKeyboard() {
+        if (document.activeElement?.closest('#editorInspector')) return;
+
         if (InputManager.getAction('rotate')?.justPressed) {
             this.palette.rotate();
             this.ui.updatePreviewForTool();
+        }
+
+        if (InputManager.getAction('drawTool')?.justPressed)
+            this._setActiveTool(TOOL_DRAW);
+
+        if (InputManager.getAction('eraseTool')?.justPressed)
+            this._setActiveTool(TOOL_ERASE);
+
+        if (InputManager.getAction('selectTool')?.justPressed)
+            this._setActiveTool(TOOL_SELECT);
+
+        if (InputManager.getAction('rectToggle')?.justPressed) {
+            if (this.currentTool !== TOOL_PAN) {
+                this.rectToggle = !this.rectToggle;
+                this.ui._updateRectButtonState();
+            }
         }
 
         if (InputManager.getAction('undo')?.justPressed)
@@ -257,6 +312,7 @@ export class Editor {
     }
 
     hideEditorUI() {
+        this.deselectTile();
         this.ui.hideEditorUI();
     }
 
@@ -401,9 +457,23 @@ export class Editor {
     }
 
     renderOverlay() {
-        if (!this.isDrawingRect) return;
-
         const context = this.renderer.contextEditorOverlay;
+
+        // draw selected tile overlay
+        if (this.selectedGridPos) {
+            const screenPos = new Vector(0, 0);
+            this.renderer.wordToScreenPosition(
+                new Vector(this.selectedGridPos.x * TILE_SIZE, this.selectedGridPos.y * TILE_SIZE),
+                screenPos
+            );
+            context.save();
+            context.strokeStyle = '#55ccff';
+            context.lineWidth = 3;
+            context.strokeRect(screenPos.x + 1, screenPos.y + 1, TILE_SIZE - 2, TILE_SIZE - 2);
+            context.restore();
+        }
+
+        if (!this.isDrawingRect) return;
 
         const minX = Math.min(this.rectStart.x, this.rectEnd.x);
         const maxX = Math.max(this.rectStart.x, this.rectEnd.x);

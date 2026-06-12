@@ -98,9 +98,13 @@
 
 /* TODO(tbi): create pan icon */
 .iconPan {
-    mask-image: url("../ressource/play.svg");
+    mask-image: url("../ressource/square-x.svg");
 }
 
 .iconRect {
     mask-image: url("../ressource/rectangle-horizontal.svg");
+}
+
+.iconSelect {
+    mask-image: url("../ressource/location-arrow.svg");
 }

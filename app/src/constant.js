@@ -46,7 +46,11 @@ export const EDITOR_KEYS = [
     ['rect', ['ControlLeft', 'ControlRight']],
     ['undo', ['KeyZ']],
     ['redo', ['KeyY']],
-    ['toggleMode', ['Period']]
+    ['toggleMode', ['Period']],
+    ['drawTool', ['KeyB']],
+    ['eraseTool', ['KeyE']],
+    ['selectTool', ['KeyS']],
+    ['rectToggle', ['KeyV']],
 ]
 
 export const PERLOADED_TEXTURE=[

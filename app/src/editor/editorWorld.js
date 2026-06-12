@@ -79,6 +79,22 @@ export class EditorWorld extends World {
         return this.level[y][x];
     }
 
+    updateTileParams(x, y, newParams) {
+        const tile = this.getTile(x, y);
+        if (!tile) return;
+        tile.tileParams = newParams;
+        tile.data[2] = newParams;
+        tile.setState(this);
+        this.markDirty();
+
+        const tiles = this.getSuroundTiles(x * TILE_SIZE, y * TILE_SIZE, 2);
+        for (const t of tiles) {
+            if (t !== null) {
+                t.setState(this);
+            }
+        }
+    }
+
     isTileContactCompatible(tile, tileClass) {
         return tile !== null && tile.tileClass === tileClass;
     }

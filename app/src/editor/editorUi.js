@@ -1,12 +1,14 @@
 import { TILE_SIZE } from '../constant.js';
 import { Director } from '../director.js';
 import { EditorTilePreview } from '../renderer/editorTilePreview.js';
+import { InputManager } from '../utils/inputManager.js';
 import { TileIndex, TILE_GROUPS } from '../game/tileSystem/tileIndexer.js';
 import { Vector } from '../utils/vector.js';
 
 const TOOL_DRAW = 'draw';
 const TOOL_ERASE = 'erase';
 const TOOL_PAN = 'pan';
+const TOOL_SELECT = 'select';
 
 const DROPDOWN_GROUPS = TILE_GROUPS.map(key => ({
     key,
@@ -35,22 +37,26 @@ export class EditorUi {
         //            a lot...
         document.getElementById('editorTopBar').addEventListener('mousedown', (e) => e.stopPropagation());
         document.getElementById('editorBottomBar').addEventListener('mousedown', (e) => e.stopPropagation());
+        document.getElementById('editorInspector').addEventListener('mousedown', (e) => e.stopPropagation());
 
         this._initToolButtons();
         this._initDropdowns();
         this._initUndoRedoButtons();
         this._initFileButtons();
+        this._initInspector();
     }
 
     _initToolButtons() {
         const drawBtn = document.getElementById('editorDraw');
         const eraseBtn = document.getElementById('editorErase');
         const panBtn = document.getElementById('editorPan');
+        const selectBtn = document.getElementById('editorSelect');
         const rectBtn = document.getElementById('editorRect');
 
         drawBtn.addEventListener('click', () => this.editor._setActiveTool(TOOL_DRAW));
         eraseBtn.addEventListener('click', () => this.editor._setActiveTool(TOOL_ERASE));
         panBtn.addEventListener('click', () => this.editor._setActiveTool(TOOL_PAN));
+        selectBtn.addEventListener('click', () => this.editor._setActiveTool(TOOL_SELECT));
 
         // ignore click when PAN tool selected as it makes no sense to modify this
         // state when in pan mode.
@@ -65,6 +71,7 @@ export class EditorUi {
         document.getElementById('editorDraw').classList.toggle('active', tool === TOOL_DRAW);
         document.getElementById('editorErase').classList.toggle('active', tool === TOOL_ERASE);
         document.getElementById('editorPan').classList.toggle('active', tool === TOOL_PAN);
+        document.getElementById('editorSelect').classList.toggle('active', tool === TOOL_SELECT);
 
         this._updateRectButtonState();
         this.updatePreviewForTool();
@@ -72,10 +79,11 @@ export class EditorUi {
 
     _updateRectButtonState() {
         const rectBtn = document.getElementById('editorRect');
-        const isPan = this.editor.currentTool === TOOL_PAN;
-        rectBtn.disabled = isPan;
-        rectBtn.classList.toggle('editorRectOn', !isPan && this.editor.rectToggle);
-        rectBtn.classList.toggle('editorRectOff', isPan || !this.editor.rectToggle);
+        const isPanSelect = this.editor.currentTool === TOOL_PAN || this.editor.currentTool === TOOL_SELECT;
+        const rectActive = !isPanSelect && (this.editor.rectToggle || InputManager.getAction('rect')?.pressed);
+        rectBtn.disabled = isPanSelect;
+        rectBtn.classList.toggle('editorRectOn', rectActive);
+        rectBtn.classList.toggle('editorRectOff', !rectActive);
     }
 
     _initDropdowns() {
@@ -185,7 +193,7 @@ export class EditorUi {
     }
 
     updatePreviewForTool() {
-        if (this.editor.currentTool === TOOL_PAN) {
+        if (this.editor.currentTool === TOOL_PAN || this.editor.currentTool === TOOL_SELECT) {
             this.tilePreview.hide(true);
             return;
         }
@@ -230,6 +238,7 @@ export class EditorUi {
     hideEditorUI() {
         document.getElementById('editorTopBar').hidden = true;
         document.getElementById('editorBottomBar').hidden = true;
+        this._hideInspector();
         this.currentDialog = null;
         this._dialogCallback = null;
     }
@@ -398,5 +407,57 @@ export class EditorUi {
     updateLevelNameLabel() {
         const label = document.getElementById('editorLevelName');
         label.textContent = this.editor.world.levelName;
+    }
+
+    _initInspector() {
+        this._inspectorPanel = document.getElementById('editorInspector');
+        this._inspectorPos = null;
+    }
+
+    _showInspector(x, y, tile) {
+        this._inspectorPos = { x, y, group: tile.data[0], id: tile.data[1] };
+
+        const isMovingPlatform = tile.tileClass.name === 'MovingPlatform';
+        const tileName = TileIndex.getName(tile.data[0], tile.data[1]);
+
+        // populate inspector fields
+        // NOTE(sss): would like to do that programatically but time constraint didn't allow for it
+        let fieldsHtml = '';
+        fieldsHtml += `<label>Rotation <input type="number" min="0" max="3" step="1" data-prop="rotation" value="${tile.tileParams.rotation ?? 0}"></label>`;
+
+        if (isMovingPlatform) {
+            fieldsHtml += `<label>Target X <input type="number" step="1" data-prop="targetX" value="${tile.tileParams.targetX ?? 0}"></label>`;
+            fieldsHtml += `<label>Target Y <input type="number" step="1" data-prop="targetY" value="${tile.tileParams.targetY ?? 0}"></label>`;
+            fieldsHtml += `<label>Attack Speed <input type="number" step="1" data-prop="attackSpeed" value="${tile.tileParams.attackSpeed ?? 6000}"></label>`;
+            fieldsHtml += `<label>Attack Accel <input type="number" step="1" data-prop="attackAcc" value="${tile.tileParams.attackAcc ?? 2000}"></label>`;
+            fieldsHtml += `<label>Recover Speed <input type="number" step="1" data-prop="recoverSpeed" value="${tile.tileParams.recoverSpeed ?? 100}"></label>`;
+            fieldsHtml += `<label>Recover Accel <input type="number" step="1" data-prop="recoverAcc" value="${tile.tileParams.recoverAcc ?? 100}"></label>`;
+        }
+
+        this._inspectorPanel.innerHTML = `
+            <div class="editorInspectorHeader">${tileName}<span class="editorInspectorClose">&times;</span></div>
+            <div class="editorInspectorFields">${fieldsHtml}</div>
+        `;
+
+        const closeBtn = this._inspectorPanel.querySelector('.editorInspectorClose');
+        closeBtn.addEventListener('click', () => this.editor.deselectTile());
+
+        const inputs = this._inspectorPanel.querySelectorAll('input');
+        for (const input of inputs) {
+            input.addEventListener('input', () => {
+                const prop = input.dataset.prop;
+                const value = parseInt(input.value, 10);
+                if (isNaN(value)) return;
+                this.editor.updateTileProperty(this._inspectorPos.x, this._inspectorPos.y, prop, value);
+            });
+        }
+
+        this._inspectorPanel.hidden = false;
+    }
+
+    _hideInspector() {
+        this._inspectorPanel.hidden = true;
+        this._inspectorPanel.innerHTML = '';
+        this._inspectorPos = null;
     }
 }
