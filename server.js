@@ -10,6 +10,7 @@ let idRoom = 0;
 let idSocket = 0;
 const rooms = [];
 const INTERVAL = 20;
+const N_MAX_TIME=10;
 
 function generateRoomId(){
     // date -> number -> string (base 36)
@@ -291,26 +292,46 @@ app.ws('/', (ws) => {
                     }
                 }
 
-                let maxIndex = 0;
-
-
-
                 //Cherche le temps le plus grand dans la db
                 if(times){
-                    for (let i = 1; i < times.length; i++) {
-                        if (times[i].time > times[maxIndex].time) {
-                            maxIndex = i;
+                    const player = {username:  pl.username, roomId : ws.room};
+                    let change = false;
+                    let hasTime = false;
+
+                    let addIndex = -1;
+                    let removeIndex = -1;
+                    for (let i = 0;i < N_MAX_TIME; i++) {
+                        if(i>=times.length){
+                            if(addIndex>=0 || removeIndex>=0){
+                                break;
+                            }
+                            addIndex=i;
+                            break;
+                        }
+
+                        if(addIndex<0 && (rooms[ws.room].times[pl.username].time < times[i].time)){
+                            addIndex=i;
+                        }
+
+                        if(times[i].username === player.username && times[i].idroom === player.roomId){
+                            removeIndex=i;
                         }
                     }
-                    //Si le nouveau temps et plus petit que le plus grand temps remplace
-                    if (rooms[ws.room].times[pl.username].time < times[maxIndex].time) {
-                        times[maxIndex] = {idroom: ws.room, username:  pl.username, time: rooms[ws.room].times[pl.username].time};
-                        setTimeDb(rooms[ws.room].mapId, times);
+
+                    if(addIndex>=0){
+                        times.splice(addIndex, 0, {idroom: ws.room, username:  pl.username, time: rooms[ws.room].times[pl.username].time});
+                        if(removeIndex>=0){
+                            times.splice(removeIndex+1,1);
+                        }
+
+                        setTimeDb(rooms[ws.room].mapId, (times.length>N_MAX_TIME)?times.slice(N_MAX_TIME):times);
                     }
                 }
                 else{
                     setTimeDb(rooms[ws.room].mapId, [{idroom: ws.room, username:  pl.username, time: rooms[ws.room].times[pl.username].time}]);
                 }
+
+
             break;
         }
     });

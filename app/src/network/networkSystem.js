@@ -252,7 +252,8 @@ export class NetworkSystem{
                 }
                 return response.json();
             })
-            .then(data => {return callback(data)})
+            .then(data => {
+                return callback(data)})
             .catch(e=>{;
                 callback(null);
             });

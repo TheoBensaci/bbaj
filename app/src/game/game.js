@@ -333,6 +333,11 @@ export class Game extends World {
         this.player = null;
     }
 
+    resetLevelStats(){
+        this.levelTimer = 0;
+        this.levelDeath = 0;
+        this.levelState=0;
+    }
 
     /**
      * Spawn the player
@@ -340,6 +345,9 @@ export class Game extends World {
     spawnPlayer() {
         this.resetTilesChange();
         this.player.position.set(this.playerSpawnPoint);
+        if(this.nValidatedCheck===0){
+            this.resetLevelStats();
+        }
         this.setCameraPosition(this.player.position);
         this.player.onSpawn();
     }
@@ -358,12 +366,9 @@ export class Game extends World {
             for (const iterator of this.checkpoints) {
                 iterator.reset();
             }
-
             this.setPlayerSpawnPoint((this.originalSpawnPoint===null)?new Vector(0,0):this.originalSpawnPoint.position);
+            this.resetLevelStats();
             this.spawnPlayer();
-            this.levelTimer = 0;
-            this.levelDeath = 0;
-            this.levelState=0;
 
             Director.toggleEndScreen(false);
         });
