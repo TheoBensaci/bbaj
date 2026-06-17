@@ -44,6 +44,9 @@ Le serveur démarre sur le port **3000**. Ouvrir `http://localhost:3000` dans un
 
 Theo Bensaci, Maxime Regenass et Santiago Sugrañes
 
+## Demo offline
+https://me-theo.itch.io/build-and-jump?secret=jgnVC5Xarq6aqAT2HL5hKJrisI
+
 
 ## Travail effectué
 Pour le server ainsi que pour les ghosts, Théo et Maxime on peer programming, car on devait s'accorder. Nous le mentionnons car Maxime a moins de commit ce qui peut sembler surprenant.
